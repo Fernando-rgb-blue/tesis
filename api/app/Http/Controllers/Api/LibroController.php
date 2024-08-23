@@ -16,7 +16,7 @@ class LibroController extends Controller
      */
     public function index()
     {
-        $books = Libro::paginate(5); // Cambia 10 al número de resultados por página que desees
+        $books = Libro::paginate(10); // Cambia 10 al número de resultados por página que desees
         return response()->json($books);
     }
 

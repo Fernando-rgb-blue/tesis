@@ -32,14 +32,15 @@ Route::controller(LibroController::class)->group(function(){
 });
 
 //RUTAS PARA FORANEAS A LIBRO
+
 //AUTOR
 
 Route::controller(AutorController::class)->group(function(){
     Route::get('/autors','index');
-    // Route::post('/libro','store');
+    Route::post('/autor','store');
     Route::get('/autor/{id}','show');
-    // Route::put('/libro/{id}','update');
-    // Route::delete('/libro/{id}','destroy');
+    Route::put('/autor/{id}','update');
+    Route::delete('/autor/{id}','destroy');
 });
 
 //EDITORIAL
@@ -48,16 +49,16 @@ Route::controller(EditorialController::class)->group(function(){
     Route::get('/editorials','index');
     Route::post('/editorial','store');
     Route::get('/editorial/{id}','show');
-    // Route::put('/libro/{id}','update');
-    // Route::delete('/libro/{id}','destroy');
+    Route::put('/editorial/{id}','update');
+    Route::delete('/editorial/{id}','destroy');
 });
 
 //CATEGORIA
 
 Route::controller(CategoriaController::class)->group(function(){
     Route::get('/categorias','index');
-    // Route::post('/libro','store');
-    Route::get('/categorias/{id}','show');
-    // Route::put('/libro/{id}','update');
-    // Route::delete('/libro/{id}','destroy');
+    Route::post('/categoria','store');
+    Route::get('/categoria/{id}','show');
+    Route::put('/categoria/{id}','update');
+    Route::delete('/categoria/{id}','destroy');
 });

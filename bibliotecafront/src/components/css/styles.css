@@ -22,3 +22,12 @@
     white-space: normal;
     /* Asegura que el texto se ajuste en múltiples líneas */
 }
+
+.rounded-t-md {
+    border-radius: 0.7rem 0.7rem 0 0;
+}
+
+tbody.mt-2 {
+    margin-top: 15cm;
+    /* Espaciado entre thead y tbody */
+}
