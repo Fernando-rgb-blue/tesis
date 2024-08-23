@@ -22,7 +22,14 @@ class EditorialController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $editorial= new Editorial();
+        $editorial->nombre = $request->nombre;
+        $editorial->pais = $request->pais;
+
+        // Guardar el nuevo libro en la base de datos
+
+        $editorial->save();
     }
 
     /**
@@ -36,6 +43,7 @@ class EditorialController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    
     public function update(Request $request, string $id)
     {
         //

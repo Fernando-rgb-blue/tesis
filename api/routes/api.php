@@ -46,7 +46,7 @@ Route::controller(AutorController::class)->group(function(){
 
 Route::controller(EditorialController::class)->group(function(){
     Route::get('/editorials','index');
-    // Route::post('/libro','store');
+    Route::post('/editorial','store');
     Route::get('/editorial/{id}','show');
     // Route::put('/libro/{id}','update');
     // Route::delete('/libro/{id}','destroy');
