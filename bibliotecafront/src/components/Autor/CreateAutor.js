@@ -1,6 +1,5 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const endpoint = `http://localhost:8000/api/autor`;
 
@@ -8,23 +7,22 @@ const CreateAutor = ({ closeModal }) => {
   const [nombre, setNombre] = useState('');
   const [nacionalidad, setNacionalidad] = useState('');
 
-  useEffect(() => {
-    console.log('Renderizando CreateAutor'); // Mensaje en consola
-  }, []);
-
   const create = async (e) => {
     e.preventDefault();
     await axios.post(endpoint, {
       nombre: nombre,
       nacionalidad: nacionalidad,
     });
-    closeModal(); // Cierra el modal después de la creación
-  }
-
+    closeModal(); // Cierra el modal después de crear el autor
+  };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-11/12 h-2/5 text-xs bg-yellow-50 p-4 rounded-md shadow-md overflow-auto">
+
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="relative w-full max-w-md bg-yellow-50 p-4 rounded-md shadow-md">
+        <button onClick={closeModal} className="absolute top-2 right-2 text-xl font-bold">
+          &times;
+        </button>
         <h3 className="text-2xl font-bold mb-6 text-center">Crear Nuevo Autor</h3>
 
         <form onSubmit={create} className="grid grid-cols-1 gap-6">
@@ -57,6 +55,6 @@ const CreateAutor = ({ closeModal }) => {
       </div>
     </div>
   );
-}
+};
 
 export default CreateAutor;

@@ -1,28 +1,38 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-const endpoint = `http://localhost:8000/api/categoria`;
+const endpoint = `http://localhost:8000/api/categoria`; // Asegúrate de que esta URL sea correcta
 
-const CreateCategoria = () => {
+const CreateCategoria = ({ closeModal }) => {
   const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-
-  const navigate = useNavigate();
+  const [descripción, setDescripcion] = useState('');
+  const [error, setError] = useState('');
 
   const create = async (e) => {
     e.preventDefault();
-    await axios.post(endpoint, {
-      nombre: nombre,
-      descripción: descripcion,
-    });
-    navigate('/'); // Redirigir a la página principal o a donde desees después de la creación
-  }
+    try {
+      await axios.post(endpoint, {
+        nombre,
+        descripción
+      });
+      closeModal(); // Cierra el modal después de crear la categoría
+    } catch (error) {
+      console.error('Error al crear la categoría:', error);
+      setError('Hubo un error al crear la categoría. Por favor, intenta nuevamente.');
+    }
+  };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-11/12 h-2/5 text-xs bg-yellow-50 p-4 rounded-md shadow-md overflow-auto">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="w-11/12 max-w-md h-auto text-xs bg-yellow-50 p-4 rounded-md shadow-md overflow-auto relative">
+        {/* Botón de cerrar dentro del modal */}
+        <button onClick={closeModal} className="absolute top-2 right-2 text-xl font-bold">
+          &times;
+        </button>
         <h3 className="text-2xl font-bold mb-6 text-center">Crear Nueva Categoría</h3>
+
+        {/* Mostrar mensaje de error */}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <form onSubmit={create} className="grid grid-cols-1 gap-6">
           <div className='flex flex-col'>
@@ -32,16 +42,18 @@ const CreateCategoria = () => {
               onChange={(e) => setNombre(e.target.value)}
               type='text'
               className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              required
             />
           </div>
 
           <div className='flex flex-col'>
             <label className='mb-2 text-sm font-medium text-gray-700'>Descripción</label>
             <input
-              value={descripcion}
+              value={descripción}
               onChange={(e) => setDescripcion(e.target.value)}
               type='text'
               className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              required
             />
           </div>
 
@@ -54,6 +66,6 @@ const CreateCategoria = () => {
       </div>
     </div>
   );
-}
+};
 
 export default CreateCategoria;

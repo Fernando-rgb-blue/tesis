@@ -1,28 +1,38 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const endpoint = `http://localhost:8000/api/editorial`;
 
-const CreateEditorial = () => {
+const CreateEditorial = ({ closeModal }) => {
   const [nombre, setNombre] = useState('');
   const [pais, setPais] = useState('');
-
-  const navigate = useNavigate();
+  const [error, setError] = useState('');
 
   const create = async (e) => {
     e.preventDefault();
-    await axios.post(endpoint, {
-      nombre: nombre,
-      pais: pais,
-    });
-    navigate('/'); // Redirigir a la página principal o a donde desees después de la creación
-  }
+    setError(''); // Limpiar el error previo antes de hacer una nueva solicitud
+    try {
+      await axios.post(endpoint, {
+        nombre,
+        pais
+      });
+      closeModal(); // Cierra el modal después de crear la editorial
+    } catch (error) {
+      console.error('Error al crear la editorial:', error);
+      setError('Hubo un error al crear la editorial. Por favor, intenta nuevamente.');
+    }
+  };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-11/12 h-2/5 text-xs bg-yellow-50 p-4 rounded-md shadow-md overflow-auto">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="relative w-full max-w-md bg-yellow-50 p-4 rounded-md shadow-md">
+        <button onClick={closeModal} className="absolute top-2 right-2 text-xl font-bold">
+          &times;
+        </button>
         <h3 className="text-2xl font-bold mb-6 text-center">Crear Nueva Editorial</h3>
+
+        {/* Mostrar mensaje de error */}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <form onSubmit={create} className="grid grid-cols-1 gap-6">
           <div className='flex flex-col'>
@@ -32,6 +42,7 @@ const CreateEditorial = () => {
               onChange={(e) => setNombre(e.target.value)}
               type='text'
               className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              required
             />
           </div>
 
@@ -42,6 +53,7 @@ const CreateEditorial = () => {
               onChange={(e) => setPais(e.target.value)}
               type='text'
               className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              required
             />
           </div>
 
@@ -54,6 +66,6 @@ const CreateEditorial = () => {
       </div>
     </div>
   );
-}
+};
 
 export default CreateEditorial;

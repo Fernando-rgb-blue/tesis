@@ -35,13 +35,11 @@ const CreateBook = () => {
   const [activeModal, setActiveModal] = useState('');
 
   const openModal = (modalType) => {
-    console.log(`Abriendo modal de tipo: ${modalType}`); // Mensaje en consola
     setActiveModal(modalType);
     setModalIsOpen(true);
   };
 
   const closeModal = () => {
-    console.log('Cerrando modal'); // Mensaje en consola
     setModalIsOpen(false);
   };
 
@@ -180,6 +178,7 @@ const CreateBook = () => {
                   <option key={editorial.id} value={editorial.id}>{editorial.nombre}</option>
                 ))}
               </select>
+              
               <button
                 type="button"
                 onClick={() => openModal('editorial')}
