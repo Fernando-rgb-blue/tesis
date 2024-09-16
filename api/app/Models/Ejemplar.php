@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Libro extends Model
+class Ejemplar extends Model
 {
     use HasFactory;
-    //protected $filiable = ['libroID','descripcion', 'precio', 'stock'];
-    
+    protected $primaryKey = 'ningresoID';
 }

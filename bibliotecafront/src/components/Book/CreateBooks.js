@@ -14,7 +14,7 @@ const endpoint = `http://localhost:8000/api/libro`;
 
 const CreateBook = () => {
   const [isbn, setIsbn] = useState('');
-  const [codigo, setCodigo] = useState('');
+  const [codigolibroID, setCodigoLibroID] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autorID, setAutorID] = useState('');
   const [categoriaID, setCategoriaID] = useState('');
@@ -23,16 +23,15 @@ const CreateBook = () => {
   const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
   const [edicion, setEdicion] = useState('');
   const [numeropaginas, setNumeropaginas] = useState('');
-  const [estadolibro, setEstadolibro] = useState('');
+  const [volumen, setVolumen] = useState('');
+  const [tomo, setTomo] = useState('');
   const [autores, setAutores] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [editoriales, setEditoriales] = useState([]);
-
-  const navigate = useNavigate();
-
-  // Estados para los modales
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState('');
+
+  const navigate = useNavigate();
 
   const openModal = (modalType) => {
     setActiveModal(modalType);
@@ -45,20 +44,28 @@ const CreateBook = () => {
 
   const create = async (e) => {
     e.preventDefault();
-    await axios.post(endpoint, {
-      isbn,
-      codigo,
-      titulo,
-      autor_nombre: autorID,
-      categoria_nombre: categoriaID,
-      editorial_nombre: editorialID,
-      aniopublicacion,
-      ejemplaresdisponibles,
-      edicion,
-      numeropaginas,
-      estadolibro
-    });
-    navigate('/');
+    try {
+      const libroResponse = await axios.post(endpoint, {
+        isbn,
+        codigolibroID,
+        titulo,
+        autor_nombre: autorID,
+        categoria_nombre: categoriaID,
+        editorial_nombre: editorialID,
+        aniopublicacion,
+        ejemplaresdisponibles,
+        edicion,
+        numeropaginas,
+        volumen,
+        tomo
+      });
+
+      console.log('Datos del libro:', libroResponse.data); // Agregar esto para depuración
+
+      navigate('/');
+    } catch (error) {
+      console.error('Error al crear el libro:', error);
+    }
   };
 
   useEffect(() => {
@@ -98,8 +105,8 @@ const CreateBook = () => {
           <div className='flex flex-col'>
             <label className='mb-2 text-sm font-medium text-gray-700'>Código</label>
             <input
-              value={codigo}
-              onChange={(e) => setCodigo(e.target.value)}
+              value={codigolibroID}
+              onChange={(e) => setCodigoLibroID(e.target.value)}
               type='text'
               className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
@@ -178,7 +185,6 @@ const CreateBook = () => {
                   <option key={editorial.id} value={editorial.id}>{editorial.nombre}</option>
                 ))}
               </select>
-              
               <button
                 type="button"
                 onClick={() => openModal('editorial')}
@@ -233,15 +239,36 @@ const CreateBook = () => {
             />
           </div>
 
-          {/* Estado del Libro */}
+          {/* Volumen */}
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Estado del Libro</label>
+            <label className='mb-2 text-sm font-medium text-gray-700'>Volumen</label>
             <input
-              value={estadolibro}
-              onChange={(e) => setEstadolibro(e.target.value)}
+              value={volumen}
+              onChange={(e) => setVolumen(e.target.value)}
               type='text'
               className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
+          </div>
+
+          {/* Tomo */}
+          <div className='flex flex-col'>
+            <label className='mb-2 text-sm font-medium text-gray-700'>Tomo</label>
+            <input
+              value={tomo}
+              onChange={(e) => setTomo(e.target.value)}
+              type='text'
+              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+            />
+          </div>
+
+          {/* Botones */}
+          <div className='flex flex-col col-span-2'>
+            <button
+              type="button"
+              className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-700"
+            >
+              Subir Foto
+            </button>
           </div>
 
           <div className='col-span-2'>

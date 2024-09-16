@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AutorController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\EditorialController;
+use App\Http\Controllers\Api\EjemplarController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\LibroController;
 use App\Models\Editorial;
@@ -63,4 +64,12 @@ Route::controller(CategoriaController::class)->group(function(){
     Route::get('/categoria/{id}','show');
     Route::put('/categoria/{id}','update');
     Route::delete('/categoria/{id}','destroy');
+});
+
+Route::controller(EjemplarController::class)->group(function(){
+    Route::get('/ejemplars','index');
+    Route::post('/ejemplar','store');
+    Route::get('/ejemplar/{id}','show');
+    Route::put('/ejemplar/{id}','update');
+    Route::delete('/ejemplar/{id}','destroy');
 });

@@ -154,9 +154,10 @@ const ShowBooks = () => {
                 <th className="py-2 px-3 border-b">Editorial</th>
                 <th className="py-2 px-3 border-b">Año de Publicación</th>
                 <th className="py-2 px-3 border-b">Ejemplares Disponibles</th>
-                <th className="py-2 px-3 border-b">Edición</th>
                 <th className="py-2 px-3 border-b">Número de Páginas</th>
-                <th className="py-2 px-3 border-b">Estado</th>
+                <th className="py-2 px-3 border-b">Edición</th>
+                <th className="py-2 px-3 border-b">Volumen</th> {/* Nueva columna */}
+                <th className="py-2 px-3 border-b">Tomo</th> {/* Nueva columna */}
                 <th className="py-2 px-3 border-b">Acción</th>
               </tr>
             </thead>
@@ -164,7 +165,7 @@ const ShowBooks = () => {
               {paginatedFilteredBooks.map((libro) => (
                 <tr key={libro.libroID} className="hover:bg-gray-100">
                   <td className="py-3 px-1 border-b break-word">{libro.isbn}</td>
-                  <td className="py-3 px-4 border-b break-word">{libro.codigo}</td>
+                  <td className="py-3 px-4 border-b break-word">{libro.codigolibroID}</td>
                   <td className="py-3 px-4 border-b break-word">{libro.titulo}</td>
                   <td className="py-3 px-4 border-b break-word">
                     {Array.isArray(autors) && autors.find((autor) => autor.autorID === libro.autorID)?.nombre || 'No disponible'}
@@ -177,10 +178,10 @@ const ShowBooks = () => {
                   </td>
                   <td className="py-3 px-4 border-b break-word">{libro.aniopublicacion}</td>
                   <td className="py-3 px-4 border-b break-word">{libro.ejemplaresdisponibles}</td>
-                  <td className="py-3 px-4 border-b break-word">{libro.edicion}</td>
                   <td className="py-3 px-4 border-b break-word">{libro.numeropaginas}</td>
-                  <td className="py-3 px-4 border-b break-word">{libro.estadolibro}</td>
-
+                  <td className="py-3 px-4 border-b break-word">{libro.edicion}</td>
+                  <td className="py-3 px-4 border-b break-word">{libro.volumen}</td> {/* Nueva columna */}
+                  <td className="py-3 px-4 border-b break-word">{libro.tomo}</td> {/* Nueva columna */}
                   <td className="py-3 px-4 border-b">
                     <div className="flex space-x-2">
 

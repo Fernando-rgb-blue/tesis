@@ -6,6 +6,7 @@ import CreateEditorial from './components/Editorial/CreateEditorial';
 import CreateCategoria from './components/Categoria/CreateCategoria'; // Importa el componente
 import CreateAutor from './components/Autor/CreateAutor'; // Importa el componente
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import CreateEjemplar from './components/Ingresos/CreateEjemplar';
 
 
 function App() {
@@ -19,7 +20,7 @@ function App() {
           <Route path='/editorial/create' element={<CreateEditorial />} />
           <Route path='/categoria/create' element={<CreateCategoria />} /> {/* Añade la ruta para categorías */}
           <Route path='/autor/create' element={<CreateAutor />} />
-
+          <Route path='/ingresos/create' element={<CreateEjemplar />} />
         </Routes>
       </BrowserRouter>
     </div>

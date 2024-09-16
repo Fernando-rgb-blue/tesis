@@ -51,17 +51,18 @@ class LibroController extends Controller
 
 
         $libro = new Libro();
+        $libro->codigolibroID= $request->codigolibroID;
         $libro->isbn = $request->isbn;
-        $libro->codigo = $request->codigo;
         $libro->titulo = $request->titulo;
         $libro->autorID = $autor->autorID;
         $libro->categoriaID = $categoria->categoriaID;
         $libro->editorialID = $editorial->editorialID;
         $libro->aniopublicacion = $request->aniopublicacion;
-        $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->edicion = $request->edicion;
         $libro->numeropaginas = $request->numeropaginas;
-        $libro->estadolibro = $request->estadolibro;
+        $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
+        $libro->volumen = $request->volumen;
+        $libro->tomo = $request->tomo;
 
         // Guardar el nuevo libro en la base de datos
 
@@ -76,10 +77,10 @@ class LibroController extends Controller
     // El método find en Eloquent asume que el campo de identificación en la base de datos es id. Si tu columna de identificación se llama libroID, debes usar where en lugar de find.
     // Cambia tu código a algo como esto:
 
-    public function show(string $libroID)
+    public function show(string $codigolibroID)
     {
         // Encuentra el libro basado en su ID
-        $libro = Libro::where('libroID', $libroID)->first();
+        $libro = Libro::where('codigolibroID', $codigolibroID)->first();
 
         // Verifica si se encontró el libro
         if ($libro) {
@@ -140,17 +141,18 @@ class LibroController extends Controller
         }
 
         // Actualizar los campos del libro
+        $libro->codigolibroID= $request->codigolibroID;
         $libro->isbn = $request->isbn;
-        $libro->codigo = $request->codigo;
         $libro->titulo = $request->titulo;
         $libro->autorID = $autor->autorID; // Usar el ID del autor
         $libro->categoriaID = $categoria->categoriaID; // Usar el ID de la categoría
         $libro->editorialID = $editorial->editorialID; // Usar el ID de la editorial
         $libro->aniopublicacion = $request->aniopublicacion;
-        $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->edicion = $request->edicion;
         $libro->numeropaginas = $request->numeropaginas;
-        $libro->estadolibro = $request->estadolibro;
+        $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
+        $libro->volumen = $request->volumen;
+        $libro->tomo = $request->tomo;
 
         // Guardar los cambios en la base de datos
         $libro->save();
@@ -161,10 +163,10 @@ class LibroController extends Controller
      * Remove the specified resource from storage.
      */
 
-    public function destroy(string $libroID)
+    public function destroy(string $codigolibroID)
     {
         // Buscar el libro por libroID
-        $libro = Libro::where('libroID', $libroID)->first();
+        $libro = Libro::where('codigolibroID', $codigolibroID)->first();
 
         // Verificar si el libro existe
         if (!$libro) {
