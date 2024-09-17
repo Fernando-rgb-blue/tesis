@@ -62,7 +62,7 @@ const CreateBook = () => {
 
       console.log('Datos del libro:', libroResponse.data); // Agregar esto para depuración
 
-      navigate('/');
+      navigate('/ingresos/create',{ state: { codigolibroID, ejemplaresdisponibles }});
     } catch (error) {
       console.error('Error al crear el libro:', error);
     }

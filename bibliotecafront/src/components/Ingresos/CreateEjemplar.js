@@ -1,10 +1,14 @@
-// CreateEjemplar.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom'; // Importamos useNavigate
 
 const endpoint = 'http://localhost:8000/api/ejemplar';
 
-const CreateEjemplar = ({ codigolibroID, closeModal }) => {
+const CreateEjemplar = ({ closeModal }) => {
+  const location = useLocation();
+  const navigate = useNavigate(); // Hook para la redirección
+  const { codigolibroID, ejemplaresdisponibles} = location.state || {}; // Obtenemos el valor de codigolibroID desde el estado de navigate
+  
   const [cantidad, setCantidad] = useState(0);
   const [ejemplares, setEjemplares] = useState([]);
   const [error, setError] = useState('');
@@ -26,10 +30,13 @@ const CreateEjemplar = ({ codigolibroID, closeModal }) => {
     e.preventDefault();
     setError('');
     try {
+      // Itera sobre los ejemplares y guarda cada uno, usando el codigolibroID para todos
       await Promise.all(ejemplares.map(ejemplar => 
         axios.post(endpoint, ejemplar)
       ));
-      closeModal(); // Cierra el modal después de la operación
+      
+      // Redirigir a la página de inicio después de guardar los ejemplares
+      navigate('/');  // Redirige a la página de inicio
     } catch (error) {
       console.error('Error al guardar ejemplares:', error);
       setError('Hubo un error al guardar los ejemplares. Por favor, intenta nuevamente.');
@@ -42,17 +49,19 @@ const CreateEjemplar = ({ codigolibroID, closeModal }) => {
         <button onClick={closeModal} className="absolute top-2 right-2 text-xl font-bold">
           &times;
         </button>
-        <h3 className="text-2xl font-bold mb-6 text-center">Crear Nuevos Ejemplares</h3>
+        <h3 className="text-2xl font-bold mb-6 text-center">
+          Crear Nuevos Ejemplares - Código del libro: {codigolibroID || 'N/A'}
+        </h3>
 
         {/* Mostrar mensaje de error */}
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <form onSubmit={saveEjemplares} className="grid grid-cols-1 gap-6">
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Cantidad de Ejemplares</label>
+            <label className='mb-2 text-sm font-medium text-gray-700'>Cantidad de Ejemplares : {ejemplaresdisponibles}</label>
             <input
               type='number'
-              value={cantidad}
+              value={ejemplaresdisponibles}
               onChange={handleCantidadChange}
               className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
               min='1'
