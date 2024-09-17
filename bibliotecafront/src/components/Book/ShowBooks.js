@@ -193,7 +193,7 @@ const ShowBooks = () => {
                         <i className="fas fa-pencil-alt"></i>
                       </Link>
 
-                      <button onClick={() => deleteBook(libro.libroID)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                      <button onClick={() => deleteBook(libro.codigolibroID)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
                         <i className="fas fa-trash"></i>
                       </button>
                 
