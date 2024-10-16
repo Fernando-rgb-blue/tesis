@@ -9,5 +9,6 @@ class Libro extends Model
 {
     use HasFactory;
     //protected $filiable = ['libroID','descripcion', 'precio', 'stock'];
-    protected $primaryKey = 'libroID';
+    protected $primaryKey = 'codigolibroID';
+    
 }
