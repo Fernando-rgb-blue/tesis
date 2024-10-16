@@ -262,14 +262,14 @@ const CreateBook = () => {
           </div>
 
           {/* Botones */}
-          <div className='flex flex-col col-span-2'>
+          {/* <div className='flex flex-col col-span-2'>
             <button
               type="button"
               className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-700"
             >
               Subir Foto
             </button>
-          </div>
+          </div> */}
 
           <div className='col-span-2'>
             <button type='submit' className='w-full py-3 bg-black text-white font-semibold rounded-md shadow-md hover:bg-blue-700 transition-colors'>

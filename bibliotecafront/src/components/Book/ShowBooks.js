@@ -118,7 +118,7 @@ const ShowBooks = () => {
 
   return (
     <div className="h-screen flex flex-col items-center justify-center bg-gray-100"> {/* Contenedor principal centrado */}
-
+  
       {/* Sección 1: Barra de búsqueda y Gestión de Libros */}
       <div className="w-11/12 text-xs bg-yellow-50 p-4 rounded-md shadow-md mb-4">
         <div className="flex justify-between items-center mb-6">
@@ -185,11 +185,11 @@ const ShowBooks = () => {
                   <td className="py-3 px-4 border-b">
                     <div className="flex space-x-2">
 
-                      <Link to={`/view/${libro.libroID}`} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                      <Link to={`/view/${libro.codigolibroID}`} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
                         <i className="fas fa-eye"></i>
                       </Link>
 
-                      <Link to={`/edit/${libro.libroID}`} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                      <Link to={`/edit/${libro.codigolibroID}`} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
                         <i className="fas fa-pencil-alt"></i>
                       </Link>
 

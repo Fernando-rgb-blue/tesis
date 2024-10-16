@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AutorController;
 use App\Http\Controllers\Api\CategoriaController;
 use App\Http\Controllers\Api\EditorialController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\Api\EjemplarController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\LibroController;
 use App\Models\Editorial;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -72,4 +74,16 @@ Route::controller(EjemplarController::class)->group(function(){
     Route::get('/ejemplar/{id}','show');
     Route::put('/ejemplar/{id}','update');
     Route::delete('/ejemplar/{id}','destroy');
+});
+
+// SESION 
+
+Route::controller(AuthController::class)->group(function(){
+    Route::post('/register','register');
+    Route::post('/login','login');
+});
+
+Route::group(['middleware' => ['auth:sanctum']], function(){
+    Route::get('user-profile', [AuthController::class, 'userProfile']);
+    Route::post('logout', [AuthController::class, 'logout']);
 });

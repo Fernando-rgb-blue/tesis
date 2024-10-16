@@ -117,10 +117,10 @@ class LibroController extends Controller
      * Update the specified resource in storage.
      */
 
-    public function update(Request $request, string $libroID)
+    public function update(Request $request, string $codigolibroID)
     {
         // Buscar el libro por libroID
-        $libro = Libro::where('libroID', $libroID)->firstOrFail();
+        $libro = Libro::where('codigolibroID', $codigolibroID)->firstOrFail();
 
         // Buscar el ID del autor por su nombre
         $autor = Autor::where('nombre', $request->autor_nombre)->first();
