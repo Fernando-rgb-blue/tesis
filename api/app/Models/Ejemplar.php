@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Ejemplar extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'ningresoID';
     // Definir la relación con el modelo Libro
     public function libro()
     {

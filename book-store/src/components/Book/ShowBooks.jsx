@@ -7,57 +7,35 @@ const endpoint = 'http://localhost:8000/api';
 
 const ShowBooks = () => {
   const [books, setBooks] = useState([]);
-  const [allBooks, setAllBooks] = useState([]); // Para almacenar todos los libros
   const [autors, setAutors] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [editorials, setEditorials] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const itemsPerPage = 10; // Cantidad de elementos por página
 
   useEffect(() => {
-    getAllBooks();       // Libros con paginación
+    getAllBooks();
     getAllAutors();
     getAllCategorias();
     getAllEditorials();
-    getAllBooks2();      // Todos los libros para filtrar
-  }, [currentPage]);
+  }, []);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    setCurrentPage(1); // Reiniciar a la primera página en caso de buscar
   };
 
   const getAllBooks = async () => {
     try {
-      const response = await axios.get(`${endpoint}/libros`, {
-        params: {
-          page: currentPage,
-          limit: 8 // Ajusta el límite según tus necesidades
-        }
-      });
-      console.log('API Response Data (Paginated):', response.data);
-      if (response.data && Array.isArray(response.data.data)) {
-        setBooks(response.data.data);
-        setTotalPages(response.data.last_page); // Total de páginas
-      } else {
-        console.error('Data received is not an array:', response.data);
-        setBooks([]);
-      }
+      setLoading(true);
+      const response = await axios.get(`${endpoint}/libros2`);
+      setBooks(response.data);
     } catch (error) {
-      console.error('Error fetching books (paginated):', error);
-      setBooks([]);
+      console.error('Error fetching all books:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getAllBooks2 = async () => {
-    try {
-      const response = await axios.get(`${endpoint}/libros2`);
-      setAllBooks(response.data); // Todos los libros para filtrar
-    } catch (error) {
-      console.error('Error fetching all books for filtering:', error);
     }
   };
 
@@ -93,7 +71,7 @@ const ShowBooks = () => {
     if (confirmed) {
       try {
         await axios.delete(`${endpoint}/libro/${id}`);
-        getAllBooks2(); // Refetch books after deletion
+        getAllBooks(); // Refetch books after deletion
       } catch (error) {
         console.error('Error deleting book:', error);
       }
@@ -101,134 +79,143 @@ const ShowBooks = () => {
   };
 
   const handlePageChange = (page) => {
-    if (page > 0 && page <= totalPages) {
+    if (page > 0 && page <= Math.ceil(filteredBooks.length / itemsPerPage)) {
       setCurrentPage(page);
     }
   };
 
-  // Filtra los libros basándose en el término de búsqueda
-  const filteredBooks = allBooks.filter((libro) =>
+  // Filtra y pagina los libros basándose en el término de búsqueda
+  const filteredBooks = books.filter((libro) =>
     libro.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     autors.find((autor) => autor.autorID === libro.autorID)?.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagina los resultados filtrados
-  const paginatedFilteredBooks = filteredBooks.slice((currentPage - 1) * 8, currentPage * 8);
+  const paginatedFilteredBooks = filteredBooks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Calcular el número total de páginas
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+
+  // Crear un arreglo con los números de página
+  const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
 
 
-  
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-100">
-      {/* Sección 1: Barra de búsqueda y Gestión de Libros */}
-      <div className="w-11/12 text-xs bg-yellow-50 p-4 rounded-md shadow-md mb-4">
+
+    <div className="h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
+      {/* Barra de búsqueda y Gestión de Libros */}
+      <div className="w-11/12 text-xs bg-yellow-50 dark:bg-gray-800 p-4 rounded-md shadow-md mb-4">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Gestión de Libros</h2>
-          <Link to="/create" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
+          <h2 className="text-2xl font-bold dark:text-white">Gestión de Libros</h2>
+          <Link to="/create-books" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
             Crear
           </Link>
         </div>
-  
-        <div className="mb-6 flex items-center bg-white rounded-md shadow-md p-2">
+
+        <div className="mb-6 flex items-center bg-white dark:bg-gray-700 rounded-md shadow-md p-2">
           <input
             type="text"
             placeholder="Ingrese el nombre del libro, autor o categoría"
-            className="w-full p-2 text-gray-700 rounded-md focus:outline-none"
+            className="w-full p-2 text-gray-700 dark:text-gray-300 rounded-md focus:outline-none"
             value={searchTerm}
             onChange={handleSearch}
           />
         </div>
       </div>
-  
-      {/* Sección 2: Tabla de resultados con scroll */}
-      <div className="w-11/12 flex-grow text-xs bg-yellow-50 p-4 rounded-md shadow-md overflow-auto">
-        <div className="overflow-x-auto rounded-md shadow-md">
-          <table className="min-w-full bg-yellow-50 border border-gray-800">
-            <thead className="bg-gray-800 text-white">
-              <tr>
-                {/* Columnas */}
-                <th className="py-2 px-3 border-b">ISBN</th>
-                <th className="py-2 px-3 border-b">Código</th>
-                <th className="py-2 px-3 border-b">Título</th>
-                <th className="py-2 px-3 border-b">Autor</th>
-                <th className="py-2 px-3 border-b">Categoría</th>
-                <th className="py-2 px-3 border-b">Editorial</th>
-                <th className="py-2 px-3 border-b">Año de Publicación</th>
-                <th className="py-2 px-3 border-b">Ejemplares Disponibles</th>
-                <th className="py-2 px-3 border-b">Número de Páginas</th>
-                <th className="py-2 px-3 border-b">Edición</th>
-                <th className="py-2 px-3 border-b">Volumen</th>
-                <th className="py-2 px-3 border-b">Tomo</th>
-                <th className="py-2 px-3 border-b">Acción</th>
+
+      {/* Tabla de resultados */}
+      <div className="w-11/12 h-[600px] text-xs bg-yellow-50 dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto">
+        <table className="min-w-full bg-yellow-50 dark:bg-gray-800">
+
+          <thead className="bg-gray-700 text-white">
+            <tr>
+              <th className="py-2 px-3 rounded-tl-md">ISBN</th>
+              <th className="py-2 px-3">Código</th>
+              <th className="py-2 px-3">Título</th>
+              <th className="py-2 px-3">Autor</th>
+              <th className="py-2 px-3">Categoría</th>
+              <th className="py-2 px-3">Editorial</th>
+              <th className="py-2 px-3">Año de Publicación</th>
+              <th className="py-2 px-3">Ejemplares Disponibles</th>
+              <th className="py-2 px-3">Número de Páginas</th>
+              <th className="py-2 px-3 rounded-tr-md">Acción</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {paginatedFilteredBooks.map((libro) => (
+              <tr key={libro.libroID} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                <td className="py-3 px-1 text-center">{libro.isbn}</td>
+                <td className="py-3 px-4 text-center">{libro.codigolibroID}</td>
+                <td className="py-3 px-4 text-center">{libro.titulo}</td>
+                <td className="py-3 px-4 text-center">
+                  {autors.find((autor) => autor.autorID === libro.autorID)?.nombre || 'No disponible'}
+                </td>
+                <td className="py-3 px-4 text-center">
+                  {categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || 'No disponible'}
+                </td>
+                <td className="py-3 px-4 text-center">
+                  {editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || 'No disponible'}
+                </td>
+                <td className="py-3 px-4 text-center">{libro.aniopublicacion}</td>
+                <td className="py-3 px-4 text-center">{libro.ejemplaresdisponibles}</td>
+                <td className="py-3 px-4 text-center">{libro.numeropaginas}</td>
+                <td className="py-3 px-4 text-center">
+                  <div className="flex space-x-2">
+                    <Link to={`/view-books/${libro.id}`} className="bg-green-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                      <i className="fas fa-eye"></i>
+                    </Link>
+                    <Link to={`/edit-books/${libro.id}`} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                      <i className="fas fa-pencil-alt"></i>
+                    </Link>
+                    <button onClick={() => deleteBook(libro.id)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody className="text-s">
-              {paginatedFilteredBooks.map((libro) => (
-                <tr key={libro.libroID} className="hover:bg-gray-100">
-                  <td className="py-3 px-1 border-b break-word text-center">{libro.isbn}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.codigolibroID}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.titulo}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">
-                    {Array.isArray(autors) && autors.find((autor) => autor.autorID === libro.autorID)?.nombre || 'No disponible'}
-                  </td>
-                  <td className="py-3 px-4 border-b break-word text-center">
-                    {Array.isArray(categorias) && categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || 'No disponible'}
-                  </td>
-                  <td className="py-3 px-4 border-b break-word text-center">
-                    {Array.isArray(editorials) && editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || 'No disponible'}
-                  </td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.aniopublicacion}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.ejemplaresdisponibles}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.numeropaginas}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.edicion}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.volumen}</td>
-                  <td className="py-3 px-4 border-b break-word text-center">{libro.tomo}</td>
-                  <td className="py-3 px-4 border-b">
-                    <div className="flex space-x-2">
-                      <Link to={`/view/${libro.codigolibroID}`} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
-                        <i className="fas fa-eye"></i>
-                      </Link>
-  
-                      <Link to={`/edit/${libro.codigolibroID}`} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
-                        <i className="fas fa-pencil-alt"></i>
-                      </Link>
-  
-                      <button onClick={() => deleteBook(libro.codigolibroID)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
-  
-      {/* Sección 3: Botones de paginación */}
-      <div className="w-11/12 text-xs bg-yellow-50 p-4 rounded-md shadow-md mt-4">
-        <div className="flex justify-between">
+
+      {/* Paginación */}
+
+
+      <div className="w-11/12 text-xs bg-yellow-50 dark:bg-gray-800 p-4 rounded-md shadow-md mt-4">
+        <div className="flex justify-center items-center space-x-2">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="bg-black text-white font-bold py-2 px-4 rounded-lg"
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded"
           >
-            Anterior
+            {"<"}
           </button>
-          <span className="flex items-center">Página {currentPage} de {Math.ceil(filteredBooks.length / 8)}</span>
+          {pageNumbers.map((number) => (
+            <button
+              key={number}
+              onClick={() => handlePageChange(number)}
+              className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded ${currentPage === number ? 'bg-blue-700 text-white' : ''}`}
+            >
+              {number}
+            </button>
+          ))}
           <button
             onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === Math.ceil(filteredBooks.length / 8)}
-            className="bg-black text-white font-bold py-2 px-4 rounded-lg"
+            disabled={currentPage === totalPages}
+            className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded"
           >
-            Siguiente
+            {">"}
           </button>
         </div>
       </div>
-    </div>
-  );
-  
 
+
+    </div>
+
+
+
+  );
 
 };
 

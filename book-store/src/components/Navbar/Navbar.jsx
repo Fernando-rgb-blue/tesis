@@ -1,10 +1,12 @@
-
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { FaCaretDown } from 'react-icons/fa';
 import { RiLoginBoxFill } from 'react-icons/ri';
+import { RiUser3Fill } from 'react-icons/ri';
 import Logo from "../../assets/website/logo.png";
 import DarkMode from './DarkMode';
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const Menu = [
     {
@@ -19,32 +21,52 @@ const Menu = [
     },
 ];
 
-const DropdownLinks = [
-    {
-        name: "Dropdown1",
-        link: '/#',
-    },
-    {
-        name: "Dropdown2",
-        link: '/#',
-    },
-    {
-        name: "Dropdown3",
-        link: '/#',
-    },
-];
-
 const Navbar = () => {
-    const navigate = useNavigate(); // Inicializamos useNavigate
-    const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado para verificar la autenticación
+    const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const location = useLocation();
+    const userProfile = location.state?.userProfile || JSON.parse(localStorage.getItem('userProfile'));
 
+    // Verifica si hay un token en localStorage al cargar
     useEffect(() => {
         const token = localStorage.getItem('token');
-        setIsAuthenticated(!!token); // Verifica si hay un token
+        setIsAuthenticated(!!token);
+
+        // Escuchar cambios en localStorage para actualizar el estado
+        const handleStorageChange = (e) => {
+            if (e.key === 'token') {
+                setIsAuthenticated(!!e.newValue);
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        // Limpiar el evento al desmontar el componente
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const handleSignIn = () => {
         navigate('/signin'); // Redirigimos al componente Signin.jsx
+    };
+
+    const handleLogout = async () => {
+        try {
+            const response = await axios.post('http://localhost:8000/api/logout', {}, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                },
+            });
+
+            if (response.data.message === 'Cierre de sesión exitoso') {
+                localStorage.removeItem('token');
+                setIsAuthenticated(false); // Actualiza el estado a no autenticado
+            }
+            console.log('Logout response:', response.data);
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error.response ? error.response.data : error.message);
+        }
     };
 
     return (
@@ -63,19 +85,15 @@ const Navbar = () => {
                         </div>
 
                         <ul className="items-center gap-4 hidden sm:flex ">
-                            {
-                                Menu.map((menu) => (
-                                    <li key={menu.id}>
-                                        <a href={menu.link} className="inline-block ckpy-4 px-4 hover:text-primary duration-200">
-                                            {menu.name}
-                                        </a>
-                                    </li>
-                                ))
-                            }
-
+                            {Menu.map((menu) => (
+                                <li key={menu.id}>
+                                    <a href={menu.link} className="inline-block ckpy-4 px-4 hover:text-primary duration-200">
+                                        {menu.name}
+                                    </a>
+                                </li>
+                            ))}
                             {isAuthenticated && (
                                 <>
-                                    {/* Mantenimiento */}
                                     <li className="group relative cursor-pointer">
                                         <a href="/#" className="flex h-[72px] items-center gap-[2px]">
                                             Mantenimiento
@@ -83,73 +101,40 @@ const Navbar = () => {
                                                 <FaCaretDown className="transition duration-300 group-hover:rotate-180" />
                                             </span>
                                         </a>
-
                                         <div className="absolute left-9 z-[10] hidden group-hover:block text-black bg-white p-2 shadow-md w-[150px]">
                                             <ul>
-                                                <li>
-                                                    <a href="/editoriales" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">
-                                                        Editorial
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="/autores" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">
-                                                        Autor
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="/categorias" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">
-                                                        Categoría
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="/usuarios" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">
-                                                        Usuarios
-                                                    </a>
-                                                </li>
+                                                <li><a href="/editoriales" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">Editorial</a></li>
+                                                <li><a href="/autores" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">Autor</a></li>
+                                                <li><a href="/categorias" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">Categoría</a></li>
+                                                <li><a href="/usuarios" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">Usuarios</a></li>
                                             </ul>
                                         </div>
                                     </li>
-
-                                    {/* Gestión de Libros */}
-                                    <li className="group relative cursor-pointer">
-                                        <a href="/#" className="flex h-[72px] items-center gap-[2px]">
-                                            Gestión de Libros
-                                            <span>
-                                                <FaCaretDown className="transition duration-300 group-hover:rotate-180" />
-                                            </span>
-                                        </a>
-
-                                        <div className="absolute left-9 z-[10] hidden group-hover:block text-black bg-white p-2 shadow-md w-[150px]">
-                                            <ul>
-                                                <li>
-                                                    <a href="/registro-libro" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">
-                                                        Registro
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <a href="/archivados" className="inline-block w-full rounded-md p-2 hover:bg-primary/20">
-                                                        Archivados
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </li>
-
-                                    {/* Reserva */}
                                     <li>
-                                        <a href="/reserva" className="inline-block ckpy-4 px-4 hover:text-primary duration-200">
-                                            Reserva
+                                        <a href="/reserva" className="inline-block ckpy-4 px-4 hover:text-primary duration-200">Reserva</a>
+                                    </li>
+                                    <li className="group relative cursor-pointer">
+                                        <a href="/user" className="flex h-[72px] items-center gap-[2px]">
+                                            <RiUser3Fill className="text-3xl" />
+                                            <span className="ml-2">{userProfile.name}</span>
+                                            <FaCaretDown className="transition duration-300 group-hover:rotate-180" />
                                         </a>
+                                        <div className="absolute left-9 z-[10] hidden group-hover:block text-black bg-white p-2 shadow-md w-[150px]">
+                                            <ul>
+                                                <li>
+                                                    <button onClick={handleLogout} className="block w-full p-2 hover:bg-primary/20">Cerrar Sesión</button>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </li>
                                 </>
                             )}
                         </ul>
 
-                        {/* Botón "Ingresa" modificado */}
-                        {!isAuthenticated && ( // Muestra el botón solo si no está autenticado
+                        {!isAuthenticated && (
                             <button
                                 className="bg-gradient-to-r from-primary to-secondary text-white px-3 py-1 rounded-full flex items-center gap-1 hover:scale-105 duration-300"
-                                onClick={handleSignIn} // Llamamos la función para redirigir al componente Signin
+                                onClick={handleSignIn}
                             >
                                 Ingresa
                                 <RiLoginBoxFill className="text-xl text-white drop-shadow-sm cursor-pointer" />
@@ -163,5 +148,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
 

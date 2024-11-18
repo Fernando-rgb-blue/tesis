@@ -4,7 +4,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 const endpoint = `http://localhost:8000/api/libro/`;
 
 const EditBooks = () => {
-
   const [isbn, setIsbn] = useState('');
   const [codigolibroID, setCodigoLibroID] = useState('');
   const [titulo, setTitulo] = useState('');
@@ -21,13 +20,12 @@ const EditBooks = () => {
   const [categorias, setCategorias] = useState([]);
   const [editoriales, setEditoriales] = useState([]);
 
-  const { id } = useParams()
+  const { id } = useParams();
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const update = async (e) => {
-
-    e.preventDefault()
+    e.preventDefault();
     await axios.put(`${endpoint}${id}`, {
       isbn,
       codigolibroID,
@@ -42,19 +40,17 @@ const EditBooks = () => {
       volumen,
       tomo
     });
-    navigate('/')
-  }
+    navigate('/show-books');
+  };
 
   useEffect(() => {
-
     const getBookById = async () => {
+      const response = await axios.get(`${endpoint}${id}`);
 
-      const response = await axios.get(`${endpoint}${id}`)
-
-      //Prueba En Consola
+      // Prueba En Consola
       const bookData = response.data;
       console.log('Book Data:', bookData);
-      //Prueba En Consola
+      // Prueba En Consola
 
       setIsbn(response.data.isbn);
       setCodigoLibroID(response.data.codigolibroID);
@@ -69,7 +65,6 @@ const EditBooks = () => {
       setVolumen(response.data.volumen);
       setTomo(response.data.tomo);
 
-
       const autoresResponse = await axios.get('http://localhost:8000/api/autors');
       setAutores(autoresResponse.data);
 
@@ -78,161 +73,162 @@ const EditBooks = () => {
 
       const editorialesResponse = await axios.get('http://localhost:8000/api/editorials');
       setEditoriales(editorialesResponse.data);
-    }
-    getBookById()
-  }, [id])
-
+    };
+    getBookById();
+  }, [id]);
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-11/12 h-4/5 text-xs bg-yellow-50 p-4 rounded-md shadow-md overflow-auto">
-  
-        <h3 className="text-2xl font-bold mb-6 text-center">Actualizar Libro : {titulo}</h3>
-  
+
+    <div className="h-screen flex items-center justify-center bg-gray-200 dark:bg-black">
+      <div className="w-3/4 md:w-2/3 h-4/5 text-xs bg-yellow-50 dark:bg-gray-900 p-4 rounded-md shadow-md overflow-auto">
+        <h3 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">Actualizar Libro : {titulo}</h3>
+
         <form onSubmit={update} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-  
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>ISBN</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>ISBN</label>
             <input
               value={isbn}
               onChange={(e) => setIsbn(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Código</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Código</label>
             <input
               value={codigolibroID}
               onChange={(e) => setCodigoLibroID(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Título</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Título</label>
             <input
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className="flex flex-col">
-            <label className='mb-2 text-sm font-medium text-gray-700'>Autor</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Autor</label>
             <select
               value={autorID}
               onChange={(e) => setAutorID(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             >
               {autores.map(autor => (
                 <option key={autor.id} value={autor.id}>{autor.nombre}</option>
               ))}
             </select>
           </div>
-  
+
           <div className="flex flex-col">
-            <label className='mb-2 text-sm font-medium text-gray-700'>Categoría</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Categoría</label>
             <select
               value={categoriaID}
               onChange={(e) => setCategoriaID(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             >
               {categorias.map(categoria => (
                 <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>
               ))}
             </select>
           </div>
-  
+
           <div className="flex flex-col">
-            <label className='mb-2 text-sm font-medium text-gray-700'>Editorial</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Editorial</label>
             <select
               value={editorialID}
               onChange={(e) => setEditorialID(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             >
               {editoriales.map(editorial => (
                 <option key={editorial.id} value={editorial.id}>{editorial.nombre}</option>
               ))}
             </select>
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Año de Publicación</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Año de Publicación</label>
             <input
               value={aniopublicacion}
               onChange={(e) => setAniopublicacion(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Ejemplares Disponibles</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Ejemplares Disponibles</label>
             <input
               value={ejemplaresdisponibles}
               onChange={(e) => setEjemplaresdisponibles(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Edición</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Edición</label>
             <input
               value={edicion}
               onChange={(e) => setEdicion(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Número de Páginas</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Número de Páginas</label>
             <input
               value={numeropaginas}
               onChange={(e) => setNumeropaginas(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Volumen</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Volumen</label>
             <input
               value={volumen}
               onChange={(e) => setVolumen(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
+
           <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700'>Tomo</label>
+            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Tomo</label>
             <input
               value={tomo}
               onChange={(e) => setTomo(e.target.value)}
               type='text'
-              className='px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
             />
           </div>
-  
-          <div className='col-span-2'>
-            <button type='submit' className='w-full py-3 bg-black text-white font-semibold rounded-md shadow-md hover:bg-blue-700 transition-colors'>
+
+          <div className="col-span-full flex justify-center mt-6">
+            <button
+              type="submit"
+              className="bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-6 rounded-md"
+            >
               Actualizar
             </button>
           </div>
+
         </form>
       </div>
     </div>
   );
-  
 
 
 
-}
+};
 
-export default EditBooks
+export default EditBooks;

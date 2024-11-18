@@ -1,4 +1,4 @@
-import { useState } from 'react'; 
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const SignIn = () => {
@@ -11,6 +11,7 @@ const SignIn = () => {
 
     try {
       // Lógica de autenticación
+
       const response = await fetch('http://localhost:8000/api/login', {
         method: 'POST',
         headers: {
@@ -39,9 +40,10 @@ const SignIn = () => {
           localStorage.setItem('token', data.token);
           localStorage.setItem('userProfile', JSON.stringify(profileData.userData));
 
-          // Redireccionar a la página de usuario
-          navigate('/user');
-        } else {
+          // Recargar la página para que el Navbar se actualice
+          window.location.href = '/';
+        }
+        else {
           console.error('Error al obtener el perfil del usuario');
         }
       } else {

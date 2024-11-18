@@ -9,20 +9,21 @@ class CreateLibrosTable extends Migration
     public function up()
     {
         Schema::create('libros', function (Blueprint $table) {
-            $table->unsignedBigInteger('codigolibroID');
+            $table->id(); // Clave primaria incremental
+            
+            $table->string('codigolibroID')->unique(); // Ya no es clave primaria
             $table->string('isbn');
             $table->string('titulo');
 
-            // Si las claves primarias en las otras tablas no son 'id'
             $table->unsignedBigInteger('autorID');
             $table->foreign('autorID')->references('autorID')->on('autors'); // Referencia a `autorID`
-
+            
             $table->unsignedBigInteger('categoriaID');
             $table->foreign('categoriaID')->references('categoriaID')->on('categorias'); // Referencia a `categoriaID`
-
+            
             $table->unsignedBigInteger('editorialID');
             $table->foreign('editorialID')->references('editorialID')->on('editorials'); // Referencia a `editorialID`
-
+           
             $table->integer('aniopublicacion');
             $table->string('edicion')->nullable();
             $table->integer('numeropaginas');
@@ -31,8 +32,6 @@ class CreateLibrosTable extends Migration
             $table->string('tomo')->nullable();
             $table->timestamps();
             
-            $table->primary('codigolibroID'); // Clave primaria
-            $table->index('codigolibroID');   // Agregar un índice a codigolibroID
         });
     }
 
