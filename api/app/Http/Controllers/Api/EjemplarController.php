@@ -14,7 +14,7 @@ class EjemplarController extends Controller
     public function index()
     {
         $ejemplar = Ejemplar::all();
-        return $ejemplar; 
+        return $ejemplar;
     }
 
     /**
@@ -22,56 +22,61 @@ class EjemplarController extends Controller
      */
     public function store(Request $request)
     {
-        $ejemplar= new Ejemplar();
+        $ejemplar = new Ejemplar();
         $ejemplar->ningresoID = $request->ningresoID;
         $ejemplar->codigolibroID = $request->codigolibroID;
         $ejemplar->estadolibro = $request->estadolibro;
-        // Guardar el nuevo libro en la base de datos
         $ejemplar->save();
+
+        return response()->json(['message' => 'Ejemplar creado exitosamente.'], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $ningresoID)
+    public function show(string $codigolibroID)
     {
-        $ejemplar = Ejemplar::where('ningresoID', $ningresoID)->first();
-        return $ejemplar;
+        // Buscar todos los ejemplares que coincidan con 'codigolibroID'
+        $ejemplares = Ejemplar::where('codigolibroID', $codigolibroID)->get();
+
+        // Verificar si no se encontraron registros
+        if ($ejemplares->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron ejemplares con el código proporcionado.'], 404);
+        }
+
+        // Retornar los ejemplares encontrados
+        return response()->json($ejemplares);
     }
+
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $ningresoID)
+    public function update(Request $request, int $id)
     {
-        // Busca el ejemplar por ningresoID, lanza una excepción si no se encuentra
-        $ejemplar = Ejemplar::where('ningresoID', $ningresoID)->firstOrFail();
-        // Actualiza los campos con los datos del request
+        $ejemplar = Ejemplar::findOrFail($id); // Buscar por ID principal
         $ejemplar->codigolibroID = $request->codigolibroID;
         $ejemplar->estadolibro = $request->estadolibro;
-        // Actualiza la fecha de actualización
         $ejemplar->updated_at = now();
-        // Guarda los cambios en la base de datos
         $ejemplar->save();
-        return response()->json(['message' => 'Ejemplar actualizado correctamente'], 200);
+
+        return response()->json(['message' => 'Ejemplar actualizado correctamente.'], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $ningresoID)
+    public function destroy(int $id)
     {
-        // Buscar el libro por libroID
-        $ejemplar = Ejemplar::where('ningresoID', $ningresoID)->first();
+        $ejemplar = Ejemplar::find($id); // Buscar por ID principal
 
-        // Verificar si el libro existe
         if (!$ejemplar) {
-            return response()->json(['message' => 'Libro no encontrado.'], 404);
+            return response()->json(['message' => 'Ejemplar no encontrado.'], 404);
         }
 
-        // Eliminar el libro
         $ejemplar->delete();
 
-        return response()->json(['message' => 'Libro eliminado exitosamente.'], 200);
+        return response()->json(['message' => 'Ejemplar eliminado exitosamente.'], 200);
     }
 }

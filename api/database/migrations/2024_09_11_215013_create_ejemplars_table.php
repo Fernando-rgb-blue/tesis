@@ -9,16 +9,22 @@ class CreateEjemplarsTable extends Migration
     public function up()
     {
         Schema::create('ejemplars', function (Blueprint $table) {
-            $table->id('ningresoID');
-            $table->unsignedBigInteger('codigolibroID'); // Relación con libros
+            $table->id();
+            
+            $table->string('ningresoID');
+    
+            $table->string('codigolibroID'); // Tipo de dato `string` para `codigolibroID`
+            $table->foreign('codigolibroID')
+                  ->references('codigolibroID') // Referencia a la columna `codigolibroID` en `libros`
+                  ->on('libros') // Tabla `libros`
+                  ->onDelete('cascade') // Elimina los ejemplares relacionados si se elimina un libro
+                  ->onUpdate('cascade'); // Actualiza el `codigolibroID` en ejemplars si se actualiza en libros
+            
             $table->string('estadolibro');
             $table->timestamps();
-
-            // Relación foránea
-            $table->foreign('codigolibroID')->references('codigolibroID')->on('libros')->onDelete('cascade');
         });
     }
-
+    
     public function down()
     {
         Schema::dropIfExists('ejemplars');

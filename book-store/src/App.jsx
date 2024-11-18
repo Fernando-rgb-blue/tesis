@@ -17,6 +17,10 @@ import ShowBooks from "./components/Book/ShowBooks";  // Importa tu componente d
 import SignIn from "./components/Signin/Signin.jsx";
 import SignUp from "./components/Signup/Signup.jsx";
 import User from "./components/User/User.jsx";
+import EditBooks from "./components/Book/EditBooks.jsx";
+import CreateBook from "./components/Book/CreateBooks.jsx";
+import CreateEjemplar from "./components/Book/Ingresos/CreateEjemplar.jsx";
+import ViewBook from "./components/Book/ViewBooks/ViewBooks.jsx";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -37,7 +41,7 @@ const App = () => {
 
   return (
     <Router>
-      <div className="bg-white dark:bg-gray-900 dark:text-white duration-200">
+      <div className="h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200">
         <Navbar handleOrderPopup={handleOrderPopup} />
         {/* Define las rutas aquí */}
         <Routes>
@@ -61,9 +65,13 @@ const App = () => {
           />
           {/* Añade la ruta para ShowBooks */}
           <Route path="/show-books" element={<ShowBooks />} />
+          <Route path="/view-books/:id" element={<ViewBook />} />
+          <Route path="/edit-books/:id" element={<EditBooks />} />
+          <Route path="/create-books" element={<CreateBook />} />
+          <Route path='/ingresos/create' element={<CreateEjemplar />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/user" element={<User/>} />
+          <Route path="/user" element={<User />} />
         </Routes>
       </div>
     </Router>
