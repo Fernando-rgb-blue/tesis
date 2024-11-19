@@ -66,6 +66,8 @@ class AuthController extends Controller
         }
     }
     
+
+    
     public function logout(Request $request)
     {
         // Revoca el token actual
@@ -76,6 +78,7 @@ class AuthController extends Controller
 
         return response(["message" => "Cierre de sesión exitoso"], Response::HTTP_OK)->withCookie($cookie);
     }
+
 
     public function allUsers()
     {

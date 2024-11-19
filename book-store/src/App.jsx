@@ -10,10 +10,11 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import Books from "./components/BooksSlider/Books.jsx";
+import { useLocation } from "react-router-dom";
 
 // Importar react-router-dom
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ShowBooks from "./components/Book/ShowBooks";  // Importa tu componente de ShowBooks
+import ShowBooks from "./components/Book/ShowBooks";
 import SignIn from "./components/Signin/Signin.jsx";
 import SignUp from "./components/Signup/Signup.jsx";
 import User from "./components/User/User.jsx";
@@ -39,43 +40,61 @@ const App = () => {
     AOS.refresh();
   }, []);
 
+  const location = useLocation();
+
+  const containerClasses = [
+    "/show-books",
+    "/view-books/:id",
+    "/edit-books/:id",
+    "/create-books",
+    "/ingresos/create",
+    "/signin",
+    "/signup",
+    "/user",
+  ].includes(location.pathname)
+    ? "h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200"
+    : "min-h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200";
+
   return (
-    <Router>
-      <div className="h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200">
-        <Navbar handleOrderPopup={handleOrderPopup} />
-        {/* Define las rutas aquí */}
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <Hero handleOrderPopup={handleOrderPopup} />
-                <Services handleOrderPopup={handleOrderPopup} />
-                <Banner />
-                <AppStore />
-                <Books />
-                <Testimonial />
-                <Footer />
-                <OrderPopup
-                  orderPopup={orderPopup}
-                  setOrderPopup={setOrderPopup}
-                />
-              </>
-            }
-          />
-          {/* Añade la ruta para ShowBooks */}
-          <Route path="/show-books" element={<ShowBooks />} />
-          <Route path="/view-books/:id" element={<ViewBook />} />
-          <Route path="/edit-books/:id" element={<EditBooks />} />
-          <Route path="/create-books" element={<CreateBook />} />
-          <Route path='/ingresos/create' element={<CreateEjemplar />} />
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/user" element={<User />} />
-        </Routes>
-      </div>
-    </Router>
+    <div className={containerClasses}>
+      <Navbar handleOrderPopup={handleOrderPopup} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <>
+              <Hero handleOrderPopup={handleOrderPopup} />
+              <Services handleOrderPopup={handleOrderPopup} />
+              <Banner />
+              <AppStore />
+              <Books />
+              <Testimonial />
+              <Footer />
+              <OrderPopup
+                orderPopup={orderPopup}
+                setOrderPopup={setOrderPopup}
+              />
+            </>
+          }
+        />
+        {/* Rutas que ocupan toda la pantalla */}
+        <Route path="/show-books" element={<ShowBooks />} />
+        <Route path="/view-books/:id" element={<ViewBook />} />
+        <Route path="/edit-books/:id" element={<EditBooks />} />
+        <Route path="/create-books" element={<CreateBook />} />
+        <Route path="/ingresos/create" element={<CreateEjemplar />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/user" element={<User />} />
+      </Routes>
+    </div>
   );
 };
 
-export default App;
+const RootApp = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+export default RootApp;
