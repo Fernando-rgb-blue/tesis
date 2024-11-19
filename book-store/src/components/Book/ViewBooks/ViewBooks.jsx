@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
-const endpoint = `http://localhost:8000/api/libro/`;
-const ejemplarEndpoint = `http://localhost:8000/api/ejemplar/`;
+const endpoint = `http://159.65.183.18:8000/api/libro/`;
+const ejemplarEndpoint = `http://159.65.183.18:8000/api/ejemplar/`;
 
 const ViewBook = () => {
     const [isbn, setIsbn] = useState('');

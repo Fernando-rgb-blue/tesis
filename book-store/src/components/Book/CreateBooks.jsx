@@ -9,7 +9,7 @@ import CreateEditorial from './Editorial/CreateEditorial';
 // Configurar el elemento principal para el modal
 Modal.setAppElement('#root');
 
-const endpoint = `http://localhost:8000/api/libro`;
+const endpoint = `http://159.65.183.18:8000/api/libro`;
 
 const CreateBook = () => {
   const [isbn, setIsbn] = useState('');
@@ -70,9 +70,9 @@ const CreateBook = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [autoresResponse, categoriasResponse, editorialesResponse] = await Promise.all([
-        axios.get('http://localhost:8000/api/autors'),
-        axios.get('http://localhost:8000/api/categorias'),
-        axios.get('http://localhost:8000/api/editorials')
+        axios.get('http://159.65.183.18:8000/api/autors'),
+        axios.get('http://159.65.183.18:8000/api/categorias'),
+        axios.get('http://159.65.183.18:8000/api/editorials')
       ]);
 
       setAutores(autoresResponse.data);

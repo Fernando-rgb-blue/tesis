@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom'; 
 
-const endpoint = 'http://localhost:8000/api/ejemplar';
+const endpoint = 'http://159.65.183.18:8000/api/ejemplar';
 
 const CreateEjemplar = () => {
   const location = useLocation();

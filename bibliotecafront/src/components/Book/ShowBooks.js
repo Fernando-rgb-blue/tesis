@@ -3,7 +3,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-const endpoint = 'http://localhost:8000/api';
+const endpoint = 'http://159.65.183.18:8000/api';
 
 const ShowBooks = () => {
   const [books, setBooks] = useState([]);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const endpoint = `http://localhost:8000/api/categoria`; // Asegúrate de que esta URL sea correcta
+const endpoint = `http://159.65.183.18:8000/api/categoria`; // Asegúrate de que esta URL sea correcta
 
 const CreateCategoria = ({ closeModal }) => {
   const [nombre, setNombre] = useState('');

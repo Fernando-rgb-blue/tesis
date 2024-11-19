@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-const endpoint = `http://localhost:8000/api/libro/`;
+const endpoint = `http://159.65.183.18:8000/api/libro/`;
 
 const EditBooks = () => {
 
@@ -70,13 +70,13 @@ const EditBooks = () => {
       setTomo(response.data.tomo);
 
 
-      const autoresResponse = await axios.get('http://localhost:8000/api/autors');
+      const autoresResponse = await axios.get('http://159.65.183.18:8000/api/autors');
       setAutores(autoresResponse.data);
 
-      const categoriasResponse = await axios.get('http://localhost:8000/api/categorias');
+      const categoriasResponse = await axios.get('http://159.65.183.18:8000/api/categorias');
       setCategorias(categoriasResponse.data);
 
-      const editorialesResponse = await axios.get('http://localhost:8000/api/editorials');
+      const editorialesResponse = await axios.get('http://159.65.183.18:8000/api/editorials');
       setEditoriales(editorialesResponse.data);
     }
     getBookById()
