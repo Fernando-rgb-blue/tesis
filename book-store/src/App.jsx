@@ -42,6 +42,7 @@ const App = () => {
 
   const location = useLocation();
 
+  // Modificar las clases del contenedor para hacer que se adapte mejor
   const containerClasses = [
     "/show-books",
     "/view-books/:id",
@@ -52,8 +53,8 @@ const App = () => {
     "/signup",
     "/user",
   ].includes(location.pathname)
-    ? "h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200"
-    : "min-h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200";
+    ? "h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200 overflow-hidden"
+    : "min-h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200 overflow-hidden";
 
   return (
     <div className={containerClasses}>
@@ -80,7 +81,6 @@ const App = () => {
         {/* Rutas que ocupan toda la pantalla */}
         <Route path="/show-books" element={<ShowBooks />} />
         <Route path="/view-books/:id" element={<ViewBook />} />
-        <Route path="/edit-books/:id" element={<EditBooks />} />
         <Route path="/create-books" element={<CreateBook />} />
         <Route path="/ingresos/create" element={<CreateEjemplar />} />
         <Route path="/signin" element={<SignIn />} />
