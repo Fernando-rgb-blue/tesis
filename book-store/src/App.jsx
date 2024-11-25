@@ -10,9 +10,6 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import OrderPopup from "./components/OrderPopup/OrderPopup.jsx";
 import Books from "./components/BooksSlider/Books.jsx";
-import { useLocation } from "react-router-dom";
-
-// Importar react-router-dom
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ShowBooks from "./components/Book/ShowBooks";
 import SignIn from "./components/Signin/Signin.jsx";
@@ -40,23 +37,8 @@ const App = () => {
     AOS.refresh();
   }, []);
 
-  const location = useLocation();
-
-  const containerClasses = [
-    "/show-books",
-    "/view-books/:id",
-    "/edit-books/:id",
-    "/create-books",
-    "/ingresos/create",
-    "/signin",
-    "/signup",
-    "/user",
-  ].includes(location.pathname)
-    ? "h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200"
-    : "min-h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200";
-
   return (
-    <div className={containerClasses}>
+    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200 ">
       <Navbar handleOrderPopup={handleOrderPopup} />
       <Routes>
         <Route
@@ -77,10 +59,9 @@ const App = () => {
             </>
           }
         />
-        {/* Rutas que ocupan toda la pantalla */}
+        {/* Rutas principales */}
         <Route path="/show-books" element={<ShowBooks />} />
         <Route path="/view-books/:id" element={<ViewBook />} />
-        <Route path="/edit-books/:id" element={<EditBooks />} />
         <Route path="/create-books" element={<CreateBook />} />
         <Route path="/ingresos/create" element={<CreateEjemplar />} />
         <Route path="/signin" element={<SignIn />} />
@@ -91,6 +72,7 @@ const App = () => {
   );
 };
 
+// Envolver el componente App en Router para la navegación
 const RootApp = () => (
   <Router>
     <App />

@@ -1,6 +1,12 @@
+const { nextui } = require("@nextui-org/react");
+
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+  ],
   darkMode: "class",
   theme: {
     extend: {
@@ -23,7 +29,23 @@ export default {
       animation: {
         "spin-slow": "spin 40s linear infinite",
       },
+      // Estilos para barras de desplazamiento
+      scrollbar: {
+        width: "8px",
+        height: "8px",
+        track: {
+          background: "#f5f5f5", // Color del track (claro)
+          dark: "#1e1e1e", // Color del track en modo oscuro
+        },
+        thumb: {
+          background: "#cccccc", // Color del thumb (claro)
+          dark: "#555555", // Color del thumb en modo oscuro
+        },
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    nextui(),
+    require("tailwind-scrollbar")({ nocompatible: true }), // Agregar el plugin de scrollbar
+  ],
 };

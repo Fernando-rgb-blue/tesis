@@ -24,7 +24,7 @@ class CategoriaController extends Controller
     {
         $categoria= new Categoria();
         $categoria->nombre = $request->nombre;
-        $categoria->descripción = $request->descripción;
+        $categoria->descripcion = $request->descripcion;
         // Guardar el nuevo libro en la base de datos
         $categoria->save();
     }
@@ -45,7 +45,7 @@ class CategoriaController extends Controller
     {
         $categoria = Categoria::where('categoriaID', $categoriaID)->firstOrFail();
         $categoria->nombre = $request->nombre;
-        $categoria->descripción = $request->descripción;
+        $categoria->descripcion = $request->descripcion;
         // Guardar el nuevo libro en la base de datos
         $categoria->save();
     }

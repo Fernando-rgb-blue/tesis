@@ -34,8 +34,6 @@ const Navbar = () => {
 
     const handleSignIn = () => navigate('/signin');
 
-
-
     const handleLogout = async () => {
         try {
             const response = await axios.post('http://159.65.183.18:8000/api/logout', {}, {
@@ -43,17 +41,14 @@ const Navbar = () => {
             });
 
             if (response.data.message === 'Cierre de sesión exitoso') {
-                // Eliminar tanto el token como el userProfile del localStorage
                 localStorage.removeItem('token');
                 localStorage.removeItem('userProfile');
-                setIsAuthenticated(false); // Actualiza el estado de autenticación
+                setIsAuthenticated(false);
             }
         } catch (error) {
             console.error('Error al cerrar sesión:', error.response ? error.response.data : error.message);
         }
     };
-
-
 
     return (
         <div className="shadow-md bg-white rounded dark:bg-gray-900 dark:text-white duration-200 w-full">
