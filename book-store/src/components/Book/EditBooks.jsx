@@ -9,6 +9,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
   const [isbn, setIsbn] = useState('');
   const [codigolibroID, setCodigoLibroID] = useState('');
   const [titulo, setTitulo] = useState('');
+  const [title, setTitle] = useState('');
   const [autorID, setAutorID] = useState('');
   const [categoriaID, setCategoriaID] = useState('');
   const [editorialID, setEditorialID] = useState('');
@@ -32,6 +33,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       setIsbn(bookData.isbn);
       setCodigoLibroID(bookData.codigolibroID);
       setTitulo(bookData.titulo);
+      setTitle(bookData.titulo);
       setAutorID(bookData.autorID);
       setCategoriaID(bookData.categoriaID);
       setEditorialID(bookData.editorialID);
@@ -92,13 +94,17 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
     };
   }, [onClose]);
 
+
+
+    
+
   return (
     <div
       className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50"
       onClick={onClose} // Cierra al hacer clic fuera del contenedor
     >
       <div
-        className="bg-white p-8 rounded-lg shadow-md max-w-3xl w-full relative"
+        className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md max-w-3xl w-full relative scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 overflow-y-auto max-h-[90vh]"
         onClick={(e) => e.stopPropagation()} // Evita que el clic dentro del modal cierre el contenedor
       >
         {/* Botón para cerrar el modal */}
@@ -108,9 +114,9 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
         >
           ❌
         </button>
-
-        <h2 className="text-2xl font-bold mb-4 text-center">Editar Libro</h2>
-
+  
+        <h2 className="text-2xl font-bold mb-4 text-center"> Editar Libro: {title} </h2>
+  
         <form onSubmit={handleUpdate} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Inputs del formulario */}
           <div className="flex flex-col">
@@ -124,7 +130,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Código
@@ -135,10 +141,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Código"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Título
@@ -149,14 +155,15 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Título"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Autor
             </label>
+  
             <select
               value={autorID}
               onChange={(e) => setAutorID(e.target.value)}
@@ -169,7 +176,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               ))}
             </select>
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Categoría
@@ -186,7 +193,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               ))}
             </select>
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Editorial
@@ -203,7 +210,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               ))}
             </select>
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Año de Publicación
@@ -214,10 +221,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Año de Publicación"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Ejemplares Disponibles
@@ -228,10 +235,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Ejemplares Disponibles"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Edición
@@ -242,10 +249,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Edición"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Número de Páginas
@@ -256,10 +263,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Número de Páginas"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Volumen
@@ -270,10 +277,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Volumen"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Tomo
@@ -284,10 +291,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Tomo"
-              className="w-full" // Hace que el input ocupe el 100% del contenedor
+              className="w-full"
             />
           </div>
-
+  
           {/* Botones de acción */}
           <div className="col-span-full flex justify-center gap-4 mt-6">
             <button
@@ -308,6 +315,8 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       </div>
     </div>
   );
+  
+
 };
 
 export default EditBooks;

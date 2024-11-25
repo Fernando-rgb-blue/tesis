@@ -11,6 +11,7 @@ const endpoint = 'http://159.65.183.18:8000/api';
 const ShowBooks = () => {
   const [books, setBooks] = useState([]);
   const [autors, setAutors] = useState([]);
+  const [sortOrder, setSortOrder] = useState("asc"); // Estado para controlar el orden (A-Z o Z-A)
   const [categorias, setCategorias] = useState([]);
   const [editorials, setEditorials] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,6 +72,10 @@ const ShowBooks = () => {
     }
   };
 
+  const handleSortChange = (order) => {
+    setSortOrder(order); // Actualiza el estado de orden
+  };
+
   const handleUpdate = () => {
     // Refrescar la lista de libros después de la actualización
     console.log('Libro actualizado');
@@ -115,29 +120,59 @@ const ShowBooks = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900">
-      {/* Barra de búsqueda y Gestión de Libros */}
-      <div className="w-11/12 text-xs dark:bg-gray-800 p-4 rounded-md shadow-md mb-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold dark:text-white">Gestión de Libros</h2>
-          <Link to="/create-books" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg">
-            Crear
-          </Link>
-        </div>
 
-        <div className="mb-6 flex items-center bg-white dark:bg-gray-700 rounded-md shadow-md p-2">
-          <input
-            type="text"
-            placeholder="Ingrese el nombre del libro, autor o categoría"
-            className="w-full p-2 text-gray-700 dark:text-gray-300 rounded-md focus:outline-none"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+
+    <div className="flex flex-col items-center justify-center dark:bg-gray-900 mt-5">
+
+      {/* Barra de búsqueda y Gestión de Libros */}
+
+      <div className="w-11/12 text-xs dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto">
+        {/* Título centrado */}
+        <h1 className="text-2xl font-bold text-center dark:text-white mb-6">
+          Gestión de Libros Generales
+        </h1>
+
+        <div className="flex justify-between items-center">
+          {/* Input de búsqueda */}
+          <div className="flex items-center w-full bg-gray-100 dark:bg-gray-700 rounded-md p-2 mr-4">
+            <input
+              type="text"
+              placeholder="Ingrese el nombre del libro, autor o categoría"
+              className="w-full p-2 text-gray-700 dark:text-gray-300 rounded-md focus:outline-none"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
+
+          {/* Selector de orden */}
+          <div className="flex-shrink-0 ml-4 w-32">
+            <select
+              className="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-2 px-4 rounded-lg focus:outline-none"
+              value={sortOrder}
+              onChange={(e) => handleSortChange(e.target.value)}
+            >
+              <option value="asc">A - Z</option>
+              <option value="desc">Z - A</option>
+            </select>
+          </div>
+
+          {/* Botón + Añadir */}
+          <div className="ml-4 w-32">
+            <Link
+              to="/create-books"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-center"
+            >
+              + Añadir
+            </Link>
+          </div>
         </div>
       </div>
 
+
+
+
       {/* Tabla de resultados */}
-      <div className="w-11/12 h-[600px] text-xs dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto">
+      <div className="w-11/12 h-[600px] text-xs dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
         <Table aria-label="Gestión de Libros" className="w-full table-fixed">
           <TableHeader>
             <TableColumn className="text-center">ISBN</TableColumn>
@@ -152,65 +187,69 @@ const ShowBooks = () => {
             <TableColumn className="text-center">Acción</TableColumn>
           </TableHeader>
           <TableBody>
-            {paginatedFilteredBooks.map((libro) => (
-              <TableRow key={libro.libroID}>
-                <TableCell className="text-center">{libro.isbn}</TableCell>
-                <TableCell className="text-center">{libro.codigolibroID}</TableCell>
-                <TableCell className="text-center">{libro.titulo}</TableCell>
-                <TableCell className="text-center">
-                  {autors.find((autor) => autor.autorID === libro.autorID)?.nombre || 'No disponible'}
-                </TableCell>
-                <TableCell className="text-center">
-                  {categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || 'No disponible'}
-                </TableCell>
-                <TableCell className="text-center">
-                  {editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || 'No disponible'}
-                </TableCell>
-                <TableCell className="text-center">{libro.aniopublicacion}</TableCell>
-                <TableCell className="text-center">{libro.ejemplaresdisponibles}</TableCell>
-                <TableCell className="text-center">{libro.numeropaginas}</TableCell>
-
-                <TableCell className="text-center">
-                  <div className="flex space-x-2 justify-center">
-                    <Link to={`/view-books/${libro.id}`} className="bg-green-500 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
-                      <i className="fas fa-eye"></i>
-                    </Link>
-
-                    <button
-                      onClick={() => openModal(libro.id)} // Usar libroID
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center"
-                    >
-                      <i className="fas fa-pencil-alt"></i>
-                    </button>
-
-                    <button
-                      onClick={() => deleteBook(libro.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center"
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {paginatedFilteredBooks
+              .sort((a, b) => {
+                if (sortOrder === "asc") {
+                  return a.titulo.localeCompare(b.titulo);
+                } else {
+                  return b.titulo.localeCompare(a.titulo);
+                }
+              })
+              .map((libro) => (
+                <TableRow key={libro.libroID}>
+                  <TableCell className="text-center">{libro.isbn}</TableCell>
+                  <TableCell className="text-center">{libro.codigolibroID}</TableCell>
+                  <TableCell className="text-center">{libro.titulo}</TableCell>
+                  <TableCell className="text-center">
+                    {autors.find((autor) => autor.autorID === libro.autorID)?.nombre || 'No disponible'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || 'No disponible'}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || 'No disponible'}
+                  </TableCell>
+                  <TableCell className="text-center">{libro.aniopublicacion}</TableCell>
+                  <TableCell className="text-center">{libro.ejemplaresdisponibles}</TableCell>
+                  <TableCell className="text-center">{libro.numeropaginas}</TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex space-x-2 justify-center">
+                      <Link to={`/view-books/${libro.id}`} className="bg-blue-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                        <i className="fas fa-eye"></i>
+                      </Link>
+                      <button
+                        onClick={() => openModal(libro.id)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center"
+                      >
+                        <i className="fas fa-pencil-alt"></i>
+                      </button>
+                      <button
+                        onClick={() => deleteBook(libro.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center"
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </div>
 
       {/* Paginación */}
-      {/* Paginación */}
       <div className="w-11/12 text-xs dark:bg-gray-800 p-4 rounded-md shadow-md mt-4">
-        {/* Paginación */}
-        <div className="flex w-full justify-center">
+        <div className="flex w-full justify-center ">
           <Pagination
             isCompact
             showControls
             showShadow
-            color="primary"
+            buttonClass="bg-blue-500 hover:bg-blue-600 text-white"
             total={totalPages}
             page={page}
-            onChange={(p) => setPage(p)} // Actualiza la página cuando cambia la paginación
+            onChange={(p) => setPage(p)}
           />
+
         </div>
       </div>
 
@@ -222,9 +261,12 @@ const ShowBooks = () => {
           onClose={() => setIsModalOpen(false)} // Pasar onClose como propiedad
         />
       )}
-      
     </div>
+
+
   );
+
+
 };
 
 export default ShowBooks;

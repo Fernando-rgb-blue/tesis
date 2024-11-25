@@ -5,7 +5,7 @@ const endpoint = `http://159.65.183.18:8000/api/categoria`; // Asegúrate de que
 
 const CreateCategoria = ({ closeModal }) => {
   const [nombre, setNombre] = useState('');
-  const [descripción, setDescripcion] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [error, setError] = useState('');
 
   const create = async (e) => {
@@ -13,7 +13,7 @@ const CreateCategoria = ({ closeModal }) => {
     try {
       await axios.post(endpoint, {
         nombre,
-        descripción
+        descripcion
       });
       closeModal(); // Cierra el modal después de crear la categoría
     } catch (error) {
@@ -53,7 +53,7 @@ const CreateCategoria = ({ closeModal }) => {
           <div className='flex flex-col'>
             <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Descripción</label>
             <input
-              value={descripción}
+              value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               type='text'
               className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'

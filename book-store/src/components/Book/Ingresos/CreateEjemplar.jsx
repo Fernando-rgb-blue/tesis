@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Input } from '@nextui-org/react';
 
 const endpoint = 'http://159.65.183.18:8000/api/ejemplar';
 
@@ -42,15 +43,16 @@ const CreateEjemplar = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-200 dark:bg-black">
-      <div className="w-3/4 md:w-2/3 h-4/5 text-xs bg-yellow-50 dark:bg-gray-900 p-4 rounded-md shadow-md overflow-auto">
+    <div className="h-[calc(100vh-88px)] flex items-center justify-center bg-gray-200 dark:bg-black">
+
+      <div className="w-11/12 md:w-3/4 lg:w-2/3 h-auto md:h-4/5 text-xs bg-gray-50 dark:bg-gray-900 p-6 rounded-xl shadow-lg overflow-hidden">
         <h3 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
           Crear Nuevos Ejemplares - Código del libro: {codigolibroID || 'N/A'}
         </h3>
 
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
-        <form onSubmit={saveEjemplares} className="grid grid-cols-1 gap-6">
+        <form onSubmit={saveEjemplares} className="space-y-6">
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Cantidad de Ejemplares: {ejemplaresdisponibles}
@@ -58,39 +60,39 @@ const CreateEjemplar = () => {
           </div>
 
           {/* Container con Scroll si hay más de 3 ejemplares */}
-          <div className={`max-h-96 overflow-y-auto ${ejemplares.length > 3 ? 'scrollbar' : ''}`}>
+          <div className={`max-h-96 overflow-auto ${ejemplares.length > 3 ? 'scrollbar' : ''}`}>
             {ejemplares.map((ejemplar, index) => (
-              <div key={index} className="flex flex-col mb-4">
+              <div key={index} className="flex flex-col mb-6">
                 <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
                   Número de Ingreso {index + 1}
                 </label>
-                <input
+                <Input
                   name="ningresoID"
                   value={ejemplar.ningresoID}
                   onChange={(e) => handleEjemplarChange(index, e)}
                   type="text"
-                  className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+                  className="w-full dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
                   required
                 />
                 <label className="mt-4 mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
                   Estado del Libro {index + 1}
                 </label>
-                <input
+                <Input
                   name="estadolibro"
                   value={ejemplar.estadolibro}
                   onChange={(e) => handleEjemplarChange(index, e)}
                   type="text"
-                  className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
+                  className="w-full dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
             ))}
           </div>
 
-          <div>
+          <div className="flex justify-center">
             <button
               type="submit"
-              className="w-full py-3 bg-black text-white font-semibold rounded-md shadow-md hover:bg-blue-700 transition-colors"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transform transition duration-300 ease-in-out hover:scale-105"
             >
               Guardar Ejemplares
             </button>
@@ -98,8 +100,10 @@ const CreateEjemplar = () => {
         </form>
       </div>
     </div>
-
   );
+
+
+
 
 };
 
