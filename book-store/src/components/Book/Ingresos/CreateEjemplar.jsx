@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Input } from '@nextui-org/react';
 
-const endpoint = 'http://159.65.183.18:8000/api/ejemplar';
+const endpoint = 'http://localhost:8000/api/ejemplar';
 
 const CreateEjemplar = () => {
   const location = useLocation();

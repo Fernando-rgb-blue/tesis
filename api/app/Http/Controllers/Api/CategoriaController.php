@@ -57,15 +57,12 @@ class CategoriaController extends Controller
     {
         // Buscar el libro por libroID
         $categoria = Categoria::where('categoriaID', $categoriaID)->first();
-
         // Verificar si el libro existe
         if (!$categoria) {
             return response()->json(['message' => 'Libro no encontrado.'], 404);
         }
-
         // Eliminar el libro
         $categoria->delete();
-
         return response()->json(['message' => 'Libro eliminado exitosamente.'], 200);
     }
 }

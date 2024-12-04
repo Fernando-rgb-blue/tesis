@@ -59,15 +59,12 @@ class EditorialController extends Controller
     {
         // Buscar el libro por libroID
         $editorial = Editorial::where('editorialID', $editorialID)->first();
-
         // Verificar si el libro existe
         if (!$editorial) {
             return response()->json(['message' => 'Libro no encontrado.'], 404);
         }
-
         // Eliminar el libro
         $editorial->delete();
-
         return response()->json(['message' => 'Libro eliminado exitosamente.'], 200);
     }
 }

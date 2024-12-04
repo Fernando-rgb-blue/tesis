@@ -27,7 +27,6 @@ class EjemplarController extends Controller
         $ejemplar->codigolibroID = $request->codigolibroID;
         $ejemplar->estadolibro = $request->estadolibro;
         $ejemplar->save();
-
         return response()->json(['message' => 'Ejemplar creado exitosamente.'], 201);
     }
 
@@ -38,17 +37,13 @@ class EjemplarController extends Controller
     {
         // Buscar todos los ejemplares que coincidan con 'codigolibroID'
         $ejemplares = Ejemplar::where('codigolibroID', $codigolibroID)->get();
-
         // Verificar si no se encontraron registros
         if ($ejemplares->isEmpty()) {
             return response()->json(['message' => 'No se encontraron ejemplares con el código proporcionado.'], 404);
         }
-
         // Retornar los ejemplares encontrados
         return response()->json($ejemplares);
     }
-
-
 
     /**
      * Update the specified resource in storage.
@@ -60,7 +55,6 @@ class EjemplarController extends Controller
         $ejemplar->estadolibro = $request->estadolibro;
         $ejemplar->updated_at = now();
         $ejemplar->save();
-
         return response()->json(['message' => 'Ejemplar actualizado correctamente.'], 200);
     }
 
@@ -70,13 +64,10 @@ class EjemplarController extends Controller
     public function destroy(int $id)
     {
         $ejemplar = Ejemplar::find($id); // Buscar por ID principal
-
         if (!$ejemplar) {
             return response()->json(['message' => 'Ejemplar no encontrado.'], 404);
         }
-
         $ejemplar->delete();
-
         return response()->json(['message' => 'Ejemplar eliminado exitosamente.'], 200);
     }
 }

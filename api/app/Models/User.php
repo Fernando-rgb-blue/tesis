@@ -19,6 +19,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'dni',
+        'tipousuario',
+        'estadousuario',
+        'domicilio',
+        'telefono',
+        'fechanacimiento',
         'email',
         'password',
     ];
@@ -31,4 +37,17 @@ class User extends Authenticatable
     protected $hidden = [
         'password'
     ];
+
+    public function tipoUsuario()
+    {
+        return $this->belongsTo(Tipousuario::class, 'tipousuario', 'tipousuario');
+    }
+
+    /**
+     * Relación con el modelo `Estadousuario`.
+     */
+    public function estadoUsuario()
+    {
+        return $this->belongsTo(Estadousuario::class, 'estadousuario', 'estadousuario');
+    }
 }

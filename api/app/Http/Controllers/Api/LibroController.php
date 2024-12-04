@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LibrosExport;
 use App\Models\Libro;
 use App\Http\Controllers\Controller;
 use App\Models\Autor;
@@ -42,7 +45,7 @@ class LibroController extends Controller
         }
 
         $libro = new Libro();
-        $libro->codigolibroID= $request->codigolibroID;
+        $libro->codigolibroID = $request->codigolibroID;
         $libro->isbn = $request->isbn;
         $libro->titulo = $request->titulo;
         $libro->autorID = $autor->autorID;
@@ -54,7 +57,9 @@ class LibroController extends Controller
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->volumen = $request->volumen;
         $libro->tomo = $request->tomo;
-
+        $libro->idioma = $request->idioma;
+        $libro->resumen = $request->resumen;
+        $libro->rutafoto = $request->rutafoto;
         $libro->save();
     }
 
@@ -124,7 +129,7 @@ class LibroController extends Controller
             return back()->withErrors(['editorial_nombre' => 'La editorial no existe.']);
         }
 
-        $libro->codigolibroID= $request->codigolibroID;
+        $libro->codigolibroID = $request->codigolibroID;
         $libro->isbn = $request->isbn;
         $libro->titulo = $request->titulo;
         $libro->autorID = $autor->autorID;
@@ -136,6 +141,9 @@ class LibroController extends Controller
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->volumen = $request->volumen;
         $libro->tomo = $request->tomo;
+        $libro->idioma = $request->idioma;
+        $libro->resumen = $request->resumen;
+        $libro->rutafoto = $request->rutafoto;
         $libro->save();
     }
 
@@ -149,5 +157,14 @@ class LibroController extends Controller
         $libro->delete();
 
         return response()->json(['message' => 'Libro eliminado exitosamente.'], 200);
+    }
+
+    public function export(Request $request)
+    {
+        // Obtén los filtros desde la solicitud
+        $filters = $request->only(['time', 'limit']);
+
+        // Retorna la descarga del archivo Excel
+        return Excel::download(new LibrosExport($filters), 'libros.xlsx');
     }
 }

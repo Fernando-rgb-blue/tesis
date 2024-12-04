@@ -3,12 +3,12 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from '@nextui-org/react';
-
 import EditBooks from './EditBooks';
+const endpoint = 'http://localhost:8000/api';
 
-const endpoint = 'http://159.65.183.18:8000/api';
 
 const ShowBooks = () => {
+
   const [books, setBooks] = useState([]);
   const [autors, setAutors] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc"); // Estado para controlar el orden (A-Z o Z-A)
@@ -19,6 +19,10 @@ const ShowBooks = () => {
   const [selectedBookId, setSelectedBookId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [timeFilter, setTimeFilter] = useState('');
+  const [limitFilter, setLimitFilter] = useState('');
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+
 
   useEffect(() => {
     getAllBooks();
@@ -96,6 +100,12 @@ const ShowBooks = () => {
 
   const rowsPerPage = 10;
 
+  const handleExportWithoutFilter = () => {
+    // Realiza la exportación sin aplicar los filtros de tiempo o cantidad
+    const params = new URLSearchParams();
+    window.location.href = `http://localhost:8000/api/booksexport?${params.toString()}`;
+  };
+  
   // Usamos useMemo para que solo se calcule cuando cambian los libros o la búsqueda
   const filteredBooks = useMemo(() => {
     return books.filter((libro) =>
@@ -117,6 +127,14 @@ const ShowBooks = () => {
   const openModal = (id) => {
     setSelectedBookId(id); // Almacenar el libroID en lugar del objeto completo
     setIsModalOpen(true);
+  };
+
+  const handleExport = () => {
+    const params = new URLSearchParams();
+    if (timeFilter) params.append('time', timeFilter);
+    if (limitFilter) params.append('limit', limitFilter);
+    // Redirigir a la API con los filtros aplicados
+    window.location.href = `http://localhost:8000/api/booksexport?${params.toString()}`;
   };
 
   return (
@@ -165,11 +183,87 @@ const ShowBooks = () => {
               + Añadir
             </Link>
           </div>
+
+          {/* Link Exportar con ícono de Excel */}
+          <div>
+            {/* Botón para abrir el modal */}
+            <button
+              onClick={() => setIsModalOpen2(true)}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"
+            >
+              <i className="fas fa-file-excel mr-2"></i> Exportar
+            </button>
+
+            {/* Modal para los filtros */}
+
+
+            {isModalOpen2 && (
+              <div
+                className="fixed inset-0 bg-gray-800  bg-opacity-50 z-50 flex justify-center items-center"
+                style={{ zIndex: 1000 }} // Garantiza que esté encima de todo
+              >
+                <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-96 relative">
+                  <h2 className="text-lg font-bold mb-4">Filtros de Exportación</h2>
+
+                  {/* Campo de filtro de tiempo */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">Tiempo:</label>
+                    <select
+                      value={timeFilter}
+                      onChange={(e) => setTimeFilter(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2"
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="30">Últimos 30 minutos</option>
+                      <option value="60">Última 1 hora</option>
+                    </select>
+                  </div>
+
+                  {/* Campo de límite */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">Cantidad de libros:</label>
+                    <input
+                      type="number"
+                      value={limitFilter}
+                      onChange={(e) => setLimitFilter(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="Ej: 10, 20, 30"
+                    />
+                  </div>
+
+                  {/* Botones del modal */}
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      onClick={() => setIsModalOpen2(false)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={handleExport}
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg"
+                    >
+                      Exportar
+                    </button>
+                    {/* Nuevo botón para exportar sin filtro */}
+                    <button
+                      onClick={handleExportWithoutFilter}
+                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg"
+                    >
+                      Exportar sin filtro
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+
+
+
+          </div>
+
         </div>
       </div>
-
-
-
 
       {/* Tabla de resultados */}
       <div className="w-11/12 h-[600px] text-xs dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
@@ -249,10 +343,8 @@ const ShowBooks = () => {
             page={page}
             onChange={(p) => setPage(p)}
           />
-
         </div>
       </div>
-
       {/* Modal de edición */}
       {isModalOpen && (
         <EditBooks
@@ -263,10 +355,6 @@ const ShowBooks = () => {
       )}
     </div>
 
-
   );
-
-
 };
-
 export default ShowBooks;
