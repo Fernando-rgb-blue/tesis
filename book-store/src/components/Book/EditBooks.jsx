@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Input } from '@nextui-org/react';
 
-const endpoint = 'http://159.65.183.18:8000/api/libro/';
+const endpoint = 'http://localhost:8000/api/libro/';
 
 const EditBooks = ({ libroID, onClose, onUpdate }) => {
   const [isbn, setIsbn] = useState('');
@@ -45,13 +45,13 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       setTomo(bookData.tomo);
 
       // Obtener listas de opciones
-      const autoresResponse = await axios.get('http://159.65.183.18:8000/api/autors');
+      const autoresResponse = await axios.get('http://localhost:8000/api/autors');
       setAutores(autoresResponse.data);
 
-      const categoriasResponse = await axios.get('http://159.65.183.18:8000/api/categorias');
+      const categoriasResponse = await axios.get('http://localhost:8000/api/categorias');
       setCategorias(categoriasResponse.data);
 
-      const editorialesResponse = await axios.get('http://159.65.183.18:8000/api/editorials');
+      const editorialesResponse = await axios.get('http://localhost:8000/api/editorials');
       setEditoriales(editorialesResponse.data);
     };
     getBookById();

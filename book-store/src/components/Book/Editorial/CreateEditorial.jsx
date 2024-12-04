@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const endpoint = `http://159.65.183.18:8000/api/editorial`;
+const endpoint = `http://localhost:8000/api/editorial`;
 
 const CreateEditorial = ({ closeModal }) => {
   const [nombre, setNombre] = useState('');

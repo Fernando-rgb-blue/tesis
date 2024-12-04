@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-const endpoint = 'http://159.65.183.18:8000/api/register'; // Endpoint del backend
+const endpoint = 'http://localhost:8000/api/register'; // Endpoint del backend
 
 const SignUp = () => {
   const [name, setName] = useState('');

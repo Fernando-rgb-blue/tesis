@@ -9,18 +9,23 @@ import axios from 'axios';
 
 const Menu = [
     { id: 1, name: "Inicio", link: '/#' },
-    { id: 2, name: "Libreria", link: '/#services' },
+    { id: 2, name: "Librería", link: '/#services' },
 ];
 
 const Navbar = () => {
     const navigate = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userType, setUserType] = useState(null); // Nuevo estado para el tipo de usuario
     const location = useLocation();
     const userProfile = location.state?.userProfile || JSON.parse(localStorage.getItem('userProfile'));
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         setIsAuthenticated(!!token);
+
+        if (userProfile) {
+            setUserType(userProfile.tipousuario); // Configura el tipo de usuario
+        }
 
         const handleStorageChange = (e) => {
             if (e.key === 'token') {
@@ -30,13 +35,13 @@ const Navbar = () => {
 
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
+    }, [userProfile]);
 
     const handleSignIn = () => navigate('/signin');
 
     const handleLogout = async () => {
         try {
-            const response = await axios.post('http://159.65.183.18:8000/api/logout', {}, {
+            const response = await axios.post('http://localhost:8000/api/logout', {}, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
             });
 
@@ -44,6 +49,7 @@ const Navbar = () => {
                 localStorage.removeItem('token');
                 localStorage.removeItem('userProfile');
                 setIsAuthenticated(false);
+                setUserType(null);
             }
         } catch (error) {
             console.error('Error al cerrar sesión:', error.response ? error.response.data : error.message);
@@ -75,7 +81,8 @@ const Navbar = () => {
                                     </a>
                                 </li>
                             ))}
-                            {isAuthenticated && (
+
+                            {isAuthenticated && userType === "Administrador(a)" && (
                                 <>
                                     <li className="group relative cursor-pointer">
                                         <a href="/#" className="flex items-center gap-2">
@@ -94,21 +101,32 @@ const Navbar = () => {
                                     <li>
                                         <a href="/reserva" className="inline-block py-4 px-4 hover:text-primary duration-200">Reserva</a>
                                     </li>
-                                    <li className="group relative cursor-pointer">
-                                        <a href="/user" className="flex items-center gap-2">
-                                            <RiUser3Fill className="text-3xl" />
-                                            <span>{userProfile.name}</span>
-                                            <FaCaretDown className="transition duration-300 group-hover:rotate-180" />
-                                        </a>
-                                        <div className="absolute z-10 hidden group-hover:block text-black bg-white p-2 shadow-md rounded-md w-[150px]">
-                                            <ul>
-                                                <li>
-                                                    <button onClick={handleLogout} className="block w-full p-2 hover:bg-primary/20 rounded-md">Cerrar Sesión</button>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                </>
+                            )}
+
+                            {isAuthenticated && userType === "Alumno(a)" && (
+                                <>
+                                    <li>
+                                        <a href="/#" className="inline-block py-4 px-4 hover:text-primary duration-200">Reservas</a>
                                     </li>
                                 </>
+                            )}
+
+                            {isAuthenticated && (
+                                <li className="group relative cursor-pointer">
+                                    <a href="/user" className="flex items-center gap-2">
+                                        <RiUser3Fill className="text-3xl" />
+                                        <span>{userProfile.name}</span>
+                                        <FaCaretDown className="transition duration-300 group-hover:rotate-180" />
+                                    </a>
+                                    <div className="absolute z-10 hidden group-hover:block text-black bg-white p-2 shadow-md rounded-md w-[150px]">
+                                        <ul>
+                                            <li>
+                                                <button onClick={handleLogout} className="block w-full p-2 hover:bg-primary/20 rounded-md">Cerrar Sesión</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
                             )}
                         </ul>
 

@@ -17,7 +17,6 @@ class AutorController extends Controller
         $autor = Autor::all();
         return $autor;
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -29,7 +28,6 @@ class AutorController extends Controller
         // Guardar el nuevo libro en la base de datos
         $autor->save();
     }
-
     /**
      * Display the specified resource.
      */
@@ -38,7 +36,6 @@ class AutorController extends Controller
         $autor = Autor::where('autorID', $autorID)->first();
         return $autor;
     }
-
     /**
      * Update the specified resource in storage.
      */
@@ -50,7 +47,6 @@ class AutorController extends Controller
         // Guardar el nuevo libro en la base de datos
         $autor->save();
     }
-
     /**
      * Remove the specified resource from storage.
      */
@@ -58,15 +54,12 @@ class AutorController extends Controller
     {
         // Buscar el libro por libroID
         $autor = Autor::where('autorID', $autorID)->first();
-
         // Verificar si el libro existe
         if (!$autor) {
             return response()->json(['message' => 'Libro no encontrado.'], 404);
         }
-
         // Eliminar el libro
         $autor->delete();
-
         return response()->json(['message' => 'Libro eliminado exitosamente.'], 200);
     }
 }

@@ -12,34 +12,53 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
+    /**
+     * Registrar un nuevo usuario
+     */
     public function register(Request $request)
     {
-        //validación de los datos
+        // Validación de los datos
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
+            'dni' => 'required|integer|unique:users',
+            'tipousuario' => 'required|string|exists:tipousuarios,tipousuario',
+            'estadousuario' => 'required|string|exists:estadousuarios,estadousuario',
+            'domicilio' => 'required|string|max:255',
+            'telefono' => 'required|integer',
+            'fechanacimiento' => 'required|date',
             'email' => 'required|email|unique:users',
-            'password' => 'required|confirmed'
+            'password' => 'required|string|confirmed|min:8'
         ]);
-        //alta del usuario
+
+        // Crear el nuevo usuario
         $user = new User();
         $user->name = $request->name;
+        $user->dni = $request->dni;
+        $user->tipousuario = $request->tipousuario;
+        $user->estadousuario = $request->estadousuario;
+        $user->domicilio = $request->domicilio;
+        $user->telefono = $request->telefono;
+        $user->fechanacimiento = $request->fechanacimiento;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->save();
-        //respuesta
-        /* return response()->json([
-            "message" => "Alta exitosa"
-        ]); */
+
+        // Respuesta de éxito
         return response($user, Response::HTTP_CREATED);
     }
 
+    /**
+     * Login de usuario
+     */
     public function login(Request $request)
     {
+        // Validar las credenciales
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required']
+            'email' => 'required|email',
+            'password' => 'required|string'
         ]);
 
+        // Intentar la autenticación
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('token')->plainTextToken;
@@ -50,36 +69,41 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Obtener el perfil del usuario autenticado
+     */
     public function userProfile(Request $request)
     {
-        // Verifica si el usuario está autenticado
+        // Verificar si el usuario está autenticado
         if (auth()->check()) {
             return response()->json([
                 "message" => "userProfile OK",
                 "userData" => auth()->user()
             ], Response::HTTP_OK);
         } else {
-            // Si no está autenticado, retorna un error 401
             return response()->json([
                 "message" => "No logeado"
             ], Response::HTTP_UNAUTHORIZED);
         }
     }
-    
 
-    
+    /**
+     * Logout del usuario autenticado
+     */
     public function logout(Request $request)
     {
-        // Revoca el token actual
+        // Revocar el token actual
         $request->user()->currentAccessToken()->delete();
 
-        // Opcional: Elimina la cookie si estás usando cookies
+        // Opcional: Eliminar la cookie si se usa
         $cookie = Cookie::forget('cookie_token');
 
         return response(["message" => "Cierre de sesión exitoso"], Response::HTTP_OK)->withCookie($cookie);
     }
 
-
+    /**
+     * Obtener todos los usuarios
+     */
     public function allUsers()
     {
         $users = User::all();

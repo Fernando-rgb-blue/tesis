@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const endpoint = `http://159.65.183.18:8000/api/autor`;
+const endpoint = `http://localhost:8000/api/autor`;
 
 const CreateAutor = ({ closeModal }) => {
   const [nombre, setNombre] = useState('');

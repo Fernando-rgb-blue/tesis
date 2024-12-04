@@ -12,7 +12,7 @@ const SignIn = () => {
     try {
       // Lógica de autenticación
 
-      const response = await fetch('http://159.65.183.18:8000/api/login', {
+      const response = await fetch('http://localhost:8000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ const SignIn = () => {
         console.log(data); // Imprime el token en consola
 
         // Hacer una solicitud para obtener el perfil del usuario
-        const profileResponse = await fetch('http://159.65.183.18:8000/api/user-profile', {
+        const profileResponse = await fetch('http://localhost:8000/api/user-profile', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${data.token}`, // Añadir el token en los headers
