@@ -3,33 +3,44 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import CreateAutor from './Autor/CreateAutor';
+import { Textarea } from "@nextui-org/react";
 import CreateCategoria from './Categoria/CreateCategoria';
 import CreateEditorial from './Editorial/CreateEditorial';
 import { Input } from '@nextui-org/react';
-import Select from 'react-select'
+import Select from 'react-select';
+
 // Configurar el elemento principal para el modal
+
 Modal.setAppElement('#root');
 
 const endpoint = `http://localhost:8000/api/libro`;
 
 const CreateBook = () => {
   const [isbn, setIsbn] = useState('');
+  const [controltopografico, setControltopografico] = useState('');
   const [codigolibroID, setCodigoLibroID] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autorID, setAutorID] = useState('');
-  const [categoriaID, setCategoriaID] = useState('');
-  const [editorialID, setEditorialID] = useState('');
-  const [aniopublicacion, setAniopublicacion] = useState('');
-  const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
-  const [edicion, setEdicion] = useState('');
   const [numeropaginas, setNumeropaginas] = useState('');
+  const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
+  const [resumen, setResumen] = useState('');
   const [volumen, setVolumen] = useState('');
   const [tomo, setTomo] = useState('');
+  const [categoriaID, setCategoriaID] = useState('');
+  const [edicion, setEdicion] = useState('');
+  const [editorialID, setEditorialID] = useState('');
+  const [pais, setPais] = useState('');
+  const [idioma, setIdioma] = useState('');
+  const [aniopublicacion, setAniopublicacion] = useState('');
+  const [formadeadquisicion, setFormadeadquisicion] = useState('');
+  const [precio, setPrecio] = useState('');
+  const [procedenciaproovedor, setProcedenciaproovedor] = useState('');
   const [autores, setAutores] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [editoriales, setEditoriales] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState('');
+  const [foto, setFoto] = useState(null);
 
   const navigate = useNavigate();
 
@@ -42,26 +53,45 @@ const CreateBook = () => {
     setModalIsOpen(false);
   };
 
+  const handleFileChange = (e) => {
+    setFoto(e.target.files[0]);
+  };
+
   const create = async (e) => {
     e.preventDefault();
     try {
-      const libroResponse = await axios.post(endpoint, {
-        isbn,
-        codigolibroID,
-        titulo,
-        autor_nombre: autorID,
-        categoria_nombre: categoriaID,
-        editorial_nombre: editorialID,
-        aniopublicacion,
-        ejemplaresdisponibles,
-        edicion,
-        numeropaginas,
-        volumen,
-        tomo
+      const formData = new FormData();
+      formData.append('isbn', isbn);
+      formData.append('controltopografico', controltopografico);
+      formData.append('codigolibroID', codigolibroID);
+      formData.append('titulo', titulo);
+      formData.append('numeropaginas', numeropaginas);
+      formData.append('ejemplaresdisponibles', ejemplaresdisponibles);
+      formData.append('resumen', resumen);
+      formData.append('volumen', volumen);
+      formData.append('tomo', tomo);
+      formData.append('edicion', edicion);
+      formData.append('pais', pais);
+      formData.append('idioma', idioma);
+      formData.append('aniopublicacion', aniopublicacion);
+      formData.append('formadeadquisicion', formadeadquisicion);
+      formData.append('precio', precio);
+      formData.append('procedenciaproovedor', procedenciaproovedor);
+      formData.append('autor_nombre', autorID);
+      formData.append('categoria_nombre', categoriaID);
+      formData.append('editorial_nombre', editorialID);
+
+      if (foto) {
+        formData.append('rutafoto', foto);
+      }
+
+      const libroResponse = await axios.post(endpoint, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      console.log('Datos del libro:', libroResponse.data); // Agregar esto para depuración
-
+      console.log('Datos del libro:', libroResponse.data);
       navigate('/ingresos/create', { state: { codigolibroID, ejemplaresdisponibles } });
     } catch (error) {
       console.error('Error al crear el libro:', error);
@@ -84,57 +114,25 @@ const CreateBook = () => {
     fetchData();
   }, []);
 
-
-  // Mapear los autores para adaptarlos al formato de `react-select`
   const autorOptions = autores.map((autor) => ({
     value: autor.id,
     label: autor.nombre,
   }));
 
-  // Manejar cambios en el selector
   const handleChange = (selectedOption) => {
     setAutorID(selectedOption ? selectedOption.value : "");
   };
 
+
   return (
     <div className="h-[calc(100vh-88px)] flex items-center justify-center bg-gray-200 dark:bg-black">
-      <div className="w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 h-auto max-h-[90vh] text-xs bg-gray-50 dark:bg-gray-900 p-4 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
+      <div className="w-11/12 lg:w-3/4 xl:w-2/3 text-xs bg-gray-50 dark:bg-gray-900 p-4 rounded-md shadow-md overflow-auto">
         <h3 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
           Crear Nuevo Libro
         </h3>
 
-        <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* ISBN */}
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              ISBN
-            </label>
-            <Input
-              value={isbn}
-              onChange={(e) => setIsbn(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="ISBN"
-              className="w-full"
-            />
-          </div>
+        <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          {/* Código */}
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Código
-            </label>
-            <Input
-              value={codigolibroID}
-              onChange={(e) => setCodigoLibroID(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="Código"
-              className="w-full"
-            />
-          </div>
-
-          {/* Título */}
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Título
@@ -149,6 +147,19 @@ const CreateBook = () => {
             />
           </div>
 
+          {/* Inputs del formulario */}
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">ISBN</label>
+            <Input
+              value={isbn}
+              onChange={(e) => setIsbn(e.target.value)}
+              type="text"
+              isRequired
+              aria-label="ISBN"
+              className="w-full"
+            />
+          </div>
 
           {/* Autor */}
 
@@ -237,38 +248,29 @@ const CreateBook = () => {
           </div>
 
 
-
-          {/* Año de Publicación */}
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Año de Publicación
-            </label>
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Control Topográfico</label>
             <Input
-              value={aniopublicacion}
-              onChange={(e) => setAniopublicacion(e.target.value)}
+              value={controltopografico}
+              onChange={(e) => setControltopografico(e.target.value)}
               type="text"
-              isRequired
-              aria-label="Año de Publicación"
+              aria-label="Control Topográfico"
               className="w-full"
             />
           </div>
 
-          {/* Ejemplares Disponibles */}
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Ejemplares Disponibles
-            </label>
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Código</label>
             <Input
-              value={ejemplaresdisponibles}
-              onChange={(e) => setEjemplaresdisponibles(e.target.value)}
+              value={codigolibroID}
+              onChange={(e) => setCodigoLibroID(e.target.value)}
               type="text"
               isRequired
-              aria-label="Ejemplares Disponibles"
+              aria-label="Código"
               className="w-full"
             />
           </div>
 
-          {/* Edición */}
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Edición
@@ -283,7 +285,72 @@ const CreateBook = () => {
             />
           </div>
 
-          {/* Número de Páginas */}
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Volumen</label>
+            <Input
+              value={volumen}
+              onChange={(e) => setVolumen(e.target.value)}
+              type="text"
+              aria-label="Volumen"
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Tomo</label>
+            <Input
+              value={tomo}
+              onChange={(e) => setTomo(e.target.value)}
+              type="text"
+              aria-label="Tomo"
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Pais</label>
+            <Input
+              value={pais}
+              onChange={(e) => setPais(e.target.value)}
+              type="text"
+              aria-label="Pais"
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Idioma</label>
+            <Input
+              value={idioma}
+              onChange={(e) => setIdioma(e.target.value)}
+              type="text"
+              aria-label="Idioma"
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Forma de Adquisición</label>
+            <Input
+              value={formadeadquisicion}
+              onChange={(e) => setFormadeadquisicion(e.target.value)}
+              type="text"
+              aria-label="Forma de Adquisición"
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Precio</label>
+            <Input
+              value={precio}
+              onChange={(e) => setPrecio(e.target.value)}
+              type="text"
+              aria-label="Precio"
+              className="w-full"
+            />
+          </div>
+
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Número de Páginas
@@ -298,38 +365,73 @@ const CreateBook = () => {
             />
           </div>
 
-          {/* Volumen */}
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Volumen
-            </label>
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Procedencia del Proveedor</label>
             <Input
-              value={volumen}
-              onChange={(e) => setVolumen(e.target.value)}
+              value={procedenciaproovedor}
+              onChange={(e) => setProcedenciaproovedor(e.target.value)}
               type="text"
-              isRequired
-              aria-label="Volumen"
+              aria-label="Procedencia del Proveedor"
               className="w-full"
             />
           </div>
 
-          {/* Tomo */}
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Tomo
+              Año de Publicación
             </label>
             <Input
-              value={tomo}
-              onChange={(e) => setTomo(e.target.value)}
+              value={aniopublicacion}
+              onChange={(e) => setAniopublicacion(e.target.value)}
               type="text"
               isRequired
-              aria-label="Tomo"
+              aria-label="Año de Publicación"
               className="w-full"
             />
           </div>
 
-          {/* Botón Guardar */}
-          <div className="flex justify-center col-span-2 mt-6">
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Ejemplares Disponibles
+            </label>
+            <Input
+              value={ejemplaresdisponibles}
+              onChange={(e) => setEjemplaresdisponibles(e.target.value)}
+              type="text"
+              isRequired
+              aria-label="Ejemplares Disponibles"
+              className="w-full"
+            />
+          </div>
+
+          {/* Columna para el resumen */}
+          <div className="flex flex-col w-full">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Resumen
+            </label>
+            <Textarea
+              value={resumen}
+              onChange={(e) => setResumen(e.target.value)}
+              aria-label="Resumen"
+              rows={6}
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Subir Foto
+            </label>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Columna para los botones */}
+          <div className="flex flex-col space-y-4 w-full">
+    
             <button
               type="submit"
               className="bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-6 rounded-md"
@@ -337,8 +439,8 @@ const CreateBook = () => {
               Guardar
             </button>
           </div>
-        </form>
 
+        </form>
 
         <Modal
           isOpen={modalIsOpen}
@@ -358,9 +460,6 @@ const CreateBook = () => {
       </div>
     </div>
   );
-
-
-
 
 };
 

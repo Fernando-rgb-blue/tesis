@@ -4,8 +4,9 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from '@nextui-org/react';
 import EditBooks from './EditBooks';
-const endpoint = 'http://localhost:8000/api';
+import Swal from "sweetalert2";
 
+const endpoint = 'http://localhost:8000/api';
 
 const ShowBooks = () => {
 
@@ -86,26 +87,46 @@ const ShowBooks = () => {
     getAllBooks(); // Llamar a getAllBooks para refrescar la lista después de actualizar
   };
 
-  const deleteBook = async (id) => {
-    const confirmed = window.confirm('¿Está seguro de que desea eliminar este libro?');
-    if (confirmed) {
-      try {
-        await axios.delete(`${endpoint}/libro/${id}`);
-        getAllBooks();
-      } catch (error) {
-        console.error('Error deleting book:', error);
-      }
-    }
-  };
 
-  const rowsPerPage = 10;
+
+  const handleDelete = async (id) => {
+    // Mostrar la alerta de confirmación con SweetAlert2
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Realizar la solicitud para eliminar el libro
+          await axios.delete(`${endpoint}/libro/${id}`);
+          // Actualizar la lista de libros
+          getAllBooks();
+          // Mostrar mensaje de éxito
+          Swal.fire("Eliminado", "El libro ha sido eliminado.", "success");
+        } catch (error) {
+          // Mostrar un mensaje de error si algo falla
+          Swal.fire("Error", "Hubo un problema al intentar eliminar el libro.", "error");
+          console.error("Error deleting book:", error);
+        }
+      }
+    });
+  };
+  
+
+  const rowsPerPage = 14;
 
   const handleExportWithoutFilter = () => {
     // Realiza la exportación sin aplicar los filtros de tiempo o cantidad
     const params = new URLSearchParams();
     window.location.href = `http://localhost:8000/api/booksexport?${params.toString()}`;
   };
-  
+
   // Usamos useMemo para que solo se calcule cuando cambian los libros o la búsqueda
   const filteredBooks = useMemo(() => {
     return books.filter((libro) =>
@@ -138,12 +159,8 @@ const ShowBooks = () => {
   };
 
   return (
-
-
     <div className="flex flex-col items-center justify-center dark:bg-gray-900 mt-5">
-
       {/* Barra de búsqueda y Gestión de Libros */}
-
       <div className="w-11/12 text-xs dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto">
         {/* Título centrado */}
         <h1 className="text-2xl font-bold text-center dark:text-white mb-6">
@@ -195,7 +212,6 @@ const ShowBooks = () => {
             </button>
 
             {/* Modal para los filtros */}
-
 
             {isModalOpen2 && (
               <div
@@ -256,73 +272,73 @@ const ShowBooks = () => {
                 </div>
               </div>
             )}
-
-
-
-
           </div>
-
         </div>
       </div>
 
       {/* Tabla de resultados */}
-      <div className="w-11/12 h-[600px] text-xs dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
+      <div className="w-11/12 h-[600px] text-xs dark:bg-gray-800 p-2 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
         <Table aria-label="Gestión de Libros" className="w-full table-fixed">
           <TableHeader>
-            <TableColumn className="text-center">ISBN</TableColumn>
-            <TableColumn className="text-center">Código</TableColumn>
-            <TableColumn className="text-center">Título</TableColumn>
-            <TableColumn className="text-center">Autor</TableColumn>
-            <TableColumn className="text-center">Categoría</TableColumn>
-            <TableColumn className="text-center">Editorial</TableColumn>
-            <TableColumn className="text-center">Año de Publicación</TableColumn>
-            <TableColumn className="text-center">Ejemplares Disponibles</TableColumn>
-            <TableColumn className="text-center">Número de Páginas</TableColumn>
-            <TableColumn className="text-center">Acción</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">ISBN</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Código</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Título</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Autor</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Categoría</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Editorial</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Año de Publicación</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Ejemplares Disponibles</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Acciones</TableColumn>
           </TableHeader>
+
           <TableBody>
             {paginatedFilteredBooks
-              .sort((a, b) => {
-                if (sortOrder === "asc") {
-                  return a.titulo.localeCompare(b.titulo);
-                } else {
-                  return b.titulo.localeCompare(a.titulo);
-                }
-              })
+              .sort((a, b) => (sortOrder === 'asc' ? a.titulo.localeCompare(b.titulo) : b.titulo.localeCompare(a.titulo)))
               .map((libro) => (
-                <TableRow key={libro.libroID}>
-                  <TableCell className="text-center">{libro.isbn}</TableCell>
-                  <TableCell className="text-center">{libro.codigolibroID}</TableCell>
-                  <TableCell className="text-center">{libro.titulo}</TableCell>
-                  <TableCell className="text-center">
-                    {autors.find((autor) => autor.autorID === libro.autorID)?.nombre || 'No disponible'}
+                <TableRow key={libro.id}>
+                  <TableCell className="text-center text-xs">{libro.isbn}</TableCell>
+                  <TableCell className="text-center text-xs">{libro.codigolibroID}</TableCell>
+                  <TableCell className="text-center text-xs">{libro.titulo}</TableCell>
+                  <TableCell className="text-center text-xs">
+                    {autors.find((autor) => autor.autorID === libro.autorID)?.nombre || "No disponible"}
                   </TableCell>
-                  <TableCell className="text-center">
-                    {categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || 'No disponible'}
+                  <TableCell className="text-center text-xs">
+                    {categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || "No disponible"}
                   </TableCell>
-                  <TableCell className="text-center">
-                    {editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || 'No disponible'}
+                  <TableCell className="text-center text-xs">
+                    {editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || "No disponible"}
                   </TableCell>
-                  <TableCell className="text-center">{libro.aniopublicacion}</TableCell>
-                  <TableCell className="text-center">{libro.ejemplaresdisponibles}</TableCell>
-                  <TableCell className="text-center">{libro.numeropaginas}</TableCell>
-                  <TableCell className="text-center">
+                  <TableCell className="text-center text-xs">{libro.aniopublicacion}</TableCell>
+                  <TableCell className="text-center text-xs">{libro.ejemplaresdisponibles}</TableCell>
+                  <TableCell className="text-center text-xs">
                     <div className="flex space-x-2 justify-center">
-                      <Link to={`/view-books/${libro.id}`} className="bg-blue-500 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center">
+                      <Link
+                        to={`/view-books/${libro.id}`}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
+                      >
                         <i className="fas fa-eye"></i>
                       </Link>
                       <button
                         onClick={() => openModal(libro.id)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
                       >
                         <i className="fas fa-pencil-alt"></i>
                       </button>
-                      <button
+
+                      {/* <button
                         onClick={() => deleteBook(libro.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center"
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button> */}
+
+                      <button
+                        onClick={() => handleDelete(libro.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
                       >
                         <i className="fas fa-trash"></i>
                       </button>
+
                     </div>
                   </TableCell>
                 </TableRow>
@@ -356,5 +372,6 @@ const ShowBooks = () => {
     </div>
 
   );
+
 };
 export default ShowBooks;

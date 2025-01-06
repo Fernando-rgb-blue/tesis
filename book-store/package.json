@@ -24,6 +24,7 @@
     "react-slick": "^0.29.0",
     "react-star-ratings": "^2.3.0",
     "slick-carousel": "^1.8.1",
+    "sweetalert2": "^11.15.10",
     "tailwind-scrollbar": "^3.1.0"
   },
   "devDependencies": {
