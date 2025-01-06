@@ -34,3 +34,4 @@ class EstadoUsuarioSeeder extends Seeder
         }
     }
 }
+

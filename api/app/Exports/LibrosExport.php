@@ -99,10 +99,8 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
             AfterSheet::class => function ($event) {
                 $sheet = $event->sheet;
 
-                // Obtiene el número de columnas
                 $endColumn = $this->getExcelColumnLetter(count($this->headings()));
-
-                // Título principal
+                
                 $sheet->mergeCells("A1:$endColumn" . '1');
                 $sheet->setCellValue('A1', 'Listado de Libros');
                 $sheet->getStyle("A1:$endColumn" . '1')->applyFromArray([
