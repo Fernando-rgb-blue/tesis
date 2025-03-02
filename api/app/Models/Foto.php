@@ -9,21 +9,6 @@ class Foto extends Model
 {
     use HasFactory;
 
-    // Definimos la tabla asociada al modelo
-    protected $table = 'fotos';
-
-    // Permitimos asignación masiva para las siguientes columnas
-    protected $fillable = [
-        'ningresoID',
-        'rutafoto',
-    ];
-
-    /**
-     * Relación con el modelo Ejemplar.
-     * Una foto pertenece a un ejemplar.
-     */
-    public function ejemplar()
-    {
-        return $this->belongsTo(Ejemplar::class, 'ningresoID', 'ningresoID');
-    }
+    protected $table = 'fotos'; // Asegúrate de que sea el nombre correcto de tu tabla
+    protected $fillable = ['ningresoID', 'rutafoto']; // Agrega ningresoID aquí
 }

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\LibroController;
 use App\Http\Controllers\Api\TipousuarioController;
 use App\Http\Controllers\Api\PrestamoController;
+use App\Http\Controllers\Api\FotoEjemplarController;
 use App\Models\Editorial;
 use App\Models\Prestamo;
 use Illuminate\Support\Facades\Auth;
@@ -77,12 +78,27 @@ Route::controller(CategoriaController::class)->group(function(){
     Route::delete('/categoria/{id}','destroy');
 });
 
+//EJEMPLAR
+
 Route::controller(EjemplarController::class)->group(function(){
     Route::get('/ejemplars','index');
     Route::post('/ejemplar','store');
+    Route::post('/ejemplar/{codigolibro}','store2');
     Route::get('/ejemplar/{id}','show');
-    Route::put('/ejemplar/{id}','update');
-    Route::delete('/ejemplar/{id}','destroy');
+    Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2');
+    Route::put('/ejemplar/{codigolibro}/{ningresoID}','update');
+    Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy');
+});
+
+
+//FOTO EJEMPLAR
+
+Route::controller(FotoEjemplarController::class)->group(function(){
+    Route::get('/fotoejemplars','index');
+    Route::post('/fotoejemplar','store');
+    Route::get('/fotoejemplar/{ningresoID}','show');
+    Route::put('/fotoejemplar/{ningresoID}','update');
+    Route::delete('/fotoejemplar/{id}','destroy');
 });
 
 // SESION 
@@ -121,9 +137,3 @@ Route::controller(EmpleadoController::class)->group(function(){
     Route::post('/prestamo','store');
 });
 
-//FOTOS
-
-Route::controller(FotoController::class)->group(function(){
-    Route::get('/fotos','index');
-    Route::post('foto','store');
-});
