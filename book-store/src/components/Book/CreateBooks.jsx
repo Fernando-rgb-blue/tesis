@@ -15,6 +15,7 @@ import { Button } from "@nextui-org/react";
 
 Modal.setAppElement('#root');
 
+const BASE_URL = "http://localhost:8000/api";
 const endpoint = `http://localhost:8000/api/libro`;
 
 const CreateBook = () => {
@@ -55,6 +56,47 @@ const CreateBook = () => {
   const closeModal = () => {
     setModalIsOpen(false);
   };
+
+
+  const fetchAutores = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/autors`); // Reemplaza con la ruta correcta de tu backend
+      const data = await response.json();
+      setAutores(data);
+    } catch (error) {
+      console.error("Error al obtener los autores:", error);
+    }
+  };
+
+  const fetchCategorias = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/categorias`); // Reemplaza con la ruta correcta de tu backend
+      const data = await response.json();
+      setCategorias(data);
+    } catch (error) {
+      console.error("Error al obtener los autores:", error);
+    }
+  };
+
+  const fetchEditoriales = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/editorials`); // Reemplaza con la ruta correcta de tu backend
+      const data = await response.json();
+      setEditoriales(data);
+    } catch (error) {
+      console.error("Error al obtener los autores:", error);
+    }
+  };
+
+  
+  const closeModalAndReload = () => {
+    closeModal(); // Cierra el modal
+    fetchAutores(); // Recarga la lista de autores
+    fetchCategorias();
+    fetchEditoriales();
+  };
+
+
 
   const handleFileChange = (e) => {
     setFoto(e.target.files[0]);
@@ -104,9 +146,9 @@ const CreateBook = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [autoresResponse, categoriasResponse, editorialesResponse] = await Promise.all([
-        axios.get('http://localhost:8000/api/autors'),
-        axios.get('http://localhost:8000/api/categorias'),
-        axios.get('http://localhost:8000/api/editorials')
+        axios.get(`${BASE_URL}/autors`),
+        axios.get(`${BASE_URL}/categorias`),
+        axios.get(`${BASE_URL}/editorials`)
       ]);
 
       setAutores(autoresResponse.data);
@@ -220,13 +262,9 @@ const CreateBook = () => {
                   </AutocompleteItem>
                 ))}
               </Autocomplete>
-              <button
-                type="button"
-                onClick={() => openModal("categoria")}
-                className="ml-2 px-4 py-2 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-700"
-              >
+              <Button color="success" onClick={() => openModal("categoria")}>
                 +
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -255,13 +293,12 @@ const CreateBook = () => {
                   </AutocompleteItem>
                 ))}
               </Autocomplete>
-              <button
-                type="button"
-                onClick={() => openModal("editorial")}
-                className="ml-2 px-4 py-2 bg-green-500 text-white font-semibold rounded-md shadow-md hover:bg-green-700"
-              >
+
+
+              <Button color="success" onClick={() => openModal("editorial")}>
                 +
-              </button>
+              </Button>
+
             </div>
           </div>
 
@@ -460,19 +497,20 @@ const CreateBook = () => {
 
         </form>
 
+
         <Modal
           isOpen={modalIsOpen}
-          onRequestClose={closeModal}
+          onRequestClose={closeModalAndReload} // Llamamos la función modificada
           contentLabel="Crear Nuevo"
           className="modal"
           overlayClassName="modal-overlay"
         >
-          <button onClick={closeModal} className="absolute top-2 right-2 text-xl font-bold">
+          <button onClick={closeModalAndReload} className="absolute top-2 right-2 text-xl font-bold">
             &times;
           </button>
-          {activeModal === "autor" && <CreateAutor closeModal={closeModal} />}
-          {activeModal === "categoria" && <CreateCategoria closeModal={closeModal} />}
-          {activeModal === "editorial" && <CreateEditorial closeModal={closeModal} />}
+          {activeModal === "autor" && <CreateAutor closeModal={closeModalAndReload} />}
+          {activeModal === "categoria" && <CreateCategoria closeModal={closeModalAndReload} />}
+          {activeModal === "editorial" && <CreateEditorial closeModal={closeModalAndReload} />}
         </Modal>
 
       </div>
