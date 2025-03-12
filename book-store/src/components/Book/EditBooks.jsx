@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Input } from '@nextui-org/react';
 import Swal from "sweetalert2";
+import { Input } from '@nextui-org/react';
+import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
+import { Textarea } from "@nextui-org/react";
 
 const endpoint = 'http://localhost:8000/api/libro/';
 
@@ -31,6 +34,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
   const [autores, setAutores] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [editoriales, setEditoriales] = useState([]);
+  const [fechaadquisicion, setFechaadquisicion] = useState(null);
 
   const { id } = useParams();
 
@@ -60,6 +64,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       setFormadeadquisicion(bookData.formadeadquisicion);
       setPrecio(bookData.precio);
       setProcedenciaproovedor(bookData.procedenciaproovedor);
+      setFechaadquisicion(bookData.fechaadquisicion);
 
       const autoresResponse = await axios.get('http://localhost:8000/api/autors');
       setAutores(autoresResponse.data);
@@ -100,6 +105,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       formData.append('autor_nombre', autorID);
       formData.append('categoria_nombre', categoriaID);
       formData.append('editorial_nombre', editorialID);
+      formData.append('fechaadquisicion', fechaadquisicion);
 
       if (rutafoto) {
         formData.append('rutafoto', rutafoto); // Agregar imagen solo si está presente
@@ -188,8 +194,9 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
 
         <form onSubmit={handleUpdate} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {/* Inputs del formulario */}
+
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700">ISBN</label>
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">ISBN</label>
             <Input
               value={isbn}
               onChange={(e) => setIsbn(e.target.value)}
@@ -200,57 +207,91 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             />
           </div>
 
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+          {/* Autor */}
+
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-100">
               Autor
             </label>
-
-            <select
-              value={autorID}
-              onChange={(e) => setAutorID(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            >
-              {autores.map((autor) => (
-                <option key={autor.id} value={autor.id}>
-                  {autor.nombre}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center gap-2">
+              <Autocomplete
+                aria-label="Seleccionar Autor"
+                placeholder="Buscar Autor..."
+                selectedKey={autorID} // Usa el nombre del autor como clave seleccionada
+                onSelectionChange={(key) => {
+                  // key es el nombre del autor seleccionado
+                  console.log('Nombre del autor seleccionado:', key);
+                  setAutorID(key); // Guarda el nombre del autor en el estado
+                }}
+                className="w-full"
+                popoverProps={{ className: "bg-white" }}
+              >
+                {autores.map((autor) => (
+                  <AutocompleteItem key={autor.nombre} textValue={autor.nombre}>
+                    {autor.nombre}
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+            </div>
           </div>
+
+
+          {/* Categoría */}
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Categoría
             </label>
-            <select
-              value={categoriaID}
-              onChange={(e) => setCategoriaID(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            >
-              {categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.id}>
-                  {categoria.nombre}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center">
+              <Autocomplete
+                aria-label="Seleccionar Categoría"
+                placeholder="Buscar Categoría..."
+                selectedKey={categoriaID} // Usa el nombre de la categoría como clave seleccionada
+                onSelectionChange={(key) => {
+                  // key es el nombre de la categoría seleccionada
+                  console.log('Nombre de la categoría seleccionada:', key);
+                  setCategoriaID(key); // Guarda el nombre de la categoría en el estado
+                }}
+                className="w-full"
+                popoverProps={{ className: "bg-white" }}
+              >
+                {categorias.map((categoria) => (
+                  <AutocompleteItem key={categoria.nombre} textValue={categoria.nombre}>
+                    {categoria.nombre}
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+            </div>
           </div>
+
+          {/* Editorial */}
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Editorial
             </label>
-            <select
-              value={editorialID}
-              onChange={(e) => setEditorialID(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            >
-              {editoriales.map((editorial) => (
-                <option key={editorial.id} value={editorial.id}>
-                  {editorial.nombre}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center">
+              <Autocomplete
+                aria-label="Seleccionar Editorial"
+                placeholder="Buscar Editorial..."
+                selectedKey={editorialID} // Usa el nombre de la editorial como clave seleccionada
+                onSelectionChange={(key) => {
+                  // key es el nombre de la editorial seleccionada
+                  console.log('Nombre de la editorial seleccionada:', key);
+                  setEditorialID(key); // Guarda el nombre de la editorial en el estado
+                }}
+                className="w-full"
+                popoverProps={{ className: "bg-white" }}
+              >
+                {editoriales.map((editorial) => (
+                  <AutocompleteItem key={editorial.nombre} textValue={editorial.nombre}>
+                    {editorial.nombre}
+                  </AutocompleteItem>
+                ))}
+              </Autocomplete>
+            </div>
           </div>
+
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700">Control Topográfico</label>
@@ -276,17 +317,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
           </div>
 
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700">Resumen</label>
-            <Input
-              value={resumen}
-              onChange={(e) => setResumen(e.target.value)}
-              type="text"
-              aria-label="Resumen"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700">Volumen</label>
             <Input
               value={volumen}
@@ -304,6 +334,19 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               onChange={(e) => setTomo(e.target.value)}
               type="text"
               aria-label="Tomo"
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Fecha de Adquisición
+            </label>
+            <Input
+              value={fechaadquisicion}
+              onChange={(e) => setFechaadquisicion(e.target.value)}
+              type="date" // Cambio de tipo a "date"
+              aria-label="Fecha De Adquisición"
               className="w-full"
             />
           </div>
@@ -415,6 +458,20 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               type="text"
               isRequired
               aria-label="Edición"
+              className="w-full"
+            />
+          </div>
+
+          {/* Columna para el resumen */}
+          <div className="flex flex-col w-full">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Resumen
+            </label>
+            <Textarea
+              value={resumen}
+              onChange={(e) => setResumen(e.target.value)}
+              aria-label="Resumen"
+              rows={6}
               className="w-full"
             />
           </div>

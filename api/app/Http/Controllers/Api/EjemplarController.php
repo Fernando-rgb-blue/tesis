@@ -20,23 +20,29 @@ class EjemplarController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    
     public function store(Request $request)
     {
         $ejemplar = new Ejemplar();
         $ejemplar->ningresoID = $request->ningresoID;
         $ejemplar->codigolibroID = $request->codigolibroID;
         $ejemplar->estadolibro = $request->estadolibro;
+        $ejemplar->precio = $request->precio;
         $ejemplar->save();
         return response()->json(['message' => 'Ejemplar creado exitosamente.'], 201);
     }
+    
     public function store2(Request $request, $codigolibroID)
     {
+        // Decodificar el codigolibroID en caso de que venga codificado en la URL
+        $codigolibroID = urldecode($codigolibroID);
 
         // Crear el nuevo ejemplar
         $ejemplar = new Ejemplar();
         $ejemplar->ningresoID = $request->ningresoID;
         $ejemplar->codigolibroID = $codigolibroID; // Se obtiene desde la URL
         $ejemplar->estadolibro = $request->estadolibro;
+        $ejemplar->precio = $request->precio;
         $ejemplar->save();
 
         // Responder con los datos creados
@@ -93,6 +99,7 @@ class EjemplarController extends Controller
         // Actualizar los campos permitidos
         $ejemplar->ningresoID = $request->ningresoID;
         $ejemplar->estadolibro = $request->estadolibro;
+        $ejemplar->precio = $request->precio;
         $ejemplar->updated_at = now();
         $ejemplar->save();
 

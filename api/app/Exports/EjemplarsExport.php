@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Libro;
+use App\Models\Ejemplar;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -12,13 +12,14 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents
+class EjemplarsExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents
 {
     /**
      * Filtros para la exportación.
      *
      * @var array
      */
+
     private $filters;
 
     /**
@@ -33,71 +34,37 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
 
     public function collection()
     {
-        $query = Libro::selectRaw(
-            'libros.codigolibroID, 
-            libros.isbn, 
+        $query = Ejemplar::selectRaw(
+            'ejemplars.ningresoID, 
+            ejemplars.codigolibroID, 
             libros.titulo, 
-            autors.nombre as autor_nombre,  
-            editorials.nombre as editorial_nombre,  
-            categorias.nombre as categoria_nombre,  
-            libros.aniopublicacion, 
-            libros.edicion, 
-            libros.numeropaginas, 
-            libros.volumen, 
-            libros.tomo,
-            libros.idioma,
-            libros.resumen,
-            libros.controltopografico,
-            libros.formadeadquisicion,
-            libros.precio,
-            libros.procedenciaproovedor,
-            libros.ejemplaresdisponibles,
-            DATE(libros.created_at) AS created_date, 
-            TIME(libros.created_at) AS created_time'
+            ejemplars.estadolibro'
         )
-            ->join('autors', 'libros.autorID', '=', 'autors.autorID')
-            ->join('editorials', 'libros.editorialID', '=', 'editorials.editorialID')
-            ->join('categorias', 'libros.categoriaID', '=', 'categorias.categoriaID');
-    
-        // Aplica filtros
+            ->join('libros', 'ejemplars.codigolibroID', '=', 'libros.codigolibroID');
+        
+        // Aplica filtros si existen
         if (isset($this->filters['time'])) {
-            $query->where('libros.created_at', '>=', now()->subMinutes((int) $this->filters['time']));
+            $query->where('ejemplars.created_at', '>=', now()->subMinutes((int) $this->filters['time']));
         }
-
+        
         if (isset($this->filters['limit'])) {
-            $query->orderBy('libros.created_at', 'desc')->limit($this->filters['limit']);
+            $query->orderBy('ejemplars.created_at', 'desc')->limit($this->filters['limit']);
         }
-
-        return $query->get();
+        
+        return $query->get();        
     }
 
 
-public function headings(): array
-{
-    return [
-        'Código de Libro ID',
-        'ISBN',
-        'Título',
-        'Autor',
-        'Editorial',
-        'Categoría',
-        'Año de Publicación',
-        'Edición',
-        'Número de Páginas',
-        'Volumen',
-        'Tomo',
-        'Idioma',
-        'Resumen',
-        'Control Topográfico',
-        'Forma de Adquisición',
-        'Precio',
-        'Procedencia/Proveedor',
-        'Ejemplares Disponibles',
-        'Fecha de creación',
-        'Hora de creación'
-    ];
-}
-
+    public function headings(): array
+    {
+        return [
+            'N° de Ingreso',
+            'Código de Libro ID',
+            'Título del Libro',
+            'Estado del Libro',
+        ];
+    }
+    
 
     public function startCell(): string
     {
@@ -109,11 +76,11 @@ public function headings(): array
         return [
             AfterSheet::class => function ($event) {
                 $sheet = $event->sheet;
-
+    
                 $endColumn = $this->getExcelColumnLetter(count($this->headings()));
                 
                 $sheet->mergeCells("A1:$endColumn" . '1');
-                $sheet->setCellValue('A1', 'Listado de Libros');
+                $sheet->setCellValue('A1', 'Listado de Ejemplares');
                 $sheet->getStyle("A1:$endColumn" . '1')->applyFromArray([
                     'font' => [
                         'bold' => true,
@@ -129,7 +96,7 @@ public function headings(): array
                         'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
-
+    
                 // Encabezados
                 $sheet->getStyle('A2:' . $endColumn . '2')->applyFromArray([
                     'font' => [
@@ -149,7 +116,7 @@ public function headings(): array
                         ],
                     ],
                 ]);
-
+    
                 // Contenido
                 $sheet->getStyle('A3:' . $endColumn . ($sheet->getHighestRow()))->applyFromArray([
                     'alignment' => [
@@ -162,13 +129,11 @@ public function headings(): array
                         ],
                     ],
                 ]);
-
+    
                 // Ajustar el ancho de las columnas
                 $columns = range('A', $endColumn);
                 foreach ($columns as $column) {
-                    if (in_array($column, ['D', 'E', 'F'])) { // Autor, Editorial, Categoría
-                        $sheet->getColumnDimension($column)->setWidth(30);
-                    } elseif ($column === 'C') { // Título
+                    if ($column === 'C') { // Título del libro
                         $sheet->getColumnDimension($column)->setWidth(50);
                     } else {
                         $sheet->getColumnDimension($column)->setWidth(20);
@@ -177,6 +142,7 @@ public function headings(): array
             },
         ];
     }
+    
 
     private function getExcelColumnLetter($columnNumber)
     {
