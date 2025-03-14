@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Support\Facades\Log; // Para el log
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LibrosExport;
+use App\Exports\EjemplarsExport;
 use App\Models\Libro;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
@@ -88,7 +89,7 @@ class LibroController extends Controller
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->numeropaginas = $request->numeropaginas;
         $libro->rutafoto = $imagePath; // Guarda la ruta relativa con el nombre personalizado
-
+        $libro->fechaadquisicion = $request->fechaadquisicion;
         $libro->save();
 
         return response()->json(['message' => 'Libro creado exitosamente.', 'libro' => $libro], 201);
@@ -223,7 +224,7 @@ class LibroController extends Controller
         $libro->procedenciaproovedor = $request->procedenciaproovedor ?? $libro->procedenciaproovedor;
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles ?? $libro->ejemplaresdisponibles;
         $libro->numeropaginas = $request->numeropaginas ?? $libro->numeropaginas;
-
+        $libro->fechaadquisicion = $request->fechaadquisicion ?? $libro->fechaadquisicion;
         // Guardar los cambios
         $libro->save();
 
@@ -251,6 +252,6 @@ class LibroController extends Controller
         $filters = $request->only(['time', 'limit']);
 
         // Retorna la descarga del archivo Excel
-        return Excel::download(new LibrosExport($filters), 'libros.xlsx');
+        return Excel::download(new EjemplarsExport($filters), 'libros.xlsx');
     }
 }

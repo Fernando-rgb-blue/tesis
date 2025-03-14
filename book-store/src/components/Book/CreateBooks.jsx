@@ -3,13 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import CreateAutor from './Autor/CreateAutor';
-import { Textarea } from "@nextui-org/react";
+import Select from 'react-select';
 import CreateCategoria from './Categoria/CreateCategoria';
 import CreateEditorial from './Editorial/CreateEditorial';
-import { Input } from '@nextui-org/react';
-import Select from 'react-select';
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
-import { Button } from "@nextui-org/react";
+import { Input } from "@heroui/react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Button } from "@heroui/react";
+import { Textarea } from "@heroui/react";
 
 // Configurar el elemento principal para el modal
 
@@ -44,6 +44,7 @@ const CreateBook = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState('');
   const [foto, setFoto] = useState(null);
+  const [fechaadquisicion, setFechaadquisicion] = useState(null);
   const [autorNombre, setAutorNombre] = useState('');
 
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ const CreateBook = () => {
     }
   };
 
-  
+
   const closeModalAndReload = () => {
     closeModal(); // Cierra el modal
     fetchAutores(); // Recarga la lista de autores
@@ -125,7 +126,7 @@ const CreateBook = () => {
       formData.append('autor_nombre', autorID);
       formData.append('categoria_nombre', categoriaID);
       formData.append('editorial_nombre', editorialID);
-
+      formData.append('fechaadquisicion', fechaadquisicion);
       if (foto) {
         formData.append('rutafoto', foto);
       }
@@ -195,6 +196,7 @@ const CreateBook = () => {
           {/* Inputs del formulario */}
 
           <div className="flex flex-col">
+            
             <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">ISBN</label>
             <Input
               value={isbn}
@@ -204,6 +206,7 @@ const CreateBook = () => {
               aria-label="ISBN"
               className="w-full"
             />
+
           </div>
 
           {/* Autor */}
@@ -358,6 +361,19 @@ const CreateBook = () => {
               onChange={(e) => setTomo(e.target.value)}
               type="text"
               aria-label="Tomo"
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Fecha de Adquisición
+            </label>
+            <Input
+              value={fechaadquisicion}
+              onChange={(e) => setFechaadquisicion(e.target.value)}
+              type="date" // Cambio de tipo a "date"
+              aria-label="Fecha De Adquisición"
               className="w-full"
             />
           </div>

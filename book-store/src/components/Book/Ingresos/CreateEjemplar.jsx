@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Input } from '@nextui-org/react';
+import { Input } from "@heroui/react";
 
 const endpoint = 'http://localhost:8000/api/ejemplar';
 const libroejemplar = 'http://localhost:8000/api/libro/';
@@ -10,15 +10,15 @@ const CreateEjemplar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { codigolibroID, ejemplaresdisponibles } = location.state || {};
-
   const [ejemplares, setEjemplares] = useState([]);
   const [error, setError] = useState('');
   const [cantidadEjemplares, setCantidadEjemplares] = useState(ejemplaresdisponibles);
 
   // Inicializamos los ejemplares con el número de ejemplares disponibles
+
   useEffect(() => {
     if (cantidadEjemplares) {
-      setEjemplares(Array.from({ length: cantidadEjemplares }, () => ({ ningresoID: '', estadolibro: '', codigolibroID })));
+      setEjemplares(Array.from({ length: cantidadEjemplares }, () => ({ ningresoID: '', estadolibro: '', precio: '', codigolibroID })));
     }
   }, [cantidadEjemplares, codigolibroID]);
 
@@ -42,8 +42,8 @@ const CreateEjemplar = () => {
       await Promise.all(ejemplares.map(ejemplar =>
         axios.post(endpoint, ejemplar)
       ));
-      
-      const data = {ejemplaresdisponibles: cantidadEjemplares};
+
+      const data = { ejemplaresdisponibles: cantidadEjemplares };
 
       // Usamos PUT para actualizar el número de ejemplares disponibles con JSON
       const response = await axios.put(`${libroejemplar}${codigolibroID}`, data, {
@@ -113,6 +113,7 @@ const CreateEjemplar = () => {
                   className="w-full dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
                   required
                 />
+
                 <label className="mt-4 mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
                   Estado del Libro {index + 1}
                 </label>
@@ -124,6 +125,19 @@ const CreateEjemplar = () => {
                   className="w-full dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
                   required
                 />
+
+                <label className="mt-4 mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+                  Precio {index + 1}
+                </label>
+                <Input
+                  name="precio"
+                  value={ejemplar.precio}
+                  onChange={(e) => handleEjemplarChange(index, e)}
+                  type="text"
+                  className="w-full dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+
               </div>
             ))}
           </div>
@@ -137,7 +151,7 @@ const CreateEjemplar = () => {
             </button>
           </div>
 
-          
+
         </form>
       </div>
     </div>

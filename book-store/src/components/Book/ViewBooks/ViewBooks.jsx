@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/react";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
+
+
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
+
+
 
 const endpoint = `http://localhost:8000/api/libro/`;
 const ejemplarEndpoint = `http://localhost:8000/api/ejemplar/`;
@@ -45,6 +49,9 @@ const ViewBook = () => {
     const [selectedEjemplar, setSelectedEjemplar] = useState(null);
     const [newNingresoID, setNewNingresoID] = useState('');
     const [newEstadoLibro, setNewEstadoLibro] = useState('');
+    const [newPrecioLibro, setNewPrecioLibro] = useState('');
+
+
 
     const [selectedPhotos, setSelectedPhotos] = useState([]);
 
@@ -102,6 +109,7 @@ const ViewBook = () => {
         setSelectedEjemplar(ejemplar);
         setNewNingresoID(ejemplar.ningresoID);
         setNewEstadoLibro(ejemplar.estadolibro);
+        setNewPrecioLibro(ejemplar.precio);
         setIsModalOpen(true);
     };
 
@@ -112,6 +120,7 @@ const ViewBook = () => {
         setSelectedEjemplar(null);
         setNewNingresoID('');
         setNewEstadoLibro('');
+        setNewPrecioLibro('');
         setIsModalOpen(true);
     };
 
@@ -121,12 +130,13 @@ const ViewBook = () => {
         try {
             await axios.put(`${ejemplarEndpoint}${selectedEjemplar.codigolibroID}/${selectedEjemplar.ningresoID}`, {
                 ningresoID: newNingresoID,
-                estadolibro: newEstadoLibro
+                estadolibro: newEstadoLibro,
+                precio: newPrecioLibro
             });
 
             setEjemplares(prevEjemplares =>
                 prevEjemplares.map(ej =>
-                    ej.ningresoID === selectedEjemplar.ningresoID ? { ...ej, ningresoID: newNingresoID, estadolibro: newEstadoLibro } : ej
+                    ej.ningresoID === selectedEjemplar.ningresoID ? { ...ej, ningresoID: newNingresoID, estadolibro: newEstadoLibro, precio: newPrecioLibro } : ej
                 )
             );
 
@@ -142,7 +152,8 @@ const ViewBook = () => {
         try {
             const response = await axios.post(`${ejemplarEndpoint}${codigolibroID}`, { // Usa `codigolibroID` en la URL
                 ningresoID: newNingresoID,
-                estadolibro: newEstadoLibro
+                estadolibro: newEstadoLibro,
+                precio: newPrecioLibro
             });
 
             setEjemplares([...ejemplares, response.data.ejemplar]); // Agrega el nuevo ejemplar a la lista
@@ -344,49 +355,41 @@ const ViewBook = () => {
                         {/* Tabla de ejemplares */}
 
                         <div className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow-md overflow-auto">
-
-                            <table className="w-full text-sm text-left text-gray-700 dark:text-gray-300">
-                                <thead className="bg-gray-200 dark:bg-gray-800">
-                                    <tr>
-                                        <th className="px-4 py-2">N. Ingreso</th>
-                                        <th className="px-4 py-2">Estado del Libro</th>
-                                        <th className="px-4 py-2 text-center">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                            <Table aria-label="Tabla de ejemplares" isStriped>
+                                <TableHeader>
+                                    <TableColumn>N. Ingreso</TableColumn>
+                                    <TableColumn>Estado del Libro</TableColumn>
+                                    <TableColumn>Precio</TableColumn>
+                                    <TableColumn className="text-center">Acción</TableColumn>
+                                </TableHeader>
+                                <TableBody>
                                     {ejemplares.map((ejemplar, index) => (
-                                        <tr key={index} className="border-b dark:border-gray-600">
-                                            <td className="px-4 py-2">{ejemplar.ningresoID}</td>
-                                            <td className="px-4 py-2">{ejemplar.estadolibro}</td>
-                                            <td className="px-4 py-2 text-center flex justify-center gap-2">
+                                        <TableRow key={index}>
+                                            <TableCell>{ejemplar.ningresoID}</TableCell>
+                                            <TableCell>{ejemplar.estadolibro}</TableCell>
+                                            <TableCell>{ejemplar.precio}</TableCell>
+                                            <TableCell className="flex justify-center gap-2">
                                                 <Button color="warning" onPress={() => handleEdit(ejemplar)}>
                                                     ✏️
                                                 </Button>
-
-                                                <Button
-                                                    style={{ backgroundColor: "#DC3545", color: "#fff" }}
-                                                    onPress={() => handleDeleteEjemplar(ejemplar.codigolibroID, ejemplar.ningresoID)}
-                                                >
+                                                <Button color="danger" onPress={() => handleDeleteEjemplar(ejemplar.codigolibroID, ejemplar.ningresoID)}>
                                                     🗑️
                                                 </Button>
-
                                                 <Button color="secondary" onPress={() => handleViewPhotos(ejemplar.ningresoID)}>
-                                                    📷 Ver Fotos
+                                                    📷
                                                 </Button>
-                                            </td>
-                                        </tr>
+                                            </TableCell>
+                                        </TableRow>
                                     ))}
+                                </TableBody>
+                            </Table>
 
-                                    <tr className="bg-gray-200 dark:bg-gray-800">
-                                        <td colSpan="3" className="text-center py-3">
-                                            <Button style={{ backgroundColor: "#007BFF", color: "#fff" }} onPress={handleAddEjemplar}>
-                                                ➕ Agregar Ejemplar
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
+                            {/* Botón fuera de la tabla y centrado */}
+                            <div className="flex justify-center mt-4">
+                                <Button color="primary" onPress={handleAddEjemplar}>
+                                    ➕ Agregar Ejemplar
+                                </Button>
+                            </div>
                         </div>
 
 
@@ -408,6 +411,7 @@ const ViewBook = () => {
                                             className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
                                         />
                                     </div>
+
                                     <div className="mb-4">
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                             Estado del Libro
@@ -419,6 +423,19 @@ const ViewBook = () => {
                                             className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
                                         />
                                     </div>
+
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Precio
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newPrecioLibro}
+                                            onChange={(e) => setNewPrecioLibro(e.target.value)}
+                                            className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
+                                        />
+                                    </div>
+
                                     <div className="flex justify-end gap-2">
                                         <button
                                             className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
@@ -502,7 +519,7 @@ const ViewBook = () => {
                                         ) : (
 
                                             // Slide especial cuando no hay fotos
-                                            <SwiperSlide className="flex justify-center items-center">
+                                            (<SwiperSlide className="flex justify-center items-center">
                                                 <div className="flex flex-col justify-center items-center w-full h-full">
                                                     {console.clear()}
                                                     {console.log("No se encontraron fotos para el ingreso ID:", selectedNingresoID)}
@@ -523,7 +540,7 @@ const ViewBook = () => {
                                                         />
                                                     </label>
                                                 </div>
-                                            </SwiperSlide>
+                                            </SwiperSlide>)
 
 
                                         )}
@@ -531,27 +548,11 @@ const ViewBook = () => {
                                 </ModalBody>
                             </ModalContent>
                         </Modal>
-
-
-
-
-
                     </div>
                 </div>
             </div>
         </div>
     );
-
-
-
-
-
-
-
-
-
-
-
 
 };
 

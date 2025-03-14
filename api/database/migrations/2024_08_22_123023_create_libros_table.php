@@ -32,7 +32,7 @@ class CreateLibrosTable extends Migration
             $table->string('formadeadquisicion')->nullable();
             $table->string('precio')->nullable();
             $table->string('procedenciaproovedor')->nullable();
-
+            $table->date('fechaadquisicion')->nullable(); // Nuevo campo de fecha de adquisición
             $table->string('rutafoto')->nullable();
 
             $table->timestamps();

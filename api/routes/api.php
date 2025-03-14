@@ -40,7 +40,7 @@ Route::controller(LibroController::class)->group(function(){
     Route::get('/libros2','search');
     Route::post('/libro','store');
     Route::get('/libro/{id}','show');
-    Route::put('/libro/{id}','update');
+    Route::put('/libro/{id}','update')->where('id', '.*');
     Route::delete('/libro/{id}','destroy');
     Route::get('/booksexport', 'export');
 });
@@ -83,11 +83,11 @@ Route::controller(CategoriaController::class)->group(function(){
 Route::controller(EjemplarController::class)->group(function(){
     Route::get('/ejemplars','index');
     Route::post('/ejemplar','store');
-    Route::post('/ejemplar/{codigolibro}','store2');
-    Route::get('/ejemplar/{id}','show');
-    Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2');
-    Route::put('/ejemplar/{codigolibro}/{ningresoID}','update');
-    Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy');
+    Route::post('/ejemplar/{codigolibro}','store2')->where('codigolibro', '.*');
+    Route::get('/ejemplar/{codigolibro}','show')->where('codigolibro', '.*');
+    Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2')->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
+    Route::put('/ejemplar/{codigolibro}/{ningresoID}','update')->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
+    Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy')->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
 });
 
 

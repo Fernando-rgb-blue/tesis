@@ -18,6 +18,7 @@ class CreateEjemplarsTable extends Migration
                   ->onDelete('cascade') // Elimina los ejemplares relacionados si se elimina un libro
                   ->onUpdate('cascade'); // Actualiza el `codigolibroID` en ejemplars si se actualiza en libros
             $table->string('estadolibro');
+            $table->string('precio');
             $table->timestamps();
         });
     }
