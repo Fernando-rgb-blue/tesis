@@ -6,10 +6,10 @@ import CreateAutor from './Autor/CreateAutor';
 import Select from 'react-select';
 import CreateCategoria from './Categoria/CreateCategoria';
 import CreateEditorial from './Editorial/CreateEditorial';
-import { Input } from '@nextui-org/react';
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
-import { Button } from "@nextui-org/react";
-import { Textarea } from "@nextui-org/react";
+import { Input } from "@heroui/react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Button } from "@heroui/react";
+import { Textarea } from "@heroui/react";
 
 // Configurar el elemento principal para el modal
 

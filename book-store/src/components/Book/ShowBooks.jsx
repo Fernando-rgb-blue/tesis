@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from '@nextui-org/react';
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from "@heroui/react";
 import EditBooks from './EditBooks';
 import Swal from "sweetalert2";
 

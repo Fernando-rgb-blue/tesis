@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Input } from '@nextui-org/react';
+import { Input } from "@heroui/react";
 
 const endpoint = 'http://localhost:8000/api/ejemplar';
 const libroejemplar = 'http://localhost:8000/api/libro/';
@@ -18,7 +18,7 @@ const CreateEjemplar = () => {
 
   useEffect(() => {
     if (cantidadEjemplares) {
-      setEjemplares(Array.from({ length: cantidadEjemplares }, () => ({ ningresoID: '', estadolibro: '', estadolibro: '', codigolibroID })));
+      setEjemplares(Array.from({ length: cantidadEjemplares }, () => ({ ningresoID: '', estadolibro: '', precio: '', codigolibroID })));
     }
   }, [cantidadEjemplares, codigolibroID]);
 

@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Swal from "sweetalert2";
-import { Input } from '@nextui-org/react';
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
-import { Button } from "@nextui-org/react";
-import { Textarea } from "@nextui-org/react";
+import { Input } from "@heroui/react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Button } from "@heroui/react";
+import { Textarea } from "@heroui/react";
 
 const endpoint = 'http://localhost:8000/api/libro/';
 

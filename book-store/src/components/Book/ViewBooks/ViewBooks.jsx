@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -519,7 +519,7 @@ const ViewBook = () => {
                                         ) : (
 
                                             // Slide especial cuando no hay fotos
-                                            <SwiperSlide className="flex justify-center items-center">
+                                            (<SwiperSlide className="flex justify-center items-center">
                                                 <div className="flex flex-col justify-center items-center w-full h-full">
                                                     {console.clear()}
                                                     {console.log("No se encontraron fotos para el ingreso ID:", selectedNingresoID)}
@@ -540,7 +540,7 @@ const ViewBook = () => {
                                                         />
                                                     </label>
                                                 </div>
-                                            </SwiperSlide>
+                                            </SwiperSlide>)
 
 
                                         )}
