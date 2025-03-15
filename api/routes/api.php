@@ -35,13 +35,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 //RUTAS PARA LIBRO
-Route::controller(LibroController::class)->group(function(){
-    Route::get('/libros','index');
-    Route::get('/libros2','search');
-    Route::post('/libro','store');
-    Route::get('/libro/{id}','show');
-    Route::put('/libro/{id}','update')->where('id', '.*');
-    Route::delete('/libro/{id}','destroy');
+Route::controller(LibroController::class)->group(function () {
+    Route::get('/libros', 'index');
+    Route::get('/libros2', 'search');
+    Route::post('/libro', 'store');
+    Route::get('/libro/{id}', 'show');
+    Route::put('/libro/{id}', 'update')->where('id', '.*');
+    Route::delete('/libro/{id}', 'destroy');
     Route::get('/booksexport', 'export');
 });
 
@@ -50,90 +50,91 @@ Route::controller(LibroController::class)->group(function(){
 
 //AUTOR
 
-Route::controller(AutorController::class)->group(function(){
-    Route::get('/autors','index');
-    Route::post('/autor','store');
-    Route::get('/autor/{id}','show');
-    Route::put('/autor/{id}','update');
-    Route::delete('/autor/{id}','destroy');
+Route::controller(AutorController::class)->group(function () {
+    Route::get('/autors', 'index');
+    Route::post('/autor', 'store');
+    Route::get('/autor/{id}', 'show');
+    Route::put('/autor/{id}', 'update');
+    Route::delete('/autor/{id}', 'destroy');
 });
 
 //EDITORIAL
 
-Route::controller(EditorialController::class)->group(function(){
-    Route::get('/editorials','index');
-    Route::post('/editorial','store');
-    Route::get('/editorial/{id}','show');
-    Route::put('/editorial/{id}','update');
-    Route::delete('/editorial/{id}','destroy');
+Route::controller(EditorialController::class)->group(function () {
+    Route::get('/editorials', 'index');
+    Route::post('/editorial', 'store');
+    Route::get('/editorial/{id}', 'show');
+    Route::put('/editorial/{id}', 'update');
+    Route::delete('/editorial/{id}', 'destroy');
 });
 
 //CATEGORIA
 
-Route::controller(CategoriaController::class)->group(function(){
-    Route::get('/categorias','index');
-    Route::post('/categoria','store');
-    Route::get('/categoria/{id}','show');
-    Route::put('/categoria/{id}','update');
-    Route::delete('/categoria/{id}','destroy');
+Route::controller(CategoriaController::class)->group(function () {
+    Route::get('/categorias', 'index');
+    Route::post('/categoria', 'store');
+    Route::get('/categoria/{id}', 'show');
+    Route::put('/categoria/{id}', 'update');
+    Route::delete('/categoria/{id}', 'destroy');
 });
 
 //EJEMPLAR
 
-Route::controller(EjemplarController::class)->group(function(){
-    Route::get('/ejemplars','index');
-    Route::post('/ejemplar','store');
-    Route::post('/ejemplar/{codigolibro}','store2')->where('codigolibro', '.*');
-    Route::get('/ejemplar/{codigolibro}','show')->where('codigolibro', '.*');
-    Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2')->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
-    Route::put('/ejemplar/{codigolibro}/{ningresoID}','update')->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
-    Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy')->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
+Route::controller(EjemplarController::class)->group(function () {
+    Route::get('/ejemplars', 'index');
+    Route::post('/ejemplar', 'store');
+    Route::post('/ejemplar/{codigolibro}', 'store2')->where('codigolibro', '.*');
+    Route::get('/ejemplar/{codigolibro}', 'show')->where('codigolibro', '.*');
+    Route::get('/ejemplar/{codigolibro}/{ningresoID}', 'show2')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+    Route::put('/ejemplar/{codigolibroID}/{ningresoID}', 'update')
+        ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
+    Route::delete('/ejemplar/{codigolibroID}/{ningresoID}', 'destroy')
+        ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
 });
 
 
 //FOTO EJEMPLAR
 
-Route::controller(FotoEjemplarController::class)->group(function(){
-    Route::get('/fotoejemplars','index');
-    Route::post('/fotoejemplar','store');
-    Route::get('/fotoejemplar/{ningresoID}','show');
-    Route::put('/fotoejemplar/{ningresoID}','update');
-    Route::delete('/fotoejemplar/{id}','destroy');
+Route::controller(FotoEjemplarController::class)->group(function () {
+    Route::get('/fotoejemplars', 'index');
+    Route::post('/fotoejemplar', 'store');
+    Route::get('/fotoejemplar/{ningresoID}', 'show');
+    Route::put('/fotoejemplar/{ningresoID}', 'update');
+    Route::delete('/fotoejemplar/{id}', 'destroy');
 });
 
 // SESION 
 
-Route::controller(AuthController::class)->group(function(){
-    Route::post('/register','register');
-    Route::post('/login','login');
-    Route::get('/usersall','allusers');
+Route::controller(AuthController::class)->group(function () {
+    Route::post('/register', 'register');
+    Route::post('/login', 'login');
+    Route::get('/usersall', 'allusers');
 });
 
-Route::group(['middleware' => ['auth:sanctum']], function(){
+Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('user-profile', [AuthController::class, 'userProfile']);
     Route::post('logout', [AuthController::class, 'logout']);
 });
 
 // USUARIOS
 
-Route::controller(EstadoUsuarioController::class)->group(function(){
-    Route::get('/estadousuarios','index');
-    Route::post('/estadousuario','store');
+Route::controller(EstadoUsuarioController::class)->group(function () {
+    Route::get('/estadousuarios', 'index');
+    Route::post('/estadousuario', 'store');
 });
 
-Route::controller(TipousuarioController::class)->group(function(){
-    Route::get('/tipousuarios','index');
-    Route::post('/tipousuario','store');
+Route::controller(TipousuarioController::class)->group(function () {
+    Route::get('/tipousuarios', 'index');
+    Route::post('/tipousuario', 'store');
 });
 
-Route::controller(EmpleadoController::class)->group(function(){
-    Route::get('/empleados','index');
-    Route::post('/empleado','store');
+Route::controller(EmpleadoController::class)->group(function () {
+    Route::get('/empleados', 'index');
+    Route::post('/empleado', 'store');
 });
- /// PRESTAMO
+/// PRESTAMO
 
- Route::controller(PrestamoController::class)->group(function(){
-    Route::get('/prestamos','index');
-    Route::post('/prestamo','store');
+Route::controller(PrestamoController::class)->group(function () {
+    Route::get('/prestamos', 'index');
+    Route::post('/prestamo', 'store');
 });
-

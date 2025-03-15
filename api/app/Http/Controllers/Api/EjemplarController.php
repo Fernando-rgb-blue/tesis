@@ -20,7 +20,7 @@ class EjemplarController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    
+
     public function store(Request $request)
     {
         $ejemplar = new Ejemplar();
@@ -31,7 +31,7 @@ class EjemplarController extends Controller
         $ejemplar->save();
         return response()->json(['message' => 'Ejemplar creado exitosamente.'], 201);
     }
-    
+
     public function store2(Request $request, $codigolibroID)
     {
         // Decodificar el codigolibroID en caso de que venga codificado en la URL
@@ -91,12 +91,16 @@ class EjemplarController extends Controller
      */
     public function update(Request $request, $codigolibroID, $ningresoID)
     {
-        // Buscar el ejemplar por codigolibroID y ningresoID
+        // Decodificar parámetros en base64
+        $codigolibroID = base64_decode($codigolibroID);
+        $ningresoID = base64_decode($ningresoID);
+
+        // Buscar el ejemplar
         $ejemplar = Ejemplar::where('codigolibroID', $codigolibroID)
             ->where('ningresoID', $ningresoID)
             ->firstOrFail();
 
-        // Actualizar los campos permitidos
+        // Actualizar los campos
         $ejemplar->ningresoID = $request->ningresoID;
         $ejemplar->estadolibro = $request->estadolibro;
         $ejemplar->precio = $request->precio;
@@ -107,11 +111,17 @@ class EjemplarController extends Controller
     }
 
 
+
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($codigolibroID, $ningresoID)
     {
+        // Decodificar parámetros en base64
+        $codigolibroID = base64_decode($codigolibroID);
+        $ningresoID = base64_decode($ningresoID);
+
         // Buscar el ejemplar por codigolibroID y ningresoID
         $ejemplar = Ejemplar::where('codigolibroID', $codigolibroID)
             ->where('ningresoID', $ningresoID)

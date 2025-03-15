@@ -128,7 +128,11 @@ const ViewBook = () => {
 
     const handleUpdateEjemplar = async () => {
         try {
-            await axios.put(`${ejemplarEndpoint}${selectedEjemplar.codigolibroID}/${selectedEjemplar.ningresoID}`, {
+            // Codificar los valores en base64
+            const encodedCodigoLibroID = btoa(selectedEjemplar.codigolibroID);
+            const encodedNingresoID = btoa(selectedEjemplar.ningresoID);
+
+            await axios.put(`${ejemplarEndpoint}${encodedCodigoLibroID}/${encodedNingresoID}`, {
                 ningresoID: newNingresoID,
                 estadolibro: newEstadoLibro,
                 precio: newPrecioLibro
@@ -136,7 +140,9 @@ const ViewBook = () => {
 
             setEjemplares(prevEjemplares =>
                 prevEjemplares.map(ej =>
-                    ej.ningresoID === selectedEjemplar.ningresoID ? { ...ej, ningresoID: newNingresoID, estadolibro: newEstadoLibro, precio: newPrecioLibro } : ej
+                    ej.ningresoID === selectedEjemplar.ningresoID
+                        ? { ...ej, ningresoID: newNingresoID, estadolibro: newEstadoLibro, precio: newPrecioLibro }
+                        : ej
                 )
             );
 
@@ -145,6 +151,7 @@ const ViewBook = () => {
             console.error('Error updating ejemplar:', error);
         }
     };
+
 
     // Agregar nuevo ejemplar
 
@@ -165,12 +172,18 @@ const ViewBook = () => {
 
     const handleDeleteEjemplar = async (codigolibroID, ningresoID) => {
         try {
-            await axios.delete(`${ejemplarEndpoint}${codigolibroID}/${ningresoID}`);
-            setEjemplares(ejemplares.filter(e => e.ningresoID !== ningresoID)); // Filtra la lista eliminando el ejemplar
+            // Codificar en base64
+            const encodedCodigoLibroID = btoa(codigolibroID);
+            const encodedNingresoID = btoa(ningresoID);
+
+            await axios.delete(`${ejemplarEndpoint}${encodedCodigoLibroID}/${encodedNingresoID}`);
+
+            setEjemplares(prevEjemplares => prevEjemplares.filter(e => e.ningresoID !== ningresoID));
         } catch (error) {
             console.error('Error al eliminar el ejemplar:', error);
         }
     };
+
 
 
     // Ver fotos
