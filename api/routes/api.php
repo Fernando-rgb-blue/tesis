@@ -90,6 +90,9 @@ Route::controller(EjemplarController::class)->group(function () {
         ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
     Route::delete('/ejemplar/{codigolibroID}/{ningresoID}', 'destroy')
         ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
+        // Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+        // Route::put('/ejemplar/{codigolibro}/{ningresoID}','update')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+        // Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
 });
 
 
