@@ -1,76 +1,109 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
+import {
+  Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  Button,
+} from "@heroui/react";
 
 const endpoint = `http://localhost:8000/api/editorial`;
 
-const CreateEditorial = ({ closeModal }) => {
-  const [nombre, setNombre] = useState('');
-  const [pais, setPais] = useState('');
-  const [error, setError] = useState('');
+const CreateEditorial = ({ isOpen, onOpenChange }) => {
+  const [nombre, setNombre] = useState("");
+  const [pais, setPais] = useState("");
+  const [error, setError] = useState("");
 
-  const create = async (e) => {
+  const create = async (e, onClose) => {
     e.preventDefault();
-    setError(''); // Limpiar el error previo antes de hacer una nueva solicitud
+    setError("");
     try {
-      await axios.post(endpoint, {
-        nombre,
-        pais
-      });
-      closeModal(); // Cierra el modal después de crear la editorial
+      await axios.post(endpoint, { nombre, pais });
+      onClose(); // Cierra el modal
+      onOpenChange(false); // Actualiza el estado padre
     } catch (error) {
-      console.error('Error al crear la editorial:', error);
-      setError('Hubo un error al crear la editorial. Por favor, intenta nuevamente.');
+      console.error("Error al crear la editorial:", error);
+      setError("Hubo un error al crear la editorial. Por favor, intenta nuevamente.");
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="relative w-full max-w-md bg-yellow-50 dark:bg-gray-800 p-4 rounded-md shadow-md">
 
-        <button
-          onClick={closeModal}
-          className="absolute top-2 right-2 text-xl font-bold bg-yellow-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-full p-2 shadow-md hover:bg-yellow-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-gray-500"
-        >
-          &times;
-        </button>
+    <Modal
+      backdrop="opaque"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      motionProps={{
+        variants: {
+          enter: { y: 0, opacity: 1, transition: { duration: 0.3, ease: "easeOut" } },
+          exit: { y: -20, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } },
+        },
+      }}
+      className="bg-gray-200  dark:bg-stone-900"
+    >
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex justify-between items-center">
+              <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200 text-center">
+                Crear Nueva Editorial
+              </h3>
+            </ModalHeader>
 
+            <ModalBody>
+              {error && <p className="text-red-500 mb-4">{error}</p>}
 
-        <h3 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">Crear Nueva Editorial</h3>
+              <form
+                onSubmit={(e) => create(e, onClose)}
+                className="grid grid-cols-1 gap-6"
+              >
+                <div className="flex flex-col">
 
-        {/* Mostrar mensaje de error */}
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+                  <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+                    Nombre
+                  </label>
 
-        <form onSubmit={create} className="grid grid-cols-1 gap-6">
-          <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>Nombre</label>
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              type='text'
-              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
-              required
-            />
-          </div>
+                  <Input
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    type="text" required
+                  />
 
-          <div className='flex flex-col'>
-            <label className='mb-2 text-sm font-medium text-gray-700 dark:text-gray-100'>País</label>
-            <input
-              value={pais}
-              onChange={(e) => setPais(e.target.value)}
-              type='text'
-              className='px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
-              required
-            />
-          </div>
+                </div>
 
-          <div>
-            <button type='submit' className='w-full py-3 bg-black text-white font-semibold rounded-md shadow-md hover:bg-blue-700 transition-colors'>
-              Crear
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+                <div className="flex flex-col">
+                  <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+                    País
+                  </label>
+
+                  <Input
+                    value={pais}
+                    onChange={(e) => setPais(e.target.value)}
+                    type="text"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Button
+                    type="submit"
+                    color="primary"
+                    className="w-full"
+                  >
+                    Crear
+                  </Button>
+                </div>
+
+              </form>
+
+            </ModalBody>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+
   );
 };
 

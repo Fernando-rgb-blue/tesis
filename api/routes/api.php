@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\FotoController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\LibroController;
 use App\Http\Controllers\Api\TipousuarioController;
+use App\Http\Controllers\Api\AutorLibroController;
 use App\Http\Controllers\Api\PrestamoController;
 use App\Http\Controllers\Api\FotoEjemplarController;
 use App\Models\Editorial;
@@ -90,7 +91,22 @@ Route::controller(EjemplarController::class)->group(function () {
         ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
     Route::delete('/ejemplar/{codigolibroID}/{ningresoID}', 'destroy')
         ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
+        // Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+        // Route::put('/ejemplar/{codigolibro}/{ningresoID}','update')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+        // Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
 });
+
+// AUTOR LIBRO 
+
+Route::controller(AutorLibroController::class)->group(function () {
+    Route::get('/autores-con-libros', 'indexConLibros'); // Listar autores por libro
+    Route::get('/autorlibros/{libro}', 'index'); // Listar autores por libro
+    Route::post('/autorlibro/{libro}', 'store'); // Agregar autores a un libro
+    Route::get('/autorlibro/{libro}/{autor}', 'show'); // Mostrar un autor específico de un libro
+    Route::put('/autorlibro/{libro}', 'update'); // Reemplazar todos los autores de un libro
+    Route::delete('/autorlibro/{libro}/{autor}', 'destroy'); // Quitar un autor del libro
+});
+
 
 
 //FOTO EJEMPLAR

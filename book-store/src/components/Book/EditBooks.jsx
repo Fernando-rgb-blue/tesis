@@ -2,20 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Swal from "sweetalert2";
-import { Input } from "@heroui/react";
+import { Input, Button, Textarea, Select, SelectItem } from "@heroui/react";
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
-import { Button } from "@heroui/react";
-import { Textarea } from "@heroui/react";
+import { motion } from "framer-motion";
 
 const endpoint = 'http://localhost:8000/api/libro/';
+const ejemplarEndpoint = `http://localhost:8000/api/ejemplar/`;
 
 const EditBooks = ({ libroID, onClose, onUpdate }) => {
-
   const [isbn, setIsbn] = useState('');
-  const [controltopografico, setControltopografico] = useState('');
   const [codigolibroID, setCodigoLibroID] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autorID, setAutorID] = useState('');
+  const [selectedAutores, setSelectedAutores] = useState([]);
   const [numeropaginas, setNumeropaginas] = useState('');
   const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
   const [resumen, setResumen] = useState('');
@@ -30,28 +29,24 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
   const [formadeadquisicion, setFormadeadquisicion] = useState('');
   const [precio, setPrecio] = useState('');
   const [procedenciaproovedor, setProcedenciaproovedor] = useState('');
-  const [rutafoto, setRutafoto] = useState(null); // Estado para el archivo
+  const [ejemplares, setEjemplares] = useState([]);
+  const [rutafoto, setRutafoto] = useState(null);
+  // const [fechaadquisicion, setFechaadquisicion] = useState(null);
   const [autores, setAutores] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [editoriales, setEditoriales] = useState([]);
-  const [fechaadquisicion, setFechaadquisicion] = useState(null);
-
   const { id } = useParams();
 
   useEffect(() => {
-
     const getBookById = async () => {
-
       const response = await axios.get(`${endpoint}${libroID}`);
       const bookData = response.data;
-
       setIsbn(bookData.isbn);
-      setControltopografico(bookData.controltopografico);
       setCodigoLibroID(bookData.codigolibroID);
       setTitulo(bookData.titulo);
       setAutorID(bookData.autorID);
       setNumeropaginas(bookData.numeropaginas);
-      setEjemplaresdisponibles(bookData.ejemplaresdisponibles);
+      //setEjemplaresdisponibles(bookData.ejemplaresdisponibles);
       setResumen(bookData.resumen);
       setVolumen(bookData.volumen);
       setTomo(bookData.tomo);
@@ -64,34 +59,41 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       setFormadeadquisicion(bookData.formadeadquisicion);
       setPrecio(bookData.precio);
       setProcedenciaproovedor(bookData.procedenciaproovedor);
-      setFechaadquisicion(bookData.fechaadquisicion);
+      // setFechaadquisicion(bookData.fechaadquisicion);
 
-      const autoresResponse = await axios.get('http://localhost:8000/api/autors');
-      setAutores(autoresResponse.data);
+      const autoresRes = await axios.get('http://localhost:8000/api/autors');
+      setAutores(autoresRes.data);
 
-      const categoriasResponse = await axios.get('http://localhost:8000/api/categorias');
-      setCategorias(categoriasResponse.data);
+      const categoriasRes = await axios.get('http://localhost:8000/api/categorias');
+      setCategorias(categoriasRes.data);
 
-      const editorialesResponse = await axios.get('http://localhost:8000/api/editorials');
-      setEditoriales(editorialesResponse.data);
+      const editorialesRes = await axios.get('http://localhost:8000/api/editorials');
+      setEditoriales(editorialesRes.data);
+
+      const ejemplarResponse = await axios.get(`${ejemplarEndpoint}${bookData.codigolibroID}`);
+      setEjemplares(ejemplarResponse.data);
+
+      setEjemplaresdisponibles(ejemplarResponse.data.length.toString());
+
+      // Obtener autores del libro para mostrar como seleccionados
+      const autorLibroRes = await axios.get(`http://localhost:8000/api/autorlibros/${libroID}`);
+      const autorIDs = autorLibroRes.data.map(autor => autor.autorID.toString());
+      setSelectedAutores(autorIDs);
     };
-    getBookById();
-  }, [id]);
 
+    getBookById();
+  }, [id, libroID]);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-
-      formData.append('_method', 'PUT'); // Método HTTP PUT simulado con POST
-
+      formData.append('_method', 'PUT');
       formData.append('isbn', isbn);
-      formData.append('controltopografico', controltopografico);
       formData.append('codigolibroID', codigolibroID);
       formData.append('titulo', titulo);
       formData.append('numeropaginas', numeropaginas);
-      formData.append('ejemplaresdisponibles', ejemplaresdisponibles);
+      //formData.append('ejemplaresdisponibles', ejemplaresdisponibles);
       formData.append('resumen', resumen);
       formData.append('volumen', volumen);
       formData.append('tomo', tomo);
@@ -102,38 +104,41 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       formData.append('formadeadquisicion', formadeadquisicion);
       formData.append('precio', precio);
       formData.append('procedenciaproovedor', procedenciaproovedor);
-      formData.append('autor_nombre', autorID);
+      formData.append('autor_nombre', autorID); // Autor principal, si aplica
       formData.append('categoria_nombre', categoriaID);
       formData.append('editorial_nombre', editorialID);
-      formData.append('fechaadquisicion', fechaadquisicion);
+      // formData.append('fechaadquisicion', fechaadquisicion);
 
       if (rutafoto) {
-        formData.append('rutafoto', rutafoto); // Agregar imagen solo si está presente
+        formData.append('rutafoto', rutafoto);
       }
 
-      // Enviar la solicitud al backend
-      const response = await axios.post(`${endpoint}${libroID}`, formData, {
+      await axios.post(`${endpoint}${libroID}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      console.log('Book updated successfully:', response.data);
+      const autorNombres = autores
+        .filter((autor) => selectedAutores.includes(autor.autorID.toString()))
+        .map((autor) => autor.nombre);
 
-      // Mostrar alerta de éxito con SweetAlert2
+      await axios.put(`http://localhost:8000/api/autorlibro/${libroID}`, {
+        autor_nombres: autorNombres,
+      });
+
       Swal.fire({
         title: 'Actualización exitosa',
-        text: 'El libro se ha actualizado correctamente.',
+        text: 'El libro y sus autores se han actualizado correctamente.',
         icon: 'success',
         confirmButtonText: 'Aceptar',
       });
 
-      onUpdate(); // Actualizar la lista de libros
-      onClose(); // Cerrar el modal
-    } catch (error) {
-      console.error('Error updating book:', error.response?.data || error.message);
+      onUpdate();
+      onClose();
 
-      // Mostrar alerta de error con SweetAlert2
+    } catch (error) {
+      console.error('Error al actualizar:', error.response?.data || error.message);
       Swal.fire({
         title: 'Error',
         text: 'Hubo un problema al actualizar el libro.',
@@ -143,31 +148,28 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
     }
   };
 
-
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         onClose();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
 
+
   return (
+
+
     <div
       className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50"
-      onClick={onClose} // Cierra al hacer clic fuera del contenedor
+      onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md max-w-5xl w-full relative scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 overflow-y-auto max-h-[95vh]"
-        onClick={(e) => e.stopPropagation()} // Evita que el clic dentro del modal cierre el contenedor
+        className="bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md max-w-[110rem] w-full relative scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 overflow-y-auto max-h-[95vh]"
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -178,21 +180,55 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
 
         <h2 className="text-2xl font-bold mb-4 text-center">Editar Libro: {titulo}</h2>
 
-        <div className="flex flex-col">
-          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-            Título
-          </label>
-          <Input
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-            type="text"
-            isRequired
-            aria-label="Título"
-            className="w-full"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* Campo: Título */}
+          <div className="flex flex-col">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Título
+            </label>
+            <Input
+              value={titulo}
+              onChange={(e) => setTitulo(e.target.value)}
+              type="text"
+              isRequired
+              aria-label="Título"
+              className="w-full"
+            />
+          </div>
+
+          {/* Campo: Autores */}
+          <div className="flex flex-col gap-2 mb-4">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-100">
+              Autores
+            </label>
+            <Select
+              placeholder="Buscar autores..."
+              className="w-full"
+              selectionMode="multiple"
+              selectedKeys={selectedAutores}
+              onSelectionChange={(keys) => {
+                const selected = Array.from(keys);
+                setSelectedAutores(selected);
+              }}
+            >
+              {autores.map((autor) => (
+                <SelectItem key={autor.autorID.toString()}>
+                  {autor.nombre}
+                </SelectItem>
+              ))}
+            </Select>
+          </div>
         </div>
 
-        <form onSubmit={handleUpdate} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+
+        <form
+          onSubmit={handleUpdate}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mt-6"
+        >
+
+
           {/* Inputs del formulario */}
 
           <div className="flex flex-col">
@@ -206,35 +242,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               className="w-full"
             />
           </div>
-
-          {/* Autor */}
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-100">
-              Autor
-            </label>
-            <div className="flex items-center gap-2">
-              <Autocomplete
-                aria-label="Seleccionar Autor"
-                placeholder="Buscar Autor..."
-                selectedKey={autorID} // Usa el nombre del autor como clave seleccionada
-                onSelectionChange={(key) => {
-                  // key es el nombre del autor seleccionado
-                  console.log('Nombre del autor seleccionado:', key);
-                  setAutorID(key); // Guarda el nombre del autor en el estado
-                }}
-                className="w-full"
-                popoverProps={{ className: "bg-white" }}
-              >
-                {autores.map((autor) => (
-                  <AutocompleteItem key={autor.nombre} textValue={autor.nombre}>
-                    {autor.nombre}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete>
-            </div>
-          </div>
-
 
           {/* Categoría */}
 
@@ -293,7 +300,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
           </div>
 
 
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700">Control Topográfico</label>
             <Input
               value={controltopografico}
@@ -302,7 +309,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               aria-label="Control Topográfico"
               className="w-full"
             />
-          </div>
+          </div> */}
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700">Código</label>
@@ -338,7 +345,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             />
           </div>
 
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Fecha de Adquisición
             </label>
@@ -349,7 +356,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               aria-label="Fecha De Adquisición"
               className="w-full"
             />
-          </div>
+          </div> */}
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700">Pais</label>
@@ -440,13 +447,13 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             </label>
             <Input
               value={ejemplaresdisponibles}
-              onChange={(e) => setEjemplaresdisponibles(e.target.value)}
+              isReadOnly
               type="text"
-              isRequired
               aria-label="Ejemplares Disponibles"
               className="w-full"
             />
           </div>
+
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
@@ -463,7 +470,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
           </div>
 
           {/* Columna para el resumen */}
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col w-full md:col-start-1 md:col-span-4">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Resumen
             </label>
@@ -476,7 +483,13 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             />
           </div>
 
-          <Input type="file" label="Imagen" onChange={(e) => setRutafoto(e.target.files[0])} />
+          <div>
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Foto
+            </label>
+            <Input type="file" onChange={(e) => setRutafoto(e.target.files[0])} />
+          </div>
+
 
           <div className="col-span-full flex justify-center gap-4 mt-6">
             <button
@@ -501,6 +514,8 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
 
       </div>
     </div>
+
+
   );
 
 

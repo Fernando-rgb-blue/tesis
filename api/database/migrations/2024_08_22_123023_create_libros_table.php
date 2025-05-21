@@ -10,35 +10,32 @@ class CreateLibrosTable extends Migration
     {
         Schema::create('libros', function (Blueprint $table) {
             $table->id(); // Clave primaria incremental
-            $table->string('controltopografico')->nullable();
+            // $table->string('controltopografico')->nullable();
             $table->string('codigolibroID')->unique(); // Ya no es clave primaria
             $table->string('isbn');
             $table->string('titulo');
-            $table->unsignedBigInteger('autorID');
-            $table->foreign('autorID')->references('autorID')->on('autors'); // Referencia a `autorID`
+            // Eliminado autorID (se usará tabla pivote)
             $table->integer('numeropaginas');
             $table->integer('ejemplaresdisponibles');
-            $table->string('resumen')->nullable();
+            $table->text('resumen')->nullable();
             $table->string('volumen')->nullable();
             $table->string('tomo')->nullable();
             $table->unsignedBigInteger('categoriaID');
-            $table->foreign('categoriaID')->references('categoriaID')->on('categorias'); // Referencia a `categoriaID`
+            $table->foreign('categoriaID')->references('categoriaID')->on('categorias');
             $table->string('edicion')->nullable();
             $table->unsignedBigInteger('editorialID');
-            $table->foreign('editorialID')->references('editorialID')->on('editorials'); // Referencia a `editorialID`
+            $table->foreign('editorialID')->references('editorialID')->on('editorials');
             $table->string('pais')->nullable();
             $table->string('idioma')->nullable();
             $table->integer('aniopublicacion');
             $table->string('formadeadquisicion')->nullable();
             $table->string('precio')->nullable();
             $table->string('procedenciaproovedor')->nullable();
-            $table->date('fechaadquisicion')->nullable(); // Nuevo campo de fecha de adquisición
             $table->string('rutafoto')->nullable();
-
             $table->timestamps();
-
         });
     }
+    
 
     public function down()
     {

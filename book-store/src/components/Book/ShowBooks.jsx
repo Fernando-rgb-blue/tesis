@@ -2,11 +2,16 @@ import React, { useEffect, useState, useMemo } from 'react';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination } from "@heroui/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination, Input, Button } from "@heroui/react";
 import EditBooks from './EditBooks';
 import Swal from "sweetalert2";
+import { AnimatePresence, motion } from "framer-motion";
+import { Select, SelectItem } from "@heroui/react";
+import { FaFileExcel } from "react-icons/fa"; // asegúrate de tener react-icons instalado
+import { PlusIcon } from "@heroicons/react/24/solid";
 
 const endpoint = 'http://localhost:8000/api';
+const ejemplarEndpoint = `http://localhost:8000/api/ejemplar/`;
 
 const ShowBooks = () => {
 
@@ -23,13 +28,15 @@ const ShowBooks = () => {
   const [timeFilter, setTimeFilter] = useState('');
   const [limitFilter, setLimitFilter] = useState('');
   const [isModalOpen2, setIsModalOpen2] = useState(false);
-
+  const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
+  const [autoresConLibros, setAutoresConLibros] = useState([]);
 
   useEffect(() => {
     getAllBooks();
     getAllAutors();
     getAllCategorias();
     getAllEditorials();
+    getAllBooksAutors();
     setPage(1); // Resetea la página cada vez que el filtro cambia
   }, []); // Solo ejecutamos una vez al cargar el componente
 
@@ -38,11 +45,52 @@ const ShowBooks = () => {
     setPage(1); // Reinicia la página al buscar
   };
 
+  const loadAllData = async () => {
+    await Promise.all([
+      getAllBooks(),             // tu función para cargar libros
+      getAllBooksAutors(),    // tu función para cargar autores con libros
+      getAllCategorias(),        // si usas categorías
+      getAllEditorials(),        // si usas editoriales
+    ]);
+  };
+
   const getAllBooks = async () => {
+    setLoading(true);
+
+    try {
+      // 1️⃣ Traemos todos los libros
+      const { data: books } = await axios.get(`${endpoint}/libros2`);
+
+      // 2️⃣ Para cada libro pedimos sus ejemplares en paralelo
+      const librosConEjemplares = await Promise.all(
+        books.map(async (libro) => {
+          try {
+            const { data: ejemplares } = await axios.get(
+              `${ejemplarEndpoint}${libro.codigolibroID}`
+            );
+            return { ...libro, ejemplaresdisponibles: ejemplares.length };
+          } catch {
+            // Si falla la petición de ejemplares, devolvemos 0 para ese libro
+            return { ...libro, ejemplaresdisponibles: 0 };
+          }
+        })
+      );
+
+      // 3️⃣ Guardamos el resultado (elige sólo uno de los dos states)
+      setBooks(librosConEjemplares);     // <-- si tu UI consume "books"
+      // setLibros(librosConEjemplares); // <-- si tu UI consume "libros"
+    } catch (error) {
+      console.error("Error fetching all books:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const getAllBooksAutors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${endpoint}/libros2`);
-      setBooks(response.data);
+      const response = await axios.get(`${endpoint}/autores-con-libros`);
+      setAutoresConLibros(response.data.autores);
     } catch (error) {
       console.error('Error fetching all books:', error);
     } finally {
@@ -81,13 +129,12 @@ const ShowBooks = () => {
     setSortOrder(order); // Actualiza el estado de orden
   };
 
-  const handleUpdate = () => {
-    // Refrescar la lista de libros después de la actualización
+  const handleUpdate = async () => {
+    setIsModalOpen(false);
     console.log('Libro actualizado');
     getAllBooks(); // Llamar a getAllBooks para refrescar la lista después de actualizar
+    await loadAllData(); // recarga toda la información
   };
-
-
 
   const handleDelete = async (id) => {
     // Mostrar la alerta de confirmación con SweetAlert2
@@ -117,7 +164,7 @@ const ShowBooks = () => {
       }
     });
   };
-  
+
 
   const rowsPerPage = 14;
 
@@ -159,18 +206,22 @@ const ShowBooks = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center dark:bg-gray-900 mt-5">
+
+    <div className="flex flex-col items-center justify-center dark:bg-stone-800 mt-5">
+
       {/* Barra de búsqueda y Gestión de Libros */}
-      <div className="w-11/12 text-xs dark:bg-gray-800 p-4 rounded-md shadow-md overflow-auto">
-        {/* Título centrado */}
-        <h1 className="text-2xl font-bold text-center dark:text-white mb-6">
+
+      <div className="w-11/12 text-xs dark:bg-stone-900 p-4 rounded-md shadow-md mb-2.5">
+        <h1 className="text-2xl font-bold text-center dark:text-white">
           Gestión de Libros Generales
         </h1>
 
-        <div className="flex justify-between items-center">
-          {/* Input de búsqueda */}
-          <div className="flex items-center w-full bg-gray-100 dark:bg-gray-700 rounded-md p-2 mr-4">
-            <input
+        {/* Contenedor principal con flex en md y flex-col en móvil */}
+        <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+          {/* Input: ocupa todo en móvil y crece en pc */}
+          <div className="w-full md:flex-1">
+            <Input
               type="text"
               placeholder="Ingrese el nombre del libro, autor o categoría"
               className="w-full p-2 text-gray-700 dark:text-gray-300 rounded-md focus:outline-none"
@@ -179,105 +230,61 @@ const ShowBooks = () => {
             />
           </div>
 
-          {/* Selector de orden */}
-          <div className="flex-shrink-0 ml-4 w-32">
-            <select
-              className="w-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold py-2 px-4 rounded-lg focus:outline-none"
-              value={sortOrder}
-              onChange={(e) => handleSortChange(e.target.value)}
-            >
-              <option value="asc">A - Z</option>
-              <option value="desc">Z - A</option>
-            </select>
-          </div>
-
-          {/* Botón + Añadir */}
-          <div className="ml-4 w-32">
-            <Link
-              to="/create-books"
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-center"
-            >
-              + Añadir
-            </Link>
-          </div>
-
-          {/* Link Exportar con ícono de Excel */}
-          <div>
-            {/* Botón para abrir el modal */}
-            <button
-              onClick={() => setIsModalOpen2(true)}
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"
-            >
-              <i className="fas fa-file-excel mr-2"></i> Exportar
-            </button>
-
-            {/* Modal para los filtros */}
-
-            {isModalOpen2 && (
-              <div
-                className="fixed inset-0 bg-gray-800  bg-opacity-50 z-50 flex justify-center items-center"
-                style={{ zIndex: 1000 }} // Garantiza que esté encima de todo
+          {/* Contenedor de controles en móvil fila separada, en pc fila junto con input */}
+          <div className="flex flex-wrap justify-center md:justify-start gap-4 w-full md:w-auto">
+            {/* Selector de orden */}
+            <div className="w-32 md:w-32">
+              <Select
+                aria-label="Ordenar por"
+                selectedKeys={[sortOrder]}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="w-full"
+                size="sm"
+                variant="flat"
               >
-                <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-96 relative">
-                  <h2 className="text-lg font-bold mb-4">Filtros de Exportación</h2>
+                <SelectItem key="asc" value="asc">A - Z</SelectItem>
+                <SelectItem key="desc" value="desc">Z - A</SelectItem>
+              </Select>
+            </div>
 
-                  {/* Campo de filtro de tiempo */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Tiempo:</label>
-                    <select
-                      value={timeFilter}
-                      onChange={(e) => setTimeFilter(e.target.value)}
-                      className="w-full border rounded-lg px-3 py-2"
-                    >
-                      <option value="">Seleccionar</option>
-                      <option value="30">Últimos 30 minutos</option>
-                      <option value="60">Última 1 hora</option>
-                    </select>
-                  </div>
+            {/* Botón Añadir */}
+            <div className="w-24 md:w-32 flex justify-center">
+              <Button
+                as={Link}
+                to="/create-books"
+                color="primary"
+                variant="solid"
+                className="w-full px-2 py-1 flex items-center justify-center gap-1 text-xs md:text-base"
+              >
+                <PlusIcon className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="hidden sm:inline font-bold text-sm ">Añadir</span>
+              </Button>
+            </div>
 
-                  {/* Campo de límite */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Cantidad de libros:</label>
-                    <input
-                      type="number"
-                      value={limitFilter}
-                      onChange={(e) => setLimitFilter(e.target.value)}
-                      className="w-full border rounded-lg px-3 py-2"
-                      placeholder="Ej: 10, 20, 30"
-                    />
-                  </div>
-
-                  {/* Botones del modal */}
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      onClick={() => setIsModalOpen2(false)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={handleExport}
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg"
-                    >
-                      Exportar
-                    </button>
-                    {/* Nuevo botón para exportar sin filtro */}
-                    <button
-                      onClick={handleExportWithoutFilter}
-                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg"
-                    >
-                      Exportar sin filtro
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Botón Exportar */}
+            <div className="w-28 md:w-36 flex justify-center">
+              <Button
+                onClick={handleExportWithoutFilter}
+                color="success"
+                variant="solid"
+                className="w-full px-2 py-1 flex items-center justify-center gap-1 text-xs md:text-base"
+              >
+                <FaFileExcel className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="hidden sm:inline font-bold text-sm">Exportar</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
+
+
+
+
       {/* Tabla de resultados */}
-      <div className="w-11/12 h-[600px] text-xs dark:bg-gray-800 p-2 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
+
+      <div className="w-11/12 h-[600px] text-xs dark:bg-stone-900 p-4 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
+
         <Table aria-label="Gestión de Libros" className="w-full table-fixed">
           <TableHeader>
             <TableColumn className="text-center font-semibold text-xs">ISBN</TableColumn>
@@ -299,9 +306,16 @@ const ShowBooks = () => {
                   <TableCell className="text-center text-xs">{libro.isbn}</TableCell>
                   <TableCell className="text-center text-xs">{libro.codigolibroID}</TableCell>
                   <TableCell className="text-center text-xs">{libro.titulo}</TableCell>
+
                   <TableCell className="text-center text-xs">
-                    {autors.find((autor) => autor.autorID === libro.autorID)?.nombre || "No disponible"}
+                    {
+                      autoresConLibros
+                        .filter((autor) => autor.libros.some((l) => l.id === libro.id))
+                        .map((autor) => autor.nombre)
+                        .join(', ') || "No disponible"
+                    }
                   </TableCell>
+
                   <TableCell className="text-center text-xs">
                     {categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || "No disponible"}
                   </TableCell>
@@ -344,11 +358,17 @@ const ShowBooks = () => {
                 </TableRow>
               ))}
           </TableBody>
+
         </Table>
+
       </div>
 
+
+
+
+
       {/* Paginación */}
-      <div className="w-11/12 text-xs dark:bg-gray-800 p-4 rounded-md shadow-md mt-4">
+      <div className="w-11/12 text-xs dark:bg-stone-900 p-4 rounded-md shadow-md mt-4">
         <div className="flex w-full justify-center ">
           <Pagination
             isCompact
@@ -361,14 +381,31 @@ const ShowBooks = () => {
           />
         </div>
       </div>
+
       {/* Modal de edición */}
-      {isModalOpen && (
-        <EditBooks
-          libroID={selectedBookId}
-          onUpdate={handleUpdate}
-          onClose={() => setIsModalOpen(false)} // Pasar onClose como propiedad
-        />
-      )}
+
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            key="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50"
+            onClick={() => setIsModalOpen(false)} // clic fuera cierra
+          >
+            <EditBooks
+              libroID={selectedBookId}
+              onUpdate={handleUpdate}
+              onClose={() => setIsModalOpen(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
     </div>
 
   );

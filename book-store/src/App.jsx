@@ -38,7 +38,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 dark:text-white duration-200 ">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-stone-800 dark:text-white duration-200 ">
       <Navbar handleOrderPopup={handleOrderPopup} />
       <Routes>
         <Route

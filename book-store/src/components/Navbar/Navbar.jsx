@@ -9,7 +9,7 @@ import axios from 'axios';
 
 const Menu = [
     { id: 1, name: "Inicio", link: '/#' },
-    { id: 2, name: "Librería", link: '/#services' },
+    { id: 2, name: "Librería", link: '/show-books' },
 ];
 
 const Navbar = () => {
@@ -57,7 +57,8 @@ const Navbar = () => {
     };
 
     return (
-        <div className="shadow-md bg-white rounded dark:bg-gray-900 dark:text-white duration-200 w-full">
+
+        <div className=" bg-white dark:bg-stone-800 dark:text-white duration-200 w-full">
             <div className="container py-5 sm:py-4">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center">
@@ -67,7 +68,7 @@ const Navbar = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full">
+                        <div className="flex items-center justify-center w-8 h-8 bg-white dark:bg-stone-800 rounded-full">
                             <DarkMode />
                         </div>
                         <ul className="items-center gap-4 hidden sm:flex">
