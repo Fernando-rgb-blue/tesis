@@ -3,13 +3,15 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import CreateAutor from './Autor/CreateAutor';
-import Select from 'react-select';
+// import Select from 'react-select';
 import CreateCategoria from './Categoria/CreateCategoria';
 import CreateEditorial from './Editorial/CreateEditorial';
 import { Input } from "@heroui/react";
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { Textarea } from "@heroui/react";
+import { Select, SelectItem } from "@heroui/react"
+
 
 // Configurar el elemento principal para el modal
 
@@ -20,7 +22,7 @@ const endpoint = `http://localhost:8000/api/libro`;
 
 const CreateBook = () => {
   const [isbn, setIsbn] = useState('');
-  const [controltopografico, setControltopografico] = useState('');
+  // const [controltopografico, setControltopografico] = useState('');
   const [codigolibroID, setCodigoLibroID] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autorID, setAutorID] = useState('');
@@ -44,8 +46,12 @@ const CreateBook = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState('');
   const [foto, setFoto] = useState(null);
-  const [fechaadquisicion, setFechaadquisicion] = useState(null);
+  // const [fechaadquisicion, setFechaadquisicion] = useState(null);
   const [autorNombre, setAutorNombre] = useState('');
+  const [query, setQuery] = useState("")
+  const [selectedAutores, setSelectedAutores] = useState([])
+  const [isOpen, setIsOpen] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const navigate = useNavigate();
 
@@ -57,7 +63,6 @@ const CreateBook = () => {
   const closeModal = () => {
     setModalIsOpen(false);
   };
-
 
   const fetchAutores = async () => {
     try {
@@ -79,6 +84,7 @@ const CreateBook = () => {
     }
   };
 
+
   const fetchEditoriales = async () => {
     try {
       const response = await fetch(`${BASE_URL}/editorials`); // Reemplaza con la ruta correcta de tu backend
@@ -90,6 +96,7 @@ const CreateBook = () => {
   };
 
 
+
   const closeModalAndReload = () => {
     closeModal(); // Cierra el modal
     fetchAutores(); // Recarga la lista de autores
@@ -97,18 +104,17 @@ const CreateBook = () => {
     fetchEditoriales();
   };
 
-
-
   const handleFileChange = (e) => {
     setFoto(e.target.files[0]);
   };
 
   const create = async (e) => {
     e.preventDefault();
+
     try {
       const formData = new FormData();
       formData.append('isbn', isbn);
-      formData.append('controltopografico', controltopografico);
+      // formData.append('controltopografico', controltopografico);
       formData.append('codigolibroID', codigolibroID);
       formData.append('titulo', titulo);
       formData.append('numeropaginas', numeropaginas);
@@ -126,21 +132,48 @@ const CreateBook = () => {
       formData.append('autor_nombre', autorID);
       formData.append('categoria_nombre', categoriaID);
       formData.append('editorial_nombre', editorialID);
-      formData.append('fechaadquisicion', fechaadquisicion);
+      // formData.append('fechaadquisicion', fechaadquisicion);
       if (foto) {
         formData.append('rutafoto', foto);
       }
 
+      // Paso 1: Crear el libro
       const libroResponse = await axios.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      console.log('Datos del libro:', libroResponse.data);
-      navigate('/ingresos/create', { state: { codigolibroID, ejemplaresdisponibles } });
+      const libroID = libroResponse.data?.id || libroResponse.data?.libro?.id;
+
+      if (!libroID) {
+        throw new Error('No se pudo obtener el ID del libro.');
+      }
+
+      console.log("📕 Libro creado con ID:", libroID);
+
+      // Paso 2: Enviar los autores
+      const autorNombres = autores
+        .filter((autor) => selectedAutores.includes(autor.autorID.toString()))
+        .map((autor) => autor.nombre);
+
+      await axios.post(`${BASE_URL}/autorlibro/${libroID}`, {
+        autor_nombres: autorNombres
+      });
+
+      console.log("✅ Autores asociados correctamente al libro.");
+
+      // Navegar luego de guardar todo correctamente
+      navigate('/ingresos/create', {
+        state: {
+          codigolibroID,
+          ejemplaresdisponibles,
+          showSuccess: true
+        }
+      });
+
     } catch (error) {
-      console.error('Error al crear el libro:', error);
+      console.error('Error al crear el libro o los autores:', error);
     }
   };
 
@@ -169,370 +202,411 @@ const CreateBook = () => {
     setAutorID(selectedOption ? selectedOption.value : "");
   };
 
+  // Filtro para búsqueda
+
+  const filteredAutores =
+    query === ""
+      ? autores
+      : autores.filter((autor) =>
+        autor.nombre.toLowerCase().includes(query.toLowerCase())
+      )
+
+  const toggleAutor = (autor) => {
+    const exists = selectedAutores.some((a) => a._id === autor._id)
+    if (exists) {
+      setSelectedAutores(selectedAutores.filter((a) => a._id !== autor._id))
+    } else {
+      setSelectedAutores([...selectedAutores, autor])
+    }
+  }
+
 
   return (
-    <div className="h-[calc(100vh-88px)] flex items-center justify-center bg-gray-200 dark:bg-black">
-      <div className="w-11/12 lg:w-3/4 xl:w-2/3 text-xs bg-gray-50 dark:bg-gray-900 p-4 rounded-md shadow-md overflow-auto">
-        <h3 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
-          Crear Nuevo Libro
-        </h3>
 
-        <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="bg-white dark:bg-stone-900 p-6 sm:p-8 rounded-lg shadow-md w-full max-w-[110rem] mx-auto mt-20 overflow-y-auto max-h-[100vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
 
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Título
-            </label>
-            <Input
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="Título"
+      <h3 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
+        Crear Nuevo Libro
+      </h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Título
+          </label>
+          <Input
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            type="text"
+            isRequired
+            aria-label="Título"
+            className="w-full"
+          />
+        </div>
+
+        {/* Autor */}
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-100">
+            Autores
+          </label>
+          <div className="flex items-center gap-2">
+            <Select
+              placeholder="Buscar autores..."
               className="w-full"
-            />
-          </div>
+              selectionMode="multiple"
+              selectedKeys={selectedAutores}
+              onSelectionChange={(keys) => {
+                const selected = Array.from(keys);
+                setSelectedAutores(selected);
 
-          {/* Inputs del formulario */}
+                // Filtrar autores por su ID como string
+                const nombresSeleccionados = autores
+                  .filter((autor) => selected.includes(autor.autorID.toString()))
+                  .map((autor) => autor.nombre);
 
-          <div className="flex flex-col">
-            
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">ISBN</label>
-            <Input
-              value={isbn}
-              onChange={(e) => setIsbn(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="ISBN"
-              className="w-full"
-            />
-
-          </div>
-
-          {/* Autor */}
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-100">
-              Autor
-            </label>
-            <div className="flex items-center gap-2">
-              <Autocomplete
-                aria-label="Seleccionar Autor"
-                placeholder="Buscar Autor..."
-                selectedKey={autorID} // Usa el nombre del autor como clave seleccionada
-                onSelectionChange={(key) => {
-                  // key es el nombre del autor seleccionado
-                  console.log('Nombre del autor seleccionado:', key);
-                  setAutorID(key); // Guarda el nombre del autor en el estado
-                }}
-                className="w-full"
-                popoverProps={{ className: "bg-white" }}
-              >
-                {autores.map((autor) => (
-                  <AutocompleteItem key={autor.nombre} textValue={autor.nombre}>
-                    {autor.nombre}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete>
-              <Button color="success" onClick={() => openModal("autor")}>
-                +
-              </Button>
-            </div>
-          </div>
-
-          {/* Categoría */}
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Categoría
-            </label>
-            <div className="flex items-center">
-              <Autocomplete
-                aria-label="Seleccionar Categoría"
-                placeholder="Buscar Categoría..."
-                selectedKey={categoriaID} // Usa el nombre de la categoría como clave seleccionada
-                onSelectionChange={(key) => {
-                  // key es el nombre de la categoría seleccionada
-                  console.log('Nombre de la categoría seleccionada:', key);
-                  setCategoriaID(key); // Guarda el nombre de la categoría en el estado
-                }}
-                className="w-full"
-                popoverProps={{ className: "bg-white" }}
-              >
-                {categorias.map((categoria) => (
-                  <AutocompleteItem key={categoria.nombre} textValue={categoria.nombre}>
-                    {categoria.nombre}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete>
-              <Button color="success" onClick={() => openModal("categoria")}>
-                +
-              </Button>
-            </div>
-          </div>
-
-          {/* Editorial */}
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Editorial
-            </label>
-            <div className="flex items-center">
-              <Autocomplete
-                aria-label="Seleccionar Editorial"
-                placeholder="Buscar Editorial..."
-                selectedKey={editorialID} // Usa el nombre de la editorial como clave seleccionada
-                onSelectionChange={(key) => {
-                  // key es el nombre de la editorial seleccionada
-                  console.log('Nombre de la editorial seleccionada:', key);
-                  setEditorialID(key); // Guarda el nombre de la editorial en el estado
-                }}
-                className="w-full"
-                popoverProps={{ className: "bg-white" }}
-              >
-                {editoriales.map((editorial) => (
-                  <AutocompleteItem key={editorial.nombre} textValue={editorial.nombre}>
-                    {editorial.nombre}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete>
-
-
-              <Button color="success" onClick={() => openModal("editorial")}>
-                +
-              </Button>
-
-            </div>
-          </div>
-
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Control Topográfico</label>
-            <Input
-              value={controltopografico}
-              onChange={(e) => setControltopografico(e.target.value)}
-              type="text"
-              aria-label="Control Topográfico"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Código</label>
-            <Input
-              value={codigolibroID}
-              onChange={(e) => setCodigoLibroID(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="Código"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Edición
-            </label>
-            <Input
-              value={edicion}
-              onChange={(e) => setEdicion(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="Edición"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Volumen</label>
-            <Input
-              value={volumen}
-              onChange={(e) => setVolumen(e.target.value)}
-              type="text"
-              aria-label="Volumen"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Tomo</label>
-            <Input
-              value={tomo}
-              onChange={(e) => setTomo(e.target.value)}
-              type="text"
-              aria-label="Tomo"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Fecha de Adquisición
-            </label>
-            <Input
-              value={fechaadquisicion}
-              onChange={(e) => setFechaadquisicion(e.target.value)}
-              type="date" // Cambio de tipo a "date"
-              aria-label="Fecha De Adquisición"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Pais</label>
-            <Input
-              value={pais}
-              onChange={(e) => setPais(e.target.value)}
-              type="text"
-              aria-label="Pais"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Idioma</label>
-            <Input
-              value={idioma}
-              onChange={(e) => setIdioma(e.target.value)}
-              type="text"
-              aria-label="Idioma"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Forma de Adquisición</label>
-            <Input
-              value={formadeadquisicion}
-              onChange={(e) => setFormadeadquisicion(e.target.value)}
-              type="text"
-              aria-label="Forma de Adquisición"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Precio</label>
-            <Input
-              value={precio}
-              onChange={(e) => setPrecio(e.target.value)}
-              type="text"
-              aria-label="Precio"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Número de Páginas
-            </label>
-            <Input
-              value={numeropaginas}
-              onChange={(e) => setNumeropaginas(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="Número de Páginas"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Procedencia del Proveedor</label>
-            <Input
-              value={procedenciaproovedor}
-              onChange={(e) => setProcedenciaproovedor(e.target.value)}
-              type="text"
-              aria-label="Procedencia del Proveedor"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Año de Publicación
-            </label>
-            <Input
-              value={aniopublicacion}
-              onChange={(e) => setAniopublicacion(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="Año de Publicación"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Ejemplares Disponibles
-            </label>
-            <Input
-              value={ejemplaresdisponibles}
-              onChange={(e) => setEjemplaresdisponibles(e.target.value)}
-              type="text"
-              isRequired
-              aria-label="Ejemplares Disponibles"
-              className="w-full"
-            />
-          </div>
-
-          {/* Columna para el resumen */}
-          <div className="flex flex-col w-full">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Resumen
-            </label>
-            <Textarea
-              value={resumen}
-              onChange={(e) => setResumen(e.target.value)}
-              aria-label="Resumen"
-              rows={6}
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Subir Foto
-            </label>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          {/* Columna para los botones */}
-          <div className="flex flex-col space-y-4 w-full">
-
-            <button
-              type="submit"
-              className="bg-blue-700 hover:bg-blue-900 text-white font-bold py-2 px-6 rounded-md"
+                console.log("Autores seleccionados (Nombres):", nombresSeleccionados);
+              }}
             >
-              Guardar
-            </button>
+              {autores.map((autor) => (
+                <SelectItem key={autor.autorID.toString()}>{autor.nombre}</SelectItem>
+              ))}
+            </Select>
+            <Button color="success" onPress={() => openModal("autor")}>
+              +
+            </Button>
           </div>
-
-        </form>
-
-
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={closeModalAndReload} // Llamamos la función modificada
-          contentLabel="Crear Nuevo"
-          className="modal"
-          overlayClassName="modal-overlay"
-        >
-          <button onClick={closeModalAndReload} className="absolute top-2 right-2 text-xl font-bold">
-            &times;
-          </button>
-          {activeModal === "autor" && <CreateAutor closeModal={closeModalAndReload} />}
-          {activeModal === "categoria" && <CreateCategoria closeModal={closeModalAndReload} />}
-          {activeModal === "editorial" && <CreateEditorial closeModal={closeModalAndReload} />}
-        </Modal>
-
+        </div>
       </div>
+
+      <form onSubmit={create} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mt-6">
+
+        {/* Inputs del formulario */}
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">ISBN</label>
+          <Input
+            value={isbn}
+            onChange={(e) => setIsbn(e.target.value)}
+            type="text"
+            isRequired
+            aria-label="ISBN"
+            className="w-full"
+          />
+        </div>
+
+        {/* Categoría */}
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Categoría
+          </label>
+          <div className="flex items-center">
+            <Autocomplete
+              aria-label="Seleccionar Categoría"
+              placeholder="Buscar Categoría..."
+              selectedKey={categoriaID} // Usa el nombre de la categoría como clave seleccionada
+              onSelectionChange={(key) => {
+                // key es el nombre de la categoría seleccionada
+                console.log('Nombre de la categoría seleccionada:', key);
+                setCategoriaID(key); // Guarda el nombre de la categoría en el estado
+              }}
+              className="w-full"
+            >
+              {categorias.map((categoria) => (
+                <AutocompleteItem key={categoria.nombre} textValue={categoria.nombre}>
+                  {categoria.nombre}
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
+            <Button color="success" onPress={() => openModal("categoria")}>
+              +
+            </Button>
+          </div>
+        </div>
+
+        {/* Editorial */}
+
+        <div className="flex flex-col ">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Editorial
+          </label>
+          <div className="flex items-center">
+            <Autocomplete
+              aria-label="Seleccionar Editorial"
+              placeholder="Buscar Editorial..."
+              selectedKey={editorialID} // Usa el nombre de la editorial como clave seleccionada
+              onSelectionChange={(key) => {
+                // key es el nombre de la editorial seleccionada
+                console.log('Nombre de la editorial seleccionada:', key);
+                setEditorialID(key); // Guarda el nombre de la editorial en el estado
+              }}
+              className="w-full"
+            >
+              {editoriales.map((editorial) => (
+                <AutocompleteItem key={editorial.nombre} textValue={editorial.nombre}>
+                  {editorial.nombre}
+                </AutocompleteItem>
+              ))}
+            </Autocomplete>
+
+            <Button color="success" onPress={() => openModal("editorial")}>
+              +
+            </Button>
+
+          </div>
+        </div>
+
+        {/* Editorial */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Código</label>
+          <Input
+            value={codigolibroID}
+            onChange={(e) => setCodigoLibroID(e.target.value)}
+            type="text"
+            isRequired
+            aria-label="Código"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Edición
+          </label>
+          <Input
+            value={edicion}
+            onChange={(e) => setEdicion(e.target.value)}
+            type="text"
+            isRequired
+            aria-label="Edición"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Volumen</label>
+          <Input
+            value={volumen}
+            onChange={(e) => setVolumen(e.target.value)}
+            type="text"
+            aria-label="Volumen"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Tomo</label>
+          <Input
+            value={tomo}
+            onChange={(e) => setTomo(e.target.value)}
+            type="text"
+            aria-label="Tomo"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Pais</label>
+          <Input
+            value={pais}
+            onChange={(e) => setPais(e.target.value)}
+            type="text"
+            aria-label="Pais"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Idioma</label>
+          <Input
+            value={idioma}
+            onChange={(e) => setIdioma(e.target.value)}
+            type="text"
+            aria-label="Idioma"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Forma de Adquisición</label>
+          <Input
+            value={formadeadquisicion}
+            onChange={(e) => setFormadeadquisicion(e.target.value)}
+            type="text"
+            aria-label="Forma de Adquisición"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Precio</label>
+          <Input
+            value={precio}
+            onChange={(e) => setPrecio(e.target.value)}
+            type="text"
+            aria-label="Precio"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Número de Páginas
+          </label>
+          <Input
+            value={numeropaginas}
+            onChange={(e) => setNumeropaginas(e.target.value)}
+            type="text"
+            isRequired
+            aria-label="Número de Páginas"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100 ">Procedencia del Proveedor</label>
+          <Input
+            value={procedenciaproovedor}
+            onChange={(e) => setProcedenciaproovedor(e.target.value)}
+            type="text"
+            aria-label="Procedencia del Proveedor"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Año de Publicación
+          </label>
+          <Input
+            value={aniopublicacion}
+            onChange={(e) => setAniopublicacion(e.target.value)}
+            type="text"
+            isRequired
+            aria-label="Año de Publicación"
+            className="w-full"
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Ejemplares Disponibles
+          </label>
+          <Input
+            value={ejemplaresdisponibles}
+            onChange={(e) => setEjemplaresdisponibles(e.target.value)}
+            type="text"
+            isRequired
+            aria-label="Ejemplares Disponibles"
+            className="w-full"
+          />
+        </div>
+
+        {/* Columna para el resumen */}
+        <div className="flex flex-col w-full md:col-start-1 md:col-span-4">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Resumen
+          </label>
+          <Textarea
+            value={resumen}
+            onChange={(e) => setResumen(e.target.value)}
+            aria-label="Resumen"
+            rows={6}
+            className="w-full"
+          />
+        </div>
+
+
+        <div className="flex flex-col ">
+          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+            Subir Foto
+          </label>
+
+          <Input
+            type="file"
+            onChange={handleFileChange}
+          />
+        </div>
+
+        {/* Columna para los botones */}
+
+        <div className="col-span-full flex justify-center gap-4 mt-6">
+          <Button
+            type="submit"
+            color="primary"
+          >
+            Guardar
+          </Button>
+        </div>
+      </form>
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModalAndReload} // Llamamos la función modificada
+        contentLabel="Crear Nuevo"
+        className="modal"
+        overlayClassName="modal-overlay"
+      >
+        <button onClick={closeModalAndReload} className="absolute top-2 right-2 text-xl font-bold">
+          &times;
+        </button>
+
+        {activeModal === "editorial" &&
+          <CreateEditorial
+            isOpen={modalIsOpen}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) closeModalAndReload(); // Usa la nueva función aquí también
+            }}
+            closeModal={closeModalAndReload} // <-- para usarla dentro del modal
+          />
+        }
+        {activeModal === "categoria" &&
+          <CreateCategoria
+            isOpen={modalIsOpen}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) closeModalAndReload(); // Usa la nueva función aquí también
+            }}
+            closeModal={closeModalAndReload} // <-- para usarla dentro del modal
+          />
+        }
+
+        {activeModal === "autor" &&
+          <CreateAutor
+            isOpen={modalIsOpen}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) closeModalAndReload(); // Usa la nueva función aquí también
+            }}
+            closeModal={closeModalAndReload} // <-- para usarla dentro del modal
+          />
+        }
+
+   
+
+        {/* {activeModal === "autor" && <CreateAutor closeModal={closeModalAndReload} />} */}
+
+        {/* {activeModal === "categoria" && <CreateCategoria closeModal={closeModalAndReload} />} */}
+        {/* {activeModal === "editorial" && <CreateEditorial closeModal={closeModalAndReload} />} */}
+      </Modal>
+
+
     </div>
   );
-
 };
 
 export default CreateBook;

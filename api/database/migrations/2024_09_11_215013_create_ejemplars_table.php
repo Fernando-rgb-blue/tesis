@@ -19,6 +19,7 @@ class CreateEjemplarsTable extends Migration
                   ->onUpdate('cascade'); // Actualiza el `codigolibroID` en ejemplars si se actualiza en libros
             $table->string('estadolibro');
             $table->string('precio');
+            $table->date('anioingreso')->nullable();
             $table->timestamps();
         });
     }

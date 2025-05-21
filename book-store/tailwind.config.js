@@ -48,4 +48,8 @@ export default {
     heroui(),
     require("tailwind-scrollbar")({ nocompatible: true }), // Agregar el plugin de scrollbar
   ],
+
+
+
 };
+

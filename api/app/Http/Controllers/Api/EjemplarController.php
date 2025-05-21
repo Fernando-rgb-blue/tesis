@@ -28,6 +28,7 @@ class EjemplarController extends Controller
         $ejemplar->codigolibroID = $request->codigolibroID;
         $ejemplar->estadolibro = $request->estadolibro;
         $ejemplar->precio = $request->precio;
+        $ejemplar->anioingreso = $request->anioingreso;
         $ejemplar->save();
         return response()->json(['message' => 'Ejemplar creado exitosamente.'], 201);
     }
@@ -43,6 +44,7 @@ class EjemplarController extends Controller
         $ejemplar->codigolibroID = $codigolibroID; // Se obtiene desde la URL
         $ejemplar->estadolibro = $request->estadolibro;
         $ejemplar->precio = $request->precio;
+        $ejemplar->anioingreso = $request->anioingreso;
         $ejemplar->save();
 
         // Responder con los datos creados
@@ -104,6 +106,7 @@ class EjemplarController extends Controller
         $ejemplar->ningresoID = $request->ningresoID;
         $ejemplar->estadolibro = $request->estadolibro;
         $ejemplar->precio = $request->precio;
+        $ejemplar->anioingreso = $request->anioingreso;
         $ejemplar->updated_at = now();
         $ejemplar->save();
 

@@ -36,10 +36,10 @@ class LibroController extends Controller
             'rutafoto' => 'nullable|file|image|max:5000', // Validación para imágenes
         ]);
 
-        $autor = Autor::where('nombre', $request->autor_nombre)->first();
-        if (!$autor) {
-            return back()->withErrors(['autor_nombre' => 'El autor no existe.']);
-        }
+        // $autor = Autor::where('nombre', $request->autor_nombre)->first();
+        // if (!$autor) {
+        //     return back()->withErrors(['autor_nombre' => 'El autor no existe.']);
+        // }
 
         $categoria = Categoria::where('nombre', $request->categoria_nombre)->first();
         if (!$categoria) {
@@ -69,10 +69,8 @@ class LibroController extends Controller
 
         // Crear y guardar el libro
         $libro = new Libro();
-        $libro->controltopografico = $request->controltopografico;
         $libro->codigolibroID = $request->codigolibroID;
         $libro->isbn = $request->isbn;
-        $libro->autorID = $autor->autorID;
         $libro->titulo = $request->titulo;
         $libro->resumen = $request->resumen;
         $libro->volumen = $request->volumen;
@@ -89,7 +87,6 @@ class LibroController extends Controller
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->numeropaginas = $request->numeropaginas;
         $libro->rutafoto = $imagePath; // Guarda la ruta relativa con el nombre personalizado
-        $libro->fechaadquisicion = $request->fechaadquisicion;
         $libro->save();
 
         return response()->json(['message' => 'Libro creado exitosamente.', 'libro' => $libro], 201);
@@ -103,10 +100,10 @@ class LibroController extends Controller
 
         if ($libro) {
             // Busca el autor en la tabla 'autors' usando el 'autorID' del libro
-            $autor = Autor::where('autorID', $libro->autorID)->first();
-            if ($autor) {
-                $libro->autorID = $autor->nombre; // Reemplaza 'autorID' con el nombre del autor
-            }
+            // $autor = Autor::where('autorID', $libro->autorID)->first();
+            // if ($autor) {
+            //     $libro->autorID = $autor->nombre; // Reemplaza 'autorID' con el nombre del autor
+            // }
 
             // Busca la editorial en la tabla 'editorials' usando el 'editorialID' del libro
             $editorial = Editorial::where('editorialID', $libro->editorialID)->first();
@@ -183,13 +180,13 @@ class LibroController extends Controller
         }
 
         // Verificar y actualizar los datos relacionados (autor, categoría, editorial) si se proporcionan
-        if ($request->filled('autor_nombre')) {
-            $autor = Autor::where('nombre', $request->autor_nombre)->first();
-            if (!$autor) {
-                return back()->withErrors(['autor_nombre' => 'El autor no existe.']);
-            }
-            $libro->autorID = $autor->autorID;
-        }
+        // if ($request->filled('autor_nombre')) {
+        //     $autor = Autor::where('nombre', $request->autor_nombre)->first();
+        //     if (!$autor) {
+        //         return back()->withErrors(['autor_nombre' => 'El autor no existe.']);
+        //     }
+        //     $libro->autorID = $autor->autorID;
+        // }
 
         if ($request->filled('categoria_nombre')) {
             $categoria = Categoria::where('nombre', $request->categoria_nombre)->first();
@@ -208,7 +205,6 @@ class LibroController extends Controller
         }
 
         // Actualizar los datos del libro si están presentes en la solicitud
-        $libro->controltopografico = $request->controltopografico ?? $libro->controltopografico;
         $libro->codigolibroID = $request->codigolibroID ?? $libro->codigolibroID;
         $libro->isbn = $request->isbn ?? $libro->isbn;
         $libro->titulo = $request->titulo ?? $libro->titulo;
@@ -224,7 +220,6 @@ class LibroController extends Controller
         $libro->procedenciaproovedor = $request->procedenciaproovedor ?? $libro->procedenciaproovedor;
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles ?? $libro->ejemplaresdisponibles;
         $libro->numeropaginas = $request->numeropaginas ?? $libro->numeropaginas;
-        $libro->fechaadquisicion = $request->fechaadquisicion ?? $libro->fechaadquisicion;
         // Guardar los cambios
         $libro->save();
 
@@ -252,6 +247,6 @@ class LibroController extends Controller
         $filters = $request->only(['time', 'limit']);
 
         // Retorna la descarga del archivo Excel
-        return Excel::download(new EjemplarsExport($filters), 'libros.xlsx');
+        return Excel::download(new LibrosExport($filters), 'libros.xlsx');
     }
 }

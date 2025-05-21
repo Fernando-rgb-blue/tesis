@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Illuminate\Support\Facades\DB;
 
 class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents
 {
@@ -31,72 +32,107 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
         $this->filters = $filters;
     }
 
+
     public function collection()
     {
-        $query = Libro::selectRaw(
-            'libros.codigolibroID, 
-            libros.isbn, 
-            libros.titulo, 
-            autors.nombre as autor_nombre,  
-            editorials.nombre as editorial_nombre,  
-            categorias.nombre as categoria_nombre,  
-            libros.aniopublicacion, 
-            libros.edicion, 
-            libros.numeropaginas, 
-            libros.volumen, 
-            libros.tomo,
-            libros.idioma,
-            libros.resumen,
-            libros.controltopografico,
-            libros.formadeadquisicion,
-            libros.precio,
-            libros.procedenciaproovedor,
-            libros.ejemplaresdisponibles,
-            DATE(libros.created_at) AS created_date, 
-            TIME(libros.created_at) AS created_time'
-        )
-            ->join('autors', 'libros.autorID', '=', 'autors.autorID')
-            ->join('editorials', 'libros.editorialID', '=', 'editorials.editorialID')
-            ->join('categorias', 'libros.categoriaID', '=', 'categorias.categoriaID');
-    
-        // Aplica filtros
+        $subqueryCantidad = DB::table('ejemplars')
+            ->select('codigolibroID', DB::raw('COUNT(*) as cantidad'))
+            ->groupBy('codigolibroID');
+
+        $query = DB::table('ejemplars')
+            ->join('libros', 'ejemplars.codigolibroID', '=', 'libros.codigolibroID')
+            ->leftJoin('editorials', 'libros.editorialID', '=', 'editorials.editorialID')
+            ->leftJoin('categorias', 'libros.categoriaID', '=', 'categorias.categoriaID')
+            ->leftJoin('autor_libro', 'libros.id', '=', 'autor_libro.libro_id')
+            ->leftJoin('autors', 'autor_libro.autor_id', '=', 'autors.autorID')
+            ->joinSub($subqueryCantidad, 'cantidades', function ($join) {
+                $join->on('ejemplars.codigolibroID', '=', 'cantidades.codigolibroID');
+            })
+            ->select(
+                'ejemplars.ningresoID',
+                'ejemplars.codigolibroID',
+                'libros.isbn',
+                'libros.titulo',
+                DB::raw('GROUP_CONCAT(DISTINCT autors.nombre SEPARATOR ", ") as autor_libro'),
+                'editorials.nombre as editorial',
+                'categorias.nombre as categoria',
+                'libros.aniopublicacion',
+                'libros.edicion',
+                'libros.numeropaginas',
+                'libros.volumen',
+                'libros.tomo',
+                'libros.idioma',
+                'libros.resumen',
+                'libros.formadeadquisicion',
+                'ejemplars.precio',
+                'libros.procedenciaproovedor',
+                'cantidades.cantidad as cantidad_de_ejemplares',
+                'ejemplars.estadolibro',
+                DB::raw('DATE(libros.created_at) as fecha_creacion'),
+            )
+            ->groupBy(
+                'ejemplars.ningresoID',
+                'ejemplars.codigolibroID',
+                'libros.isbn',
+                'libros.titulo',
+                'editorials.nombre',
+                'categorias.nombre',
+                'libros.aniopublicacion',
+                'libros.edicion',
+                'libros.numeropaginas',
+                'libros.volumen',
+                'libros.tomo',
+                'libros.idioma',
+                'libros.resumen',
+                'libros.formadeadquisicion',
+                'ejemplars.precio',
+                'libros.procedenciaproovedor',
+                'cantidades.cantidad',
+                'ejemplars.estadolibro',
+                DB::raw('DATE(libros.created_at)'),
+
+            );
+
         if (isset($this->filters['time'])) {
-            $query->where('libros.created_at', '>=', now()->subMinutes((int) $this->filters['time']));
+            $query->where('ejemplars.created_at', '>=', now()->subMinutes((int) $this->filters['time']));
         }
 
         if (isset($this->filters['limit'])) {
-            $query->orderBy('libros.created_at', 'desc')->limit($this->filters['limit']);
+            $query->orderBy('ejemplars.created_at', 'desc')->limit($this->filters['limit']);
+        } else {
+            $query->orderBy('ejemplars.codigolibroID');
         }
 
         return $query->get();
     }
 
 
-public function headings(): array
-{
-    return [
-        'Código de Libro ID',
-        'ISBN',
-        'Título',
-        'Autor',
-        'Editorial',
-        'Categoría',
-        'Año de Publicación',
-        'Edición',
-        'Número de Páginas',
-        'Volumen',
-        'Tomo',
-        'Idioma',
-        'Resumen',
-        'Control Topográfico',
-        'Forma de Adquisición',
-        'Precio',
-        'Procedencia/Proveedor',
-        'Ejemplares Disponibles',
-        'Fecha de creación',
-        'Hora de creación'
-    ];
-}
+    public function headings(): array
+    {
+        return [
+            'Control Topográfico',
+            'Código de Libro ID',
+            'ISBN',
+            'Título',
+            'Autor',
+            'Editorial',
+            'Categoría',
+            'Año de Publicación',
+            'Edición',
+            'Número de Páginas',
+            'Volumen',
+            'Tomo',
+            'Idioma',
+            'Resumen',
+            'Forma de Adquisición',
+            'Precio',
+            'Procedencia/Proveedor',
+            'Cantidad de Ejemplares',
+            'Estado del Libro',
+            'Fecha de creación',
+        ];
+    }
+
 
 
     public function startCell(): string
@@ -111,7 +147,7 @@ public function headings(): array
                 $sheet = $event->sheet;
 
                 $endColumn = $this->getExcelColumnLetter(count($this->headings()));
-                
+
                 $sheet->mergeCells("A1:$endColumn" . '1');
                 $sheet->setCellValue('A1', 'Listado de Libros');
                 $sheet->getStyle("A1:$endColumn" . '1')->applyFromArray([
