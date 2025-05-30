@@ -19,8 +19,12 @@ const CreateCategoria = ({ isOpen, onOpenChange }) => {
   const create = async (e, onClose) => {
     e.preventDefault();
     setError("");
+
+    // Reemplazar descripción vacía por "Desconocido"
+    const descripcionFinal = descripcion.trim() === "" ? "Desconocido" : descripcion;
+
     try {
-      await axios.post(endpoint, { nombre, descripcion });
+      await axios.post(endpoint, { nombre, descripcion: descripcionFinal });
       onClose();          // cerrar modal interno
       onOpenChange(false); // informar estado al padre
     } catch (error) {
@@ -81,7 +85,6 @@ const CreateCategoria = ({ isOpen, onOpenChange }) => {
                     value={descripcion}
                     onChange={(e) => setDescripcion(e.target.value)}
                     type="text"
-                    required
                   />
                 </div>
 

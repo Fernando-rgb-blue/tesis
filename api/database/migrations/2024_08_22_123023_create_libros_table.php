@@ -12,11 +12,11 @@ class CreateLibrosTable extends Migration
             $table->id(); // Clave primaria incremental
             // $table->string('controltopografico')->nullable();
             $table->string('codigolibroID')->unique(); // Ya no es clave primaria
-            $table->string('isbn');
-            $table->string('titulo');
+            $table->string('isbn')->nullable();
+            $table->string('titulo')->nullable();
             // Eliminado autorID (se usará tabla pivote)
-            $table->integer('numeropaginas');
-            $table->integer('ejemplaresdisponibles');
+            $table->integer('numeropaginas')->nullable();
+            $table->integer('ejemplaresdisponibles')->nullable();
             $table->text('resumen')->nullable();
             $table->string('volumen')->nullable();
             $table->string('tomo')->nullable();
@@ -27,9 +27,8 @@ class CreateLibrosTable extends Migration
             $table->foreign('editorialID')->references('editorialID')->on('editorials');
             $table->string('pais')->nullable();
             $table->string('idioma')->nullable();
-            $table->integer('aniopublicacion');
+            $table->integer('aniopublicacion')->nullable();
             $table->string('formadeadquisicion')->nullable();
-            $table->string('precio')->nullable();
             $table->string('procedenciaproovedor')->nullable();
             $table->string('rutafoto')->nullable();
             $table->timestamps();

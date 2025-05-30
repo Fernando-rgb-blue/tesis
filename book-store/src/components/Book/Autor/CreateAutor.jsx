@@ -20,8 +20,11 @@ const CreateAutor = ({ isOpen, onOpenChange, closeModal }) => {
     e.preventDefault();
     setError("");
 
+    // Reemplazar nacionalidad vacía por "Desconocido"
+    const nacionalidadFinal = nacionalidad.trim() === "" ? "Desconocido" : nacionalidad;
+
     try {
-      await axios.post(endpoint, { nombre, nacionalidad });
+      await axios.post(endpoint, { nombre, nacionalidad: nacionalidadFinal });
       onClose();           // Cierra el modal visualmente
       onOpenChange(false); // Informa al padre que el modal fue cerrado
       closeModal();        // Ejecuta lógica adicional desde el padre (como recargar datos)
@@ -80,7 +83,6 @@ const CreateAutor = ({ isOpen, onOpenChange, closeModal }) => {
                     value={nacionalidad}
                     onChange={(e) => setNacionalidad(e.target.value)}
                     type="text"
-                    required
                   />
                 </div>
 

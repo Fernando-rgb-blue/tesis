@@ -19,8 +19,12 @@ const CreateEditorial = ({ isOpen, onOpenChange }) => {
   const create = async (e, onClose) => {
     e.preventDefault();
     setError("");
+
+    // Reemplazar país vacío por "Desconocido"
+    const paisFinal = pais.trim() === "" ? "Desconocido" : pais;
+
     try {
-      await axios.post(endpoint, { nombre, pais });
+      await axios.post(endpoint, { nombre, pais: paisFinal });
       onClose(); // Cierra el modal
       onOpenChange(false); // Actualiza el estado padre
     } catch (error) {
@@ -82,7 +86,7 @@ const CreateEditorial = ({ isOpen, onOpenChange }) => {
                     value={pais}
                     onChange={(e) => setPais(e.target.value)}
                     type="text"
-                    required
+
                   />
                 </div>
 

@@ -19,6 +19,7 @@ import EditBooks from "./components/Book/EditBooks.jsx";
 import CreateBook from "./components/Book/CreateBooks.jsx";
 import CreateEjemplar from "./components/Book/Ingresos/CreateEjemplar.jsx";
 import ViewBook from "./components/Book/ViewBooks/ViewBooks.jsx";
+import { HelmetProvider } from 'react-helmet-async';
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -74,9 +75,11 @@ const App = () => {
 
 // Envolver el componente App en Router para la navegación
 const RootApp = () => (
-  <Router>
-    <App />
-  </Router>
+  <HelmetProvider>
+    <Router>
+      <App />
+    </Router>
+  </HelmetProvider>
 );
 
 export default RootApp;
