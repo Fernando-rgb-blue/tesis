@@ -38,7 +38,6 @@ const CreateBook = () => {
   const [idioma, setIdioma] = useState('');
   const [aniopublicacion, setAniopublicacion] = useState('');
   const [formadeadquisicion, setFormadeadquisicion] = useState('');
-  const [precio, setPrecio] = useState('');
   const [procedenciaproovedor, setProcedenciaproovedor] = useState('');
   const [autores, setAutores] = useState([]);
   const [categorias, setCategorias] = useState([]);
@@ -46,7 +45,6 @@ const CreateBook = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState('');
   const [foto, setFoto] = useState(null);
-  // const [fechaadquisicion, setFechaadquisicion] = useState(null);
   const [autorNombre, setAutorNombre] = useState('');
   const [query, setQuery] = useState("")
   const [selectedAutores, setSelectedAutores] = useState([])
@@ -127,7 +125,6 @@ const CreateBook = () => {
       formData.append('idioma', idioma);
       formData.append('aniopublicacion', aniopublicacion);
       formData.append('formadeadquisicion', formadeadquisicion);
-      formData.append('precio', precio);
       formData.append('procedenciaproovedor', procedenciaproovedor);
       formData.append('autor_nombre', autorID);
       formData.append('categoria_nombre', categoriaID);

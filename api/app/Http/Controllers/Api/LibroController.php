@@ -82,7 +82,6 @@ class LibroController extends Controller
         $libro->idioma = $request->idioma;
         $libro->aniopublicacion = $request->aniopublicacion;
         $libro->formadeadquisicion = $request->formadeadquisicion;
-        $libro->precio = $request->precio;
         $libro->procedenciaproovedor = $request->procedenciaproovedor;
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->numeropaginas = $request->numeropaginas;
@@ -216,7 +215,6 @@ class LibroController extends Controller
         $libro->idioma = $request->idioma ?? $libro->idioma;
         $libro->aniopublicacion = $request->aniopublicacion ?? $libro->aniopublicacion;
         $libro->formadeadquisicion = $request->formadeadquisicion ?? $libro->formadeadquisicion;
-        $libro->precio = $request->precio ?? $libro->precio;
         $libro->procedenciaproovedor = $request->procedenciaproovedor ?? $libro->procedenciaproovedor;
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles ?? $libro->ejemplaresdisponibles;
         $libro->numeropaginas = $request->numeropaginas ?? $libro->numeropaginas;

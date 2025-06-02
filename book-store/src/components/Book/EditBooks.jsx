@@ -27,7 +27,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
   const [idioma, setIdioma] = useState('');
   const [aniopublicacion, setAniopublicacion] = useState('');
   const [formadeadquisicion, setFormadeadquisicion] = useState('');
-  const [precio, setPrecio] = useState('');
   const [procedenciaproovedor, setProcedenciaproovedor] = useState('');
   const [ejemplares, setEjemplares] = useState([]);
   const [rutafoto, setRutafoto] = useState(null);
@@ -57,7 +56,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       setIdioma(bookData.idioma);
       setAniopublicacion(bookData.aniopublicacion);
       setFormadeadquisicion(bookData.formadeadquisicion);
-      setPrecio(bookData.precio);
       setProcedenciaproovedor(bookData.procedenciaproovedor);
       // setFechaadquisicion(bookData.fechaadquisicion);
 
@@ -102,7 +100,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       formData.append('idioma', idioma);
       formData.append('aniopublicacion', aniopublicacion);
       formData.append('formadeadquisicion', formadeadquisicion);
-      formData.append('precio', precio);
       formData.append('procedenciaproovedor', procedenciaproovedor);
       formData.append('autor_nombre', autorID); // Autor principal, si aplica
       formData.append('categoria_nombre', categoriaID);
@@ -221,13 +218,10 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
           </div>
         </div>
 
-
-
         <form
           onSubmit={handleUpdate}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mt-6"
         >
-
 
           {/* Inputs del formulario */}
 
@@ -392,17 +386,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
           </div>
 
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700">Precio</label>
-            <Input
-              value={precio}
-              onChange={(e) => setPrecio(e.target.value)}
-              type="text"
-              aria-label="Precio"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Número de Páginas
             </label>
@@ -469,6 +452,13 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             />
           </div>
 
+          <div>
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Foto
+            </label>
+            <Input type="file" onChange={(e) => setRutafoto(e.target.files[0])} />
+          </div>
+
           {/* Columna para el resumen */}
           <div className="flex flex-col w-full md:col-start-1 md:col-span-4">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
@@ -482,14 +472,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               className="w-full"
             />
           </div>
-
-          <div>
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Foto
-            </label>
-            <Input type="file" onChange={(e) => setRutafoto(e.target.files[0])} />
-          </div>
-
 
           <div className="col-span-full flex justify-center gap-4 mt-6">
             <button
