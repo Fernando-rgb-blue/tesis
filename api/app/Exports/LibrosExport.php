@@ -48,46 +48,45 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
                 $join->on('ejemplars.codigolibroID', '=', 'cantidades.codigolibroID');
             })
             ->select(
-                'ejemplars.ningresoID',
-                'ejemplars.codigolibroID',
-                'libros.isbn',
-                'libros.titulo',
-                DB::raw('GROUP_CONCAT(DISTINCT autors.nombre SEPARATOR ", ") as autor_libro'),
-                'editorials.nombre as editorial',
-                'libros.aniopublicacion',
-                'libros.edicion',
-                'libros.numeropaginas',
-                'libros.voltomejemp',
-                'libros.idioma',
-                'libros.resumen',
-                'libros.formadeadquisicion',
-                'ejemplars.precio',
-                'libros.procedenciaproovedor',
-                'cantidades.cantidad as cantidad_de_ejemplares',
-                'ejemplars.estadolibro',
-                'ejemplars.anioingreso',
-                DB::raw('DATE(libros.created_at) as fecha_creacion'),
+                'ejemplars.ningresoID',                            // CONTROL TOPOGR.
+                'ejemplars.codigolibroID',                         // CÓDIGO
+                DB::raw('GROUP_CONCAT(DISTINCT autors.nombre SEPARATOR ", ") as autor_libro'), // AUTOR PERSONAL
+                'libros.titulo',                                   // TITULO
+                'libros.resumen',                                  // RESUMEN
+                'libros.numeropaginas',                            // TOTAL DE PÁGINAS
+                'libros.voltomejemp',                              // Volu. Tomo o Ejemplar
+                'libros.edicion',                                  // EDICIÓN
+                'libros.isbn',                                     // ISBN
+                'editorials.nombre as editorial',                  // EDITORIAL
+                'libros.pais',                                     // CIUD/PAÍS
+                'libros.idioma',                                   // IDIOMA
+                'libros.aniopublicacion',                          // FECHA PUBL.
+                'libros.formadeadquisicion',                       // FORMA DE ADQUISIC.
+                'ejemplars.precio',                                // PRECIO
+                'libros.procedenciaproovedor',                     // PROCEDENCIA O PROVEEDOR
+                'ejemplars.anioingreso',                           // FECHA DE ADQUISICIÓN
+                DB::raw('1 as cantidad_de_ejemplares'),     // DISP.
+                'ejemplars.estadolibro'                            // ESTAD. FISICO Y DE CONSERVAC.
             )
             ->groupBy(
                 'ejemplars.ningresoID',
                 'ejemplars.codigolibroID',
-                'libros.isbn',
                 'libros.titulo',
-                'editorials.nombre',
-                'libros.aniopublicacion',
-                'libros.edicion',
+                'libros.resumen',
                 'libros.numeropaginas',
                 'libros.voltomejemp',
+                'libros.edicion',
+                'libros.isbn',
+                'editorials.nombre',
+                'libros.pais',
                 'libros.idioma',
-                'libros.resumen',
+                'libros.aniopublicacion',
                 'libros.formadeadquisicion',
                 'ejemplars.precio',
                 'libros.procedenciaproovedor',
-                'cantidades.cantidad',
-                'ejemplars.estadolibro',
                 'ejemplars.anioingreso',
-                DB::raw('DATE(libros.created_at)'),
-
+                'cantidades.cantidad',
+                'ejemplars.estadolibro'
             );
 
         if (isset($this->filters['time'])) {
@@ -107,29 +106,27 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
     public function headings(): array
     {
         return [
-            'Control Topográfico',
-            'Código de Libro ID',
+            'CONTROL TOPOGR.',
+            'CÓDIGO',
+            'AUTOR PERSONAL',
+            'TITULO',
+            'RESUMEN',
+            'TOTAL DE PÁGINAS',
+            'Volu. Tomo o Ejemplar',
+            'EDICIÓN',
             'ISBN',
-            'Título',
-            'Autor',
-            'Editorial',
-            'Año de Publicación',
-            'Edición',
-            'Número de Páginas',
-            'voltomejemp',
-            'Idioma',
-            'Resumen',
-            'Forma de Adquisición',
-            'Precio',
-            'Procedencia/Proveedor',
-            'Cantidad de Ejemplares',
-            'Estado del Libro',
-            'ejemplarsanioingreso',
-            'Fecha de creación',
+            'EDITORIAL',
+            'CIUD/PAÍS',
+            'IDIOMA',
+            'FECHA PUBL.',
+            'FORMA DE ADQUISIC.',
+            'PRECIO',
+            'PROCEDENCIA O PROVEEDOR',
+            'FECHA DE ADQUISICIÓN',
+            'DISP.',
+            'ESTAD. FISICO Y DE CONSERVAC.',
         ];
     }
-
-
 
     public function startCell(): string
     {
@@ -144,6 +141,7 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
 
                 $endColumn = $this->getExcelColumnLetter(count($this->headings()));
 
+                // Título
                 $sheet->mergeCells("A1:$endColumn" . '1');
                 $sheet->setCellValue('A1', 'Listado de Libros');
                 $sheet->getStyle("A1:$endColumn" . '1')->applyFromArray([
@@ -164,12 +162,11 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
 
                 // Encabezados
                 $sheet->getStyle('A2:' . $endColumn . '2')->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                    ],
+                    'font' => ['bold' => true],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
                         'vertical' => Alignment::VERTICAL_CENTER,
+                        'wrapText' => true,
                     ],
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
@@ -187,6 +184,7 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
                         'vertical' => Alignment::VERTICAL_CENTER,
+                        'wrapText' => true,
                     ],
                     'borders' => [
                         'allBorders' => [
@@ -195,20 +193,15 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
                     ],
                 ]);
 
-                // Ajustar el ancho de las columnas
+                // Ajustar ancho de columnas a 35.00 y activar ajuste de texto
                 $columns = range('A', $endColumn);
                 foreach ($columns as $column) {
-                    if (in_array($column, ['D', 'E', 'F'])) { // Autor, Editorial, Categoría
-                        $sheet->getColumnDimension($column)->setWidth(30);
-                    } elseif ($column === 'C') { // Título
-                        $sheet->getColumnDimension($column)->setWidth(50);
-                    } else {
-                        $sheet->getColumnDimension($column)->setWidth(20);
-                    }
+                    $sheet->getColumnDimension($column)->setWidth(35);
                 }
             },
         ];
     }
+
 
     private function getExcelColumnLetter($columnNumber)
     {
