@@ -15,7 +15,7 @@ class CreateCategoriasTable extends Migration
             $table->timestamps();
         });
     }
-
+// ELIMINADO EL 2/06/2025
     public function down()
     {
         Schema::dropIfExists('categorias');

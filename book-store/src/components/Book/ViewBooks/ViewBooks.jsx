@@ -29,8 +29,7 @@ const ViewBook = () => {
     const [numeropaginas, setNumeropaginas] = useState('');
     const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
     const [resumen, setResumen] = useState('');
-    const [volumen, setVolumen] = useState('');
-    const [tomo, setTomo] = useState('');
+    const [voltomejemp, setVoltomejemp] = useState('');
     const [categoriaID, setCategoriaID] = useState('');
     const [edicion, setEdicion] = useState('');
     const [editorialID, setEditorialID] = useState('');
@@ -38,7 +37,6 @@ const ViewBook = () => {
     const [idioma, setIdioma] = useState('');
     const [aniopublicacion, setAniopublicacion] = useState('');
     const [formadeadquisicion, setFormadeadquisicion] = useState('');
-    const [precio, setPrecio] = useState('');
     const [procedenciaproovedor, setProcedenciaproovedor] = useState('');
     const [autores, setAutores] = useState('');
     const [categorias, setCategorias] = useState('');
@@ -80,14 +78,12 @@ const ViewBook = () => {
                 setEjemplaresdisponibles(bookData.ejemplaresdisponibles);
                 setEdicion(bookData.edicion);
                 setNumeropaginas(bookData.numeropaginas);
-                setVolumen(bookData.volumen);
-                setTomo(bookData.tomo);
+                setVoltomejemp(bookData.voltomejemp);
                 setResumen(bookData.resumen);
                 setControltopografico(bookData.controltopografico);
                 setPais(bookData.pais);
                 setIdioma(bookData.idioma);
                 setFormadeadquisicion(bookData.formadeadquisicion);
-                setPrecio(bookData.precio);
                 setProcedenciaproovedor(bookData.procedenciaproovedor);
                 setRutafoto(bookData.rutafoto);
 
@@ -349,10 +345,7 @@ const ViewBook = () => {
                                 <span className="font-bold">Número de Páginas:</span> {numeropaginas}
                             </p>
                             <p className="text-sm text-gray-700 dark:text-gray-300">
-                                <span className="font-bold">Volumen:</span> {volumen}
-                            </p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
-                                <span className="font-bold">Tomo:</span> {tomo}
+                                <span className="font-bold">Volu. Tomo o Ejemplar:</span> {voltomejemp}
                             </p>
                         </div>
 
@@ -375,9 +368,6 @@ const ViewBook = () => {
                             </p>
                             <p className="text-sm text-gray-700 dark:text-gray-300">
                                 <span className="font-bold">Forma de Adquisición:</span> {formadeadquisicion}
-                            </p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
-                                <span className="font-bold">Precio:</span> {precio}
                             </p>
                         </div>
 
@@ -423,7 +413,7 @@ const ViewBook = () => {
                                 <TableColumn>N. Ingreso</TableColumn>
                                 <TableColumn>Estado del Libro</TableColumn>
                                 <TableColumn>Precio</TableColumn>
-                                <TableColumn>Año Ingreso</TableColumn>
+                                <TableColumn>Fecha de Adquisición</TableColumn>
                                 <TableColumn className="text-center">Acción</TableColumn>
                             </TableHeader>
                             <TableBody
@@ -536,10 +526,10 @@ const ViewBook = () => {
 
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Año Ingreso
+                                        Fecha de Adquisición
                                     </label>
                                     <input
-                                        type="date"
+                                        type="number"
                                         value={newAnioIngreso}
                                         onChange={(e) => setNewAnioIngreso(e.target.value)}
                                         className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"

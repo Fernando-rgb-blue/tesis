@@ -22,16 +22,13 @@ const endpoint = `http://localhost:8000/api/libro`;
 
 const CreateBook = () => {
   const [isbn, setIsbn] = useState('');
-  // const [controltopografico, setControltopografico] = useState('');
   const [codigolibroID, setCodigoLibroID] = useState('');
   const [titulo, setTitulo] = useState('');
   const [autorID, setAutorID] = useState('');
   const [numeropaginas, setNumeropaginas] = useState('');
   const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
   const [resumen, setResumen] = useState('');
-  const [volumen, setVolumen] = useState('');
-  const [tomo, setTomo] = useState('');
-  const [categoriaID, setCategoriaID] = useState('');
+  const [voltomejemp, setVoltomejemp] = useState('');
   const [edicion, setEdicion] = useState('');
   const [editorialID, setEditorialID] = useState('');
   const [pais, setPais] = useState('');
@@ -40,7 +37,6 @@ const CreateBook = () => {
   const [formadeadquisicion, setFormadeadquisicion] = useState('');
   const [procedenciaproovedor, setProcedenciaproovedor] = useState('');
   const [autores, setAutores] = useState([]);
-  const [categorias, setCategorias] = useState([]);
   const [editoriales, setEditoriales] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [activeModal, setActiveModal] = useState('');
@@ -72,17 +68,6 @@ const CreateBook = () => {
     }
   };
 
-  const fetchCategorias = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/categorias`); // Reemplaza con la ruta correcta de tu backend
-      const data = await response.json();
-      setCategorias(data);
-    } catch (error) {
-      console.error("Error al obtener los autores:", error);
-    }
-  };
-
-
   const fetchEditoriales = async () => {
     try {
       const response = await fetch(`${BASE_URL}/editorials`); // Reemplaza con la ruta correcta de tu backend
@@ -98,7 +83,6 @@ const CreateBook = () => {
   const closeModalAndReload = () => {
     closeModal(); // Cierra el modal
     fetchAutores(); // Recarga la lista de autores
-    fetchCategorias();
     fetchEditoriales();
   };
 
@@ -112,14 +96,12 @@ const CreateBook = () => {
     try {
       const formData = new FormData();
       formData.append('isbn', isbn);
-      // formData.append('controltopografico', controltopografico);
       formData.append('codigolibroID', codigolibroID);
       formData.append('titulo', titulo);
       formData.append('numeropaginas', numeropaginas);
       formData.append('ejemplaresdisponibles', ejemplaresdisponibles);
       formData.append('resumen', resumen);
-      formData.append('volumen', volumen);
-      formData.append('tomo', tomo);
+      formData.append('voltomejemp', voltomejemp);
       formData.append('edicion', edicion);
       formData.append('pais', pais);
       formData.append('idioma', idioma);
@@ -127,14 +109,11 @@ const CreateBook = () => {
       formData.append('formadeadquisicion', formadeadquisicion);
       formData.append('procedenciaproovedor', procedenciaproovedor);
       formData.append('autor_nombre', autorID);
-      formData.append('categoria_nombre', categoriaID);
       formData.append('editorial_nombre', editorialID);
-      // formData.append('fechaadquisicion', fechaadquisicion);
       if (foto) {
         formData.append('rutafoto', foto);
       }
 
-      // Paso 1: Crear el libro
       const libroResponse = await axios.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -160,7 +139,6 @@ const CreateBook = () => {
 
       console.log("✅ Autores asociados correctamente al libro.");
 
-      // Navegar luego de guardar todo correctamente
       navigate('/ingresos/create', {
         state: {
           codigolibroID,
@@ -176,14 +154,12 @@ const CreateBook = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [autoresResponse, categoriasResponse, editorialesResponse] = await Promise.all([
+      const [autoresResponse,editorialesResponse] = await Promise.all([
         axios.get(`${BASE_URL}/autors`),
-        axios.get(`${BASE_URL}/categorias`),
         axios.get(`${BASE_URL}/editorials`)
       ]);
 
       setAutores(autoresResponse.data);
-      setCategorias(categoriasResponse.data);
       setEditoriales(editorialesResponse.data);
     };
 
@@ -301,37 +277,6 @@ const CreateBook = () => {
             />
           </div>
 
-
-          {/* Categoría */}
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Categoría
-            </label>
-            <div className="flex items-center">
-              <Autocomplete
-                aria-label="Seleccionar Categoría"
-                placeholder="Buscar Categoría..."
-                selectedKey={categoriaID} // Usa el nombre de la categoría como clave seleccionada
-                onSelectionChange={(key) => {
-                  // key es el nombre de la categoría seleccionada
-                  console.log('Nombre de la categoría seleccionada:', key);
-                  setCategoriaID(key); // Guarda el nombre de la categoría en el estado
-                }}
-                className="w-full"
-              >
-                {categorias.map((categoria) => (
-                  <AutocompleteItem key={categoria.nombre} textValue={categoria.nombre}>
-                    {categoria.nombre}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete>
-              <Button color="success" onPress={() => openModal("categoria")}>
-                +
-              </Button>
-            </div>
-          </div>
-
           {/* Editorial */}
 
           <div className="flex flex-col ">
@@ -393,21 +338,10 @@ const CreateBook = () => {
           </div>
 
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Volumen</label>
+            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Volu. Tomo o Ejemplar</label>
             <Input
-              value={volumen}
-              onChange={(e) => setVolumen(e.target.value)}
-              type="text"
-              aria-label="Volumen"
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700  dark:text-gray-100">Tomo</label>
-            <Input
-              value={tomo}
-              onChange={(e) => setTomo(e.target.value)}
+              value={voltomejemp}
+              onChange={(e) => setVoltomejemp(e.target.value)}
               type="text"
               aria-label="Tomo"
               className="w-full"
@@ -447,8 +381,6 @@ const CreateBook = () => {
             />
           </div>
 
-
-
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
               Número de Páginas
@@ -476,7 +408,7 @@ const CreateBook = () => {
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Año de Publicación
+              Fecha de Publicación
             </label>
             <Input
               value={aniopublicacion}
@@ -527,9 +459,6 @@ const CreateBook = () => {
             />
           </div>
 
-
-
-
           {/* Columna para los botones */}
 
           <div className="col-span-full flex justify-center gap-4 mt-6">
@@ -562,15 +491,6 @@ const CreateBook = () => {
               closeModal={closeModalAndReload} // <-- para usarla dentro del modal
             />
           }
-          {activeModal === "categoria" &&
-            <CreateCategoria
-              isOpen={modalIsOpen}
-              onOpenChange={(isOpen) => {
-                if (!isOpen) closeModalAndReload(); // Usa la nueva función aquí también
-              }}
-              closeModal={closeModalAndReload} // <-- para usarla dentro del modal
-            />
-          }
 
           {activeModal === "autor" &&
             <CreateAutor
@@ -582,15 +502,7 @@ const CreateBook = () => {
             />
           }
 
-
-
-          {/* {activeModal === "autor" && <CreateAutor closeModal={closeModalAndReload} />} */}
-
-          {/* {activeModal === "categoria" && <CreateCategoria closeModal={closeModalAndReload} />} */}
-          {/* {activeModal === "editorial" && <CreateEditorial closeModal={closeModalAndReload} />} */}
         </Modal>
-
-
       </div>
 
     </>

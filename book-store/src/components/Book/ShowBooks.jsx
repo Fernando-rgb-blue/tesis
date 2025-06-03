@@ -18,7 +18,7 @@ const ShowBooks = () => {
   const [books, setBooks] = useState([]);
   const [autors, setAutors] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc"); // Estado para controlar el orden (A-Z o Z-A)
-  const [categorias, setCategorias] = useState([]);
+
   const [editorials, setEditorials] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,7 +34,6 @@ const ShowBooks = () => {
   useEffect(() => {
     getAllBooks();
     getAllAutors();
-    getAllCategorias();
     getAllEditorials();
     getAllBooksAutors();
     setPage(1); // Resetea la página cada vez que el filtro cambia
@@ -49,7 +48,6 @@ const ShowBooks = () => {
     await Promise.all([
       getAllBooks(),             // tu función para cargar libros
       getAllBooksAutors(),    // tu función para cargar autores con libros
-      getAllCategorias(),        // si usas categorías
       getAllEditorials(),        // si usas editoriales
     ]);
   };
@@ -85,7 +83,7 @@ const ShowBooks = () => {
       setLoading(false);
     }
   };
-  
+
   const getAllBooksAutors = async () => {
     try {
       setLoading(true);
@@ -107,14 +105,6 @@ const ShowBooks = () => {
     }
   };
 
-  const getAllCategorias = async () => {
-    try {
-      const response = await axios.get(`${endpoint}/categorias`);
-      setCategorias(response.data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
 
   const getAllEditorials = async () => {
     try {
@@ -136,30 +126,58 @@ const ShowBooks = () => {
     await loadAllData(); // recarga toda la información
   };
 
-  const handleDelete = async (id) => {
-    // Mostrar la alerta de confirmación con SweetAlert2
+  // const handleDelete = async (id) => {
+  //   // Mostrar la alerta de confirmación con SweetAlert2
+  //   Swal.fire({
+  //     title: "¿Estás seguro?",
+  //     text: "No podrás revertir esta acción.",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#d33",
+  //     cancelButtonColor: "#3085d6",
+  //     confirmButtonText: "Sí, eliminar",
+  //     cancelButtonText: "Cancelar",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       try {
+  //         // Realizar la solicitud para eliminar el libro
+  //         await axios.delete(`${endpoint}/libro/${id}`);
+  //         // Actualizar la lista de libros
+  //         getAllBooks();
+  //         // Mostrar mensaje de éxito
+  //         Swal.fire("Eliminado", "El libro ha sido eliminado.", "success");
+  //       } catch (error) {
+  //         // Mostrar un mensaje de error si algo falla
+  //         Swal.fire("Error", "Hubo un problema al intentar eliminar el libro.", "error");
+  //         console.error("Error deleting book:", error);
+  //       }
+  //     }
+  //   });
+  // };
+
+  const handleHabilitacion = async (id) => {
     Swal.fire({
       title: "¿Estás seguro?",
-      text: "No podrás revertir esta acción.",
+      text: "Esto desactivará el libro.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
+      confirmButtonText: "Sí, desactivar",
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Realizar la solicitud para eliminar el libro
-          await axios.delete(`${endpoint}/libro/${id}`);
-          // Actualizar la lista de libros
-          getAllBooks();
-          // Mostrar mensaje de éxito
-          Swal.fire("Eliminado", "El libro ha sido eliminado.", "success");
+          // Enviar solicitud PUT para actualizar habilitación a 0
+          await axios.put(`${endpoint}/libro/${id}`, {
+            habilitacion: 0,
+          });
+
+          getAllBooks(); // Actualiza la lista de libros
+          Swal.fire("Desactivado", "El libro ha sido desactivado.", "success");
         } catch (error) {
-          // Mostrar un mensaje de error si algo falla
-          Swal.fire("Error", "Hubo un problema al intentar eliminar el libro.", "error");
-          console.error("Error deleting book:", error);
+          Swal.fire("Error", "No se pudo desactivar el libro.", "error");
+          console.error("Error desactivando libro:", error);
         }
       }
     });
@@ -178,10 +196,9 @@ const ShowBooks = () => {
   const filteredBooks = useMemo(() => {
     return books.filter((libro) =>
       libro.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      autors.find((autor) => autor.autorID === libro.autorID)?.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+      autors.find((autor) => autor.autorID === libro.autorID)?.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [books, autors, categorias, searchTerm]);
+  }, [books, autors, searchTerm]);
 
   // Asegura que `totalPages` sea al menos 1
   const totalPages = Math.max(1, Math.ceil(filteredBooks.length / rowsPerPage));
@@ -284,54 +301,52 @@ const ShowBooks = () => {
       {/* Tabla de resultados */}
 
       <div className="w-11/12 h-[600px] text-xs dark:bg-stone-900 p-4 rounded-md shadow-md overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-700">
-
         <Table aria-label="Gestión de Libros" className="w-full table-fixed">
           <TableHeader>
-            <TableColumn className="text-center font-semibold text-xs">ISBN</TableColumn>
-            <TableColumn className="text-center font-semibold text-xs">Código</TableColumn>
             <TableColumn className="text-center font-semibold text-xs">Título</TableColumn>
             <TableColumn className="text-center font-semibold text-xs">Autor</TableColumn>
-            <TableColumn className="text-center font-semibold text-xs">Categoría</TableColumn>
             <TableColumn className="text-center font-semibold text-xs">Editorial</TableColumn>
-            <TableColumn className="text-center font-semibold text-xs">Año de Publicación</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Fecha de Publicación</TableColumn>
+            <TableColumn className="text-center font-semibold text-xs">Código</TableColumn>
             <TableColumn className="text-center font-semibold text-xs">Ejemplares Disponibles</TableColumn>
             <TableColumn className="text-center font-semibold text-xs">Acciones</TableColumn>
           </TableHeader>
 
           <TableBody>
             {paginatedFilteredBooks
-              .sort((a, b) => (sortOrder === 'asc' ? a.titulo.localeCompare(b.titulo) : b.titulo.localeCompare(a.titulo)))
+              .sort((a, b) =>
+                sortOrder === 'asc'
+                  ? a.titulo.localeCompare(b.titulo)
+                  : b.titulo.localeCompare(a.titulo)
+              )
               .map((libro) => (
                 <TableRow key={libro.id}>
-                  <TableCell className="text-center text-xs">{libro.isbn}</TableCell>
-                  <TableCell className="text-center text-xs">{libro.codigolibroID}</TableCell>
                   <TableCell className="text-center text-xs">{libro.titulo}</TableCell>
 
                   <TableCell className="text-center text-xs">
-                    {
-                      autoresConLibros
-                        .filter((autor) => autor.libros.some((l) => l.id === libro.id))
-                        .map((autor) => autor.nombre)
-                        .join(', ') || "No disponible"
-                    }
+                    {autoresConLibros
+                      .filter((autor) => autor.libros.some((l) => l.id === libro.id))
+                      .map((autor) => autor.nombre)
+                      .join(', ') || 'No disponible'}
                   </TableCell>
 
                   <TableCell className="text-center text-xs">
-                    {categorias.find((categoria) => categoria.categoriaID === libro.categoriaID)?.nombre || "No disponible"}
+                    {editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || 'No disponible'}
                   </TableCell>
-                  <TableCell className="text-center text-xs">
-                    {editorials.find((editorial) => editorial.editorialID === libro.editorialID)?.nombre || "No disponible"}
-                  </TableCell>
+
                   <TableCell className="text-center text-xs">{libro.aniopublicacion}</TableCell>
+                  <TableCell className="text-center text-xs">{libro.codigolibroID}</TableCell>
                   <TableCell className="text-center text-xs">{libro.ejemplaresdisponibles}</TableCell>
+
                   <TableCell className="text-center text-xs">
-                    <div className="flex space-x-2 justify-center">
+                    <div className="flex justify-center space-x-2">
                       <Link
                         to={`/view-books/${libro.id}`}
                         className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
                       >
                         <i className="fas fa-eye"></i>
                       </Link>
+
                       <button
                         onClick={() => openModal(libro.id)}
                         className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
@@ -339,33 +354,19 @@ const ShowBooks = () => {
                         <i className="fas fa-pencil-alt"></i>
                       </button>
 
-                      {/* <button
-                        onClick={() => deleteBook(libro.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button> */}
-
                       <button
-                        onClick={() => handleDelete(libro.id)}
+                        onClick={() => handleHabilitacion(libro.id)}
                         className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center justify-center"
                       >
                         <i className="fas fa-trash"></i>
                       </button>
-
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
           </TableBody>
-
         </Table>
-
       </div>
-
-
-
-
 
       {/* Paginación */}
       <div className="w-11/12 text-xs dark:bg-stone-900 p-4 rounded-md shadow-md mt-4">

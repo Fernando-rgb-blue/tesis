@@ -18,9 +18,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
   const [numeropaginas, setNumeropaginas] = useState('');
   const [ejemplaresdisponibles, setEjemplaresdisponibles] = useState('');
   const [resumen, setResumen] = useState('');
-  const [volumen, setVolumen] = useState('');
-  const [tomo, setTomo] = useState('');
-  const [categoriaID, setCategoriaID] = useState('');
+  const [voltomejemp, setVoltomejemp] = useState('');
   const [edicion, setEdicion] = useState('');
   const [editorialID, setEditorialID] = useState('');
   const [pais, setPais] = useState('');
@@ -30,9 +28,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
   const [procedenciaproovedor, setProcedenciaproovedor] = useState('');
   const [ejemplares, setEjemplares] = useState([]);
   const [rutafoto, setRutafoto] = useState(null);
-  // const [fechaadquisicion, setFechaadquisicion] = useState(null);
   const [autores, setAutores] = useState([]);
-  const [categorias, setCategorias] = useState([]);
   const [editoriales, setEditoriales] = useState([]);
   const { id } = useParams();
 
@@ -45,11 +41,8 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       setTitulo(bookData.titulo);
       setAutorID(bookData.autorID);
       setNumeropaginas(bookData.numeropaginas);
-      //setEjemplaresdisponibles(bookData.ejemplaresdisponibles);
       setResumen(bookData.resumen);
-      setVolumen(bookData.volumen);
-      setTomo(bookData.tomo);
-      setCategoriaID(bookData.categoriaID);
+      setVoltomejemp(bookData.voltomejemp);
       setEdicion(bookData.edicion);
       setEditorialID(bookData.editorialID);
       setPais(bookData.pais);
@@ -57,13 +50,13 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       setAniopublicacion(bookData.aniopublicacion);
       setFormadeadquisicion(bookData.formadeadquisicion);
       setProcedenciaproovedor(bookData.procedenciaproovedor);
-      // setFechaadquisicion(bookData.fechaadquisicion);
+
 
       const autoresRes = await axios.get('http://localhost:8000/api/autors');
       setAutores(autoresRes.data);
 
-      const categoriasRes = await axios.get('http://localhost:8000/api/categorias');
-      setCategorias(categoriasRes.data);
+      // const categoriasRes = await axios.get('http://localhost:8000/api/categorias');
+      // setCategorias(categoriasRes.data);
 
       const editorialesRes = await axios.get('http://localhost:8000/api/editorials');
       setEditoriales(editorialesRes.data);
@@ -91,20 +84,16 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
       formData.append('codigolibroID', codigolibroID);
       formData.append('titulo', titulo);
       formData.append('numeropaginas', numeropaginas);
-      //formData.append('ejemplaresdisponibles', ejemplaresdisponibles);
       formData.append('resumen', resumen);
-      formData.append('volumen', volumen);
-      formData.append('tomo', tomo);
       formData.append('edicion', edicion);
       formData.append('pais', pais);
+      formData.append('voltomejemp',voltomejemp);
       formData.append('idioma', idioma);
       formData.append('aniopublicacion', aniopublicacion);
       formData.append('formadeadquisicion', formadeadquisicion);
       formData.append('procedenciaproovedor', procedenciaproovedor);
       formData.append('autor_nombre', autorID); // Autor principal, si aplica
-      formData.append('categoria_nombre', categoriaID);
       formData.append('editorial_nombre', editorialID);
-      // formData.append('fechaadquisicion', fechaadquisicion);
 
       if (rutafoto) {
         formData.append('rutafoto', rutafoto);
@@ -237,34 +226,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             />
           </div>
 
-          {/* Categoría */}
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Categoría
-            </label>
-            <div className="flex items-center">
-              <Autocomplete
-                aria-label="Seleccionar Categoría"
-                placeholder="Buscar Categoría..."
-                selectedKey={categoriaID} // Usa el nombre de la categoría como clave seleccionada
-                onSelectionChange={(key) => {
-                  // key es el nombre de la categoría seleccionada
-                  console.log('Nombre de la categoría seleccionada:', key);
-                  setCategoriaID(key); // Guarda el nombre de la categoría en el estado
-                }}
-                className="w-full"
-                popoverProps={{ className: "bg-white" }}
-              >
-                {categorias.map((categoria) => (
-                  <AutocompleteItem key={categoria.nombre} textValue={categoria.nombre}>
-                    {categoria.nombre}
-                  </AutocompleteItem>
-                ))}
-              </Autocomplete>
-            </div>
-          </div>
-
           {/* Editorial */}
 
           <div className="flex flex-col">
@@ -293,18 +254,6 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             </div>
           </div>
 
-
-          {/* <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700">Control Topográfico</label>
-            <Input
-              value={controltopografico}
-              onChange={(e) => setControltopografico(e.target.value)}
-              type="text"
-              aria-label="Control Topográfico"
-              className="w-full"
-            />
-          </div> */}
-
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700">Código</label>
             <Input
@@ -317,40 +266,18 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
             />
           </div>
 
+
+
           <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700">Volumen</label>
+            <label className="mb-2 text-sm font-medium text-gray-700">Volu. Tomo o Ejemplar</label>
             <Input
-              value={volumen}
-              onChange={(e) => setVolumen(e.target.value)}
+              value={voltomejemp}
+              onChange={(e) => setVoltomejemp(e.target.value)}
               type="text"
-              aria-label="Volumen"
+              aria-label="voltomejemp"
               className="w-full"
             />
           </div>
-
-          <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700">Tomo</label>
-            <Input
-              value={tomo}
-              onChange={(e) => setTomo(e.target.value)}
-              type="text"
-              aria-label="Tomo"
-              className="w-full"
-            />
-          </div>
-
-          {/* <div className="flex flex-col">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Fecha de Adquisición
-            </label>
-            <Input
-              value={fechaadquisicion}
-              onChange={(e) => setFechaadquisicion(e.target.value)}
-              type="date" // Cambio de tipo a "date"
-              aria-label="Fecha De Adquisición"
-              className="w-full"
-            />
-          </div> */}
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700">Pais</label>
@@ -412,7 +339,7 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
 
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Año de Publicación
+              Fecha de Publicación
             </label>
             <Input
               value={aniopublicacion}
@@ -490,10 +417,8 @@ const EditBooks = ({ libroID, onClose, onUpdate }) => {
               Actualizar
             </button>
 
-
           </div>
         </form>
-
       </div>
     </div>
 

@@ -10,18 +10,13 @@ class CreateLibrosTable extends Migration
     {
         Schema::create('libros', function (Blueprint $table) {
             $table->id(); // Clave primaria incremental
-            // $table->string('controltopografico')->nullable();
             $table->string('codigolibroID')->unique(); // Ya no es clave primaria
             $table->string('isbn')->nullable();
             $table->string('titulo')->nullable();
-            // Eliminado autorID (se usará tabla pivote)
             $table->integer('numeropaginas')->nullable();
             $table->integer('ejemplaresdisponibles')->nullable();
             $table->text('resumen')->nullable();
-            $table->string('volumen')->nullable();
-            $table->string('tomo')->nullable();
-            $table->unsignedBigInteger('categoriaID');
-            $table->foreign('categoriaID')->references('categoriaID')->on('categorias');
+            $table->string('voltomejemp')->nullable();
             $table->string('edicion')->nullable();
             $table->unsignedBigInteger('editorialID');
             $table->foreign('editorialID')->references('editorialID')->on('editorials');
@@ -31,6 +26,7 @@ class CreateLibrosTable extends Migration
             $table->string('formadeadquisicion')->nullable();
             $table->string('procedenciaproovedor')->nullable();
             $table->string('rutafoto')->nullable();
+            $table->integer('habilitacion')->nullable();
             $table->timestamps();
         });
     }

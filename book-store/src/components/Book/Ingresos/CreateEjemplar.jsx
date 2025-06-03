@@ -150,7 +150,7 @@ const CreateEjemplar = () => {
                   key={index}
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-gray-100 dark:bg-stone-800 p-4 rounded-lg"
                 >
-                  
+
                   <div className="flex flex-col">
                     <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-100">
                       Control Topográfico {index + 1}
@@ -201,11 +201,15 @@ const CreateEjemplar = () => {
                       name="anioingreso"
                       value={ejemplar.anioingreso}
                       onChange={(e) => handleEjemplarChange(index, e)}
-                      type="date"
+                      type="number"
+                      min="1900"
+                      max="2099"
+                      step="1"
                       className="w-full dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
+
                 </div>
               ))}
             </div>
