@@ -195,7 +195,7 @@ const CreateEjemplar = () => {
 
                   <div className="flex flex-col">
                     <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-100">
-                      Año de Ingreso
+                      Fecha de Adquisición
                     </label>
                     <Input
                       name="anioingreso"

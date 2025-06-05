@@ -12,8 +12,10 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents
+
+class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell, WithEvents, ShouldAutoSize
 {
     /**
      * Filtros para la exportación.
@@ -130,7 +132,7 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
 
     public function startCell(): string
     {
-        return 'A2';
+        return 'A3'; // Los encabezados comienzan en A3
     }
 
     public function registerEvents(): array
@@ -141,13 +143,30 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
 
                 $endColumn = $this->getExcelColumnLetter(count($this->headings()));
 
-                // Título
-                $sheet->mergeCells("A1:$endColumn" . '1');
-                $sheet->setCellValue('A1', 'Listado de Libros');
-                $sheet->getStyle("A1:$endColumn" . '1')->applyFromArray([
+                // ===== Fila 1: Nombre de la biblioteca =====
+                $sheet->mergeCells("A1:{$endColumn}1");
+                $sheet->setCellValue('A1', 'BIBLIOTECA DE CIENCIAS FÍSICAS Y MATEMÁTICAS');
+                $sheet->getStyle("A1:{$endColumn}1")->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'size' => 14,
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                ]);
+
+                // ===== Fila 2: Subtítulo =====
+                $sheet->mergeCells("A2:{$endColumn}2");
+                $sheet->setCellValue('A2', 'BASE DE DATOS - LIBROS');
+                $sheet->getStyle("A2:{$endColumn}2")->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 12,
                         'color' => ['rgb' => 'FFFFFF'],
                     ],
                     'fill' => [
@@ -160,8 +179,8 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
                     ],
                 ]);
 
-                // Encabezados
-                $sheet->getStyle('A2:' . $endColumn . '2')->applyFromArray([
+                // ===== Fila 3: Encabezados =====
+                $sheet->getStyle("A3:{$endColumn}3")->applyFromArray([
                     'font' => ['bold' => true],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -178,9 +197,11 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
                         ],
                     ],
                 ]);
+                // <- Aquí agregas la altura de la fila 3
+                $sheet->getRowDimension(3)->setRowHeight(50.23);
 
-                // Contenido
-                $sheet->getStyle('A3:' . $endColumn . ($sheet->getHighestRow()))->applyFromArray([
+                // ===== Contenido desde fila 4 =====
+                $sheet->getStyle("A4:{$endColumn}" . $sheet->getHighestRow())->applyFromArray([
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
                         'vertical' => Alignment::VERTICAL_CENTER,
@@ -193,14 +214,24 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
                     ],
                 ]);
 
-                // Ajustar ancho de columnas a 35.00 y activar ajuste de texto
+                // ===== Ajuste del ancho de las columnas =====
                 $columns = range('A', $endColumn);
                 foreach ($columns as $column) {
                     $sheet->getColumnDimension($column)->setWidth(35);
                 }
+
+                // Establecer ancho específico para la columna "RESUMEN"
+                $resumenIndex = array_search('RESUMEN', $this->headings());
+                if ($resumenIndex !== false) {
+                    $resumenColumn = $this->getExcelColumnLetter($resumenIndex + 1);
+                    $sheet->getColumnDimension($resumenColumn)->setAutoSize(false); // Desactiva autoSize solo para esta
+                    $sheet->getColumnDimension($resumenColumn)->setWidth(60);       // Ancho fijo
+                }
             },
         ];
     }
+
+
 
 
     private function getExcelColumnLetter($columnNumber)

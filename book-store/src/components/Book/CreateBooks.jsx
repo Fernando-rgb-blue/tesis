@@ -154,7 +154,7 @@ const CreateBook = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const [autoresResponse,editorialesResponse] = await Promise.all([
+      const [autoresResponse, editorialesResponse] = await Promise.all([
         axios.get(`${BASE_URL}/autors`),
         axios.get(`${BASE_URL}/editorials`)
       ]);
@@ -196,7 +196,7 @@ const CreateBook = () => {
 
   return (
     <>
-      
+
       <Helmet>
         <title>Crear Nuevo Libro</title>
         <meta name="description" content="Formulario para registrar un nuevo libro en la biblioteca" />
@@ -261,7 +261,7 @@ const CreateBook = () => {
 
         <form
           onSubmit={create}
-          className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6 mt-6"
+          className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4 gap-6 mt-6"
         >
           <div className="flex flex-col">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
@@ -434,17 +434,6 @@ const CreateBook = () => {
             />
           </div>
 
-          <div className="flex flex-col ">
-            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
-              Subir Foto
-            </label>
-
-            <Input
-              type="file"
-              onChange={handleFileChange}
-            />
-          </div>
-
           {/* Columna para el resumen */}
           <div className="flex flex-col w-full md:col-start-1 md:col-span-3">
             <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
@@ -459,6 +448,17 @@ const CreateBook = () => {
             />
           </div>
 
+          <div className="flex flex-col ">
+            <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-100">
+              Subir Foto
+            </label>
+
+            <Input
+              type="file"
+              onChange={handleFileChange}
+            />
+          </div>
+          
           {/* Columna para los botones */}
 
           <div className="col-span-full flex justify-center gap-4 mt-6">
