@@ -101,7 +101,12 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
             $query->orderBy('ejemplars.codigolibroID');
         }
 
-        return $query->get();
+
+        return $query->get()->map(function ($item) {
+            // Convertir "S/ 160.00" a 160.00
+            $item->precio = floatval(str_replace(['S/', ','], ['', ''], $item->precio));
+            return $item;
+        });
     }
 
 
@@ -227,12 +232,20 @@ class LibrosExport implements FromCollection, WithHeadings, WithCustomStartCell,
                     $sheet->getColumnDimension($resumenColumn)->setAutoSize(false); // Desactiva autoSize solo para esta
                     $sheet->getColumnDimension($resumenColumn)->setWidth(60);       // Ancho fijo
                 }
+
+                // Formatear la columna PRECIO como moneda  - Nuevo
+                $precioIndex = array_search('PRECIO', $this->headings());
+                if ($precioIndex !== false) {
+                    $precioColumn = $this->getExcelColumnLetter($precioIndex + 1);
+                    $highestRow = $sheet->getHighestRow();
+
+                    $sheet->getStyle("{$precioColumn}4:{$precioColumn}{$highestRow}")
+                        ->getNumberFormat()
+                        ->setFormatCode('#,[$S/] ##0.00'); // Formato moneda con símbolo S/
+                }
             },
         ];
     }
-
-
-
 
     private function getExcelColumnLetter($columnNumber)
     {

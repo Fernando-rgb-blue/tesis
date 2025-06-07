@@ -449,12 +449,12 @@ const ViewBook = () => {
                                                     </span>
                                                 </Tooltip>
 
-                                                <Tooltip  content="Eliminar">
+                                                <Tooltip content="Eliminar">
                                                     <span
                                                         className="text-lg text-danger cursor-pointer active:opacity-50"
                                                         onClick={() => handleDeleteEjemplar(ejemplar.codigolibroID, ejemplar.ningresoID)}
                                                     >
-                                                        <DeleteIcon className="text-red-600"/>
+                                                        <DeleteIcon className="text-red-600" />
                                                     </span>
                                                 </Tooltip>
                                             </div>
@@ -468,13 +468,13 @@ const ViewBook = () => {
                     {/* Botón fuera de la tabla y centrado */}
 
                     <div className="sticky bottom-0 p-1">
-                        
+
                         <div className="flex justify-center">
 
-                            <Button 
-                            color="primary" 
-                            className="font-semibold py-3 px-8 rounded-md focus:outline-none focus:ring-2 focus:ring-primary transform transition duration-300 ease-in-out hover:scale-105" 
-                            onPress={handleAddEjemplar}>Agregar Ejemplar
+                            <Button
+                                color="primary"
+                                className="font-semibold py-3 px-8 rounded-md focus:outline-none focus:ring-2 focus:ring-primary transform transition duration-300 ease-in-out hover:scale-105"
+                                onPress={handleAddEjemplar}>Agregar Ejemplar
                             </Button>
 
                         </div>
@@ -519,10 +519,21 @@ const ViewBook = () => {
                                     <input
                                         type="text"
                                         value={newPrecioLibro}
-                                        onChange={(e) => setNewPrecioLibro(e.target.value)}
+                                        onChange={(e) => {
+                                            let value = e.target.value;
+
+                                            // Eliminar "S/" si ya está presente
+                                            value = value.replace(/^S\/\s?/, '');
+
+                                            // Validar que sea un número válido con hasta 2 decimales
+                                            if (/^[0-9]*\.?[0-9]{0,2}$/.test(value)) {
+                                                setNewPrecioLibro(`S/ ${value}`);
+                                            }
+                                        }}
                                         className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
                                     />
                                 </div>
+
 
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

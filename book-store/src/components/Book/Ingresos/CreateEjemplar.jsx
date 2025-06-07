@@ -186,12 +186,29 @@ const CreateEjemplar = () => {
                     <Input
                       name="precio"
                       value={ejemplar.precio}
-                      onChange={(e) => handleEjemplarChange(index, e)}
+                      onChange={(e) => {
+                        let value = e.target.value;
+
+                        // Eliminar "S/" si ya está incluido para evitar duplicación
+                        value = value.replace(/^S\/\s?/, '');
+
+                        // Permitir solo números y punto decimal
+                        if (/^[0-9]*\.?[0-9]{0,2}$/.test(value)) {
+                          // Formatear con "S/" y actualizar
+                          handleEjemplarChange(index, {
+                            target: {
+                              name: 'precio',
+                              value: `S/ ${value}`
+                            }
+                          });
+                        }
+                      }}
                       type="text"
                       className="w-full dark:border-gray-600 dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
+
 
                   <div className="flex flex-col">
                     <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-100">
