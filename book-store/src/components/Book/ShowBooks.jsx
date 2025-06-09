@@ -157,8 +157,8 @@ const ShowBooks = () => {
 
   const handleHabilitacion = async (id) => {
     Swal.fire({
-      title: "¿Estás seguro?",
-      text: "Esto desactivará el libro.",
+      title: "¿Estás seguro de desactivar el libro?",
+      text: "El libro lo encontrará en la papelera",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -314,6 +314,7 @@ const ShowBooks = () => {
 
           <TableBody>
             {paginatedFilteredBooks
+              .filter((libro) => libro.habilitacion === 1) // Filtrar solo los libros habilitados
               .sort((a, b) =>
                 sortOrder === 'asc'
                   ? a.titulo.localeCompare(b.titulo)

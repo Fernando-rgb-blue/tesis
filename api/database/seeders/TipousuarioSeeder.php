@@ -30,3 +30,4 @@ class TipousuarioSeeder extends Seeder
         }
     }
 }
+

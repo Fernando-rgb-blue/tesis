@@ -58,9 +58,13 @@ const Navbar = () => {
 
     return (
 
-        <div className=" bg-white dark:bg-stone-800 dark:text-white duration-200 w-full">
+        <div className="bg-transparent dark:bg-transparent text-black dark:text-white duration-200 w-full">
+
             <div className="container py-5 sm:py-4">
+
+
                 <div className="flex justify-between items-center">
+                    
                     <div className="flex items-center">
                         <a href="#" className="font-bold text-2xl sm:text-xl flex items-center gap-2">
                             <img src={Logo} alt="" className='w-10' />Biblioteca F.C.F.Y.M

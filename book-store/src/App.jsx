@@ -17,6 +17,7 @@ import SignUp from "./components/Signup/Signup.jsx";
 import User from "./components/User/User.jsx";
 import EditBooks from "./components/Book/EditBooks.jsx";
 import CreateBook from "./components/Book/CreateBooks.jsx";
+import DeleteBooks from "./components/Book/DeleteBooks.jsx";
 import CreateEjemplar from "./components/Book/Ingresos/CreateEjemplar.jsx";
 import ViewBook from "./components/Book/ViewBooks/ViewBooks.jsx";
 import { HelmetProvider } from 'react-helmet-async';
@@ -62,6 +63,7 @@ const App = () => {
         />
         {/* Rutas principales */}
         <Route path="/show-books" element={<ShowBooks />} />
+        <Route path="/delete-books" element={<DeleteBooks />} />
         <Route path="/view-books/:id" element={<ViewBook />} />
         <Route path="/create-books" element={<CreateBook />} />
         <Route path="/ingresos/create" element={<CreateEjemplar />} />

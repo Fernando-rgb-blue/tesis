@@ -68,7 +68,7 @@ class LibroController extends Controller
         $libro->procedenciaproovedor = $request->procedenciaproovedor;
         $libro->ejemplaresdisponibles = $request->ejemplaresdisponibles;
         $libro->numeropaginas = $request->numeropaginas;
-        $libro->habilitacion = $request->habilitacion;
+        $libro->habilitacion = 1; // Siempre se guarda como habilitado
         $libro->rutafoto = $imagePath;
         $libro->save();
 

@@ -203,6 +203,8 @@ const CreateBook = () => {
       </Helmet>
 
       <div className="bg-white dark:bg-stone-900 p-6 sm:p-8 rounded-lg shadow-md w-full max-w-[110rem] mx-auto mt-20 overflow-y-auto max-h-[100vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        
+        
         <h3 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">
           Crear Nuevo Libro
         </h3>

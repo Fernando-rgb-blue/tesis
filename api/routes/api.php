@@ -91,9 +91,9 @@ Route::controller(EjemplarController::class)->group(function () {
         ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
     Route::delete('/ejemplar/{codigolibroID}/{ningresoID}', 'destroy')
         ->where(['codigolibroID' => '.*', 'ningresoID' => '.*']);
-        // Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
-        // Route::put('/ejemplar/{codigolibro}/{ningresoID}','update')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
-        // Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+    // Route::get('/ejemplar/{codigolibro}/{ningresoID}','show2')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+    // Route::put('/ejemplar/{codigolibro}/{ningresoID}','update')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
+    // Route::delete('/ejemplar/{codigolibro}/{ningresoID}','destroy')->where(['codigolibro' => '.*', 'ningresoID' => '.*']);
 });
 
 // AUTOR LIBRO 
@@ -108,7 +108,6 @@ Route::controller(AutorLibroController::class)->group(function () {
 });
 
 
-
 //FOTO EJEMPLAR
 
 Route::controller(FotoEjemplarController::class)->group(function () {
@@ -121,16 +120,18 @@ Route::controller(FotoEjemplarController::class)->group(function () {
 
 // SESION 
 
-Route::controller(AuthController::class)->group(function () {
-    Route::post('/register', 'register');
-    Route::post('/login', 'login');
-    Route::get('/usersall', 'allusers');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::put('/usersupdate/{id}', [AuthController::class, 'update']);  // <-- Aquí sin middleware
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [AuthController::class, 'userProfile']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/users', [AuthController::class, 'allUsers']);
+    Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
+    Route::put('/users/{id}', [AuthController::class, 'update']);
 });
 
-Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::get('user-profile', [AuthController::class, 'userProfile']);
-    Route::post('logout', [AuthController::class, 'logout']);
-});
 
 // USUARIOS
 

@@ -13,26 +13,30 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+
+            // Información básica
             $table->string('name');
             $table->integer('dni');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->date('fechanacimiento');
+            $table->string('domicilio');
+            $table->integer('telefono');
 
-            // Clave foránea para `tipousuario`
+            // Relaciones foráneas
             $table->string('tipousuario');
             $table->foreign('tipousuario')
                 ->references('tipousuario')
                 ->on('tipousuarios');
 
-            // Otros campos
             $table->string('estadousuario');
             $table->foreign('estadousuario')
                 ->references('estadousuario')
                 ->on('estadousuarios');
-            
-            $table->string('domicilio');
-            $table->integer('telefono');
-            $table->date('fechanacimiento');  
-            $table->string('email')->unique();
-            $table->string('password');
+
+            // Campos opcionales
+            $table->string('turno')->nullable(); // Para bibliotecarios
+
             $table->timestamps();
         });
     }

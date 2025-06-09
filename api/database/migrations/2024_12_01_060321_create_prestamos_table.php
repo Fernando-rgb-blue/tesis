@@ -32,12 +32,12 @@ return new class extends Migration
                 ->onUpdate('cascade');
 
             // Clave foránea para 'empleados'
-            $table->unsignedBigInteger('empleadoid');
-            $table->foreign('empleadoid')
-                ->references('id') // Asegúrate de que 'empleados' tiene un campo 'id'
-                ->on('empleados')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
+            // $table->unsignedBigInteger('empleadoid');
+            // $table->foreign('empleadoid')
+            //     ->references('id') // Asegúrate de que 'empleados' tiene un campo 'id'
+            //     ->on('empleados')
+            //     ->onDelete('cascade')
+            //     ->onUpdate('cascade');
 
             $table->date('fechaprestamo'); // Usar `date` para fechas
             $table->date('fechadevolucion'); // Corregir el nombre del campo y usar `date`

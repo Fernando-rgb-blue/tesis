@@ -12,69 +12,58 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    /**
-     * Registrar un nuevo usuario
-     */
     public function register(Request $request)
     {
-        // Validación de los datos
         $request->validate([
             'name' => 'required|string|max:255',
             'dni' => 'required|integer|unique:users',
-            'tipousuario' => 'required|string|exists:tipousuarios,tipousuario',
-            'estadousuario' => 'required|string|exists:estadousuarios,estadousuario',
             'domicilio' => 'required|string|max:255',
             'telefono' => 'required|integer',
             'fechanacimiento' => 'required|date',
             'email' => 'required|email|unique:users',
-            'password' => 'required|string|confirmed|min:8'
+            'password' => 'required|string|confirmed|min:8',
+            'turno' => 'nullable|string|max:50'
         ]);
 
-        // Crear el nuevo usuario
         $user = new User();
         $user->name = $request->name;
         $user->dni = $request->dni;
-        $user->tipousuario = $request->tipousuario;
-        $user->estadousuario = $request->estadousuario;
+        $user->tipousuario = 'Alumno(a)'; // valor por defecto
+        $user->estadousuario = 'Activo';  // valor por defecto
         $user->domicilio = $request->domicilio;
         $user->telefono = $request->telefono;
         $user->fechanacimiento = $request->fechanacimiento;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->turno = $request->has('turno') ? $request->turno : null;
         $user->save();
 
-        // Respuesta de éxito
         return response($user, Response::HTTP_CREATED);
     }
 
-    /**
-     * Login de usuario
-     */
     public function login(Request $request)
     {
-        // Validar las credenciales
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string'
         ]);
 
-        // Intentar la autenticación
         if (Auth::attempt($credentials)) {
+            /** @var \App\Models\User $user */
             $user = Auth::user();
+
             $token = $user->createToken('token')->plainTextToken;
             $cookie = cookie('cookie_token', $token, 60 * 24);
-            return response(["token" => $token], Response::HTTP_OK)->withCookie($cookie);
+
+            return response(["token" => $token], Response::HTTP_OK)
+                ->withCookie($cookie);
         } else {
             return response(["message" => "Credenciales inválidas"], Response::HTTP_UNAUTHORIZED);
         }
     }
 
-    /**
-     * Obtener el perfil del usuario autenticado
-     */
     public function userProfile(Request $request)
     {
-        // Verificar si el usuario está autenticado
         if (auth()->check()) {
             return response()->json([
                 "message" => "userProfile OK",
@@ -87,28 +76,68 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Logout del usuario autenticado
-     */
     public function logout(Request $request)
     {
-        // Revocar el token actual
         $request->user()->currentAccessToken()->delete();
-
-        // Opcional: Eliminar la cookie si se usa
         $cookie = Cookie::forget('cookie_token');
 
         return response(["message" => "Cierre de sesión exitoso"], Response::HTTP_OK)->withCookie($cookie);
     }
 
-    /**
-     * Obtener todos los usuarios
-     */
     public function allUsers()
     {
         $users = User::all();
-        return response()->json([
-            "users" => $users
+        return response()->json(["users" => $users]);
+    }
+
+    // ✅ Eliminar usuario por ID
+    public function deleteUser($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(["message" => "Usuario no encontrado"], Response::HTTP_NOT_FOUND);
+        }
+
+        $user->delete();
+
+        return response()->json(["message" => "Usuario eliminado correctamente"], Response::HTTP_OK);
+    }
+
+    // ✅ Editar usuario por ID
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'dni' => 'sometimes|required|integer|unique:users,dni,' . $user->id,
+            'tipousuario' => 'sometimes|required|string|exists:tipousuarios,tipousuario',
+            'estadousuario' => 'sometimes|required|string|exists:estadousuarios,estadousuario',
+            'domicilio' => 'sometimes|required|string|max:255',
+            'telefono' => 'sometimes|required|integer',
+            'fechanacimiento' => 'sometimes|required|date',
+            'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
+            'turno' => 'nullable|string|max:50',
+            // No se incluye password aquí para que no se modifique accidentalmente
         ]);
+
+        // Actualiza solo los campos que vengan en la solicitud
+        if ($request->has('name')) $user->name = $request->name;
+        if ($request->has('dni')) $user->dni = $request->dni;
+        if ($request->has('tipousuario')) $user->tipousuario = $request->tipousuario;
+        if ($request->has('estadousuario')) $user->estadousuario = $request->estadousuario;
+        if ($request->has('domicilio')) $user->domicilio = $request->domicilio;
+        if ($request->has('telefono')) $user->telefono = $request->telefono;
+        if ($request->has('fechanacimiento')) $user->fechanacimiento = $request->fechanacimiento;
+        if ($request->has('email')) $user->email = $request->email;
+        if ($request->has('turno')) $user->turno = $request->turno;
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Usuario actualizado correctamente',
+            'user' => $user
+        ], Response::HTTP_OK);
     }
 }
