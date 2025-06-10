@@ -21,6 +21,9 @@ import DeleteBooks from "./components/Book/DeleteBooks.jsx";
 import CreateEjemplar from "./components/Book/Ingresos/CreateEjemplar.jsx";
 import ViewBook from "./components/Book/ViewBooks/ViewBooks.jsx";
 import { HelmetProvider } from 'react-helmet-async';
+import ProtectedRoute from "./components/ProtectedRoute.jsx"; // importa el protector
+import LibraryBooks from "./components/Library/ShowBooks.jsx";
+import ViewLibrary from "./components/Library/ViewLibrary/ViewLibrary.jsx";
 
 const App = () => {
   const [orderPopup, setOrderPopup] = React.useState(false);
@@ -61,15 +64,56 @@ const App = () => {
             </>
           }
         />
+
         {/* Rutas principales */}
-        <Route path="/show-books" element={<ShowBooks />} />
-        <Route path="/delete-books" element={<DeleteBooks />} />
-        <Route path="/view-books/:id" element={<ViewBook />} />
+
+        <Route
+          path="/show-books"
+          element={
+            <ProtectedRoute allowedRole="Bibliotecario(a)">
+              <ShowBooks />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/delete-books"
+          element={
+            <ProtectedRoute allowedRole="Bibliotecario(a)">
+              <DeleteBooks />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/show-books"
+          element={
+            <ProtectedRoute allowedRole="Bibliotecario(a)">
+              <ShowBooks />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/view-books/:id"
+          element={
+            <ProtectedRoute allowedRole="Bibliotecario(a)">
+              <ViewBook />
+            </ProtectedRoute>
+          }
+        />
+
+
+        {/* Fuera de bibliotecario  */}
+
+        <Route path="/library-book/:id" element={<ViewLibrary />} />
+        <Route path="/library-books" element={<LibraryBooks />} />
         <Route path="/create-books" element={<CreateBook />} />
         <Route path="/ingresos/create" element={<CreateEjemplar />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/user" element={<User />} />
+
       </Routes>
     </div>
   );

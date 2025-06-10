@@ -7,15 +7,10 @@ import DarkMode from './DarkMode';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
-const Menu = [
-    { id: 1, name: "Inicio", link: '/#' },
-    { id: 2, name: "Librería", link: '/show-books' },
-];
-
 const Navbar = () => {
     const navigate = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userType, setUserType] = useState(null); // Nuevo estado para el tipo de usuario
+    const [userType, setUserType] = useState(null);
     const location = useLocation();
     const userProfile = location.state?.userProfile || JSON.parse(localStorage.getItem('userProfile'));
 
@@ -24,7 +19,7 @@ const Navbar = () => {
         setIsAuthenticated(!!token);
 
         if (userProfile) {
-            setUserType(userProfile.tipousuario); // Configura el tipo de usuario
+            setUserType(userProfile.tipousuario);
         }
 
         const handleStorageChange = (e) => {
@@ -56,6 +51,16 @@ const Navbar = () => {
         }
     };
 
+    // Menú dinámico
+    const Menu = [
+        { id: 1, name: "Inicio", link: '/#' },
+        {
+            id: 2,
+            name: "Librería",
+            link: userType === "Bibliotecario(a)" ? '/show-books' : '/library-books'
+        },
+    ];
+
     return (
 
         <div className="bg-transparent dark:bg-transparent text-black dark:text-white duration-200 w-full">
@@ -64,7 +69,7 @@ const Navbar = () => {
 
 
                 <div className="flex justify-between items-center">
-                    
+
                     <div className="flex items-center">
                         <a href="#" className="font-bold text-2xl sm:text-xl flex items-center gap-2">
                             <img src={Logo} alt="" className='w-10' />Biblioteca F.C.F.Y.M

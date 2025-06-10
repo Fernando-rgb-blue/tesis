@@ -19,7 +19,7 @@ const endpoint = `http://localhost:8000/api/libro/`;
 const ejemplarEndpoint = `http://localhost:8000/api/ejemplar/`;
 const fotoEndpoint = `http://localhost:8000/api/fotoejemplar/`;
 
-const ViewBook = () => {
+const ViewLibrary = () => {
 
     const [isbn, setIsbn] = useState('');
     const [controltopografico, setControltopografico] = useState('');
@@ -107,90 +107,6 @@ const ViewBook = () => {
     }, [id]);
 
 
-    const handleEdit = (ejemplar) => {
-        setIsEditing(true);
-        setSelectedEjemplar(ejemplar);
-        setNewNingresoID(ejemplar.ningresoID);
-        setNewEstadoLibro(ejemplar.estadolibro);
-        setNewPrecioLibro(ejemplar.precio);
-        setNewAnioIngreso(ejemplar.anioingreso);
-        setIsModalOpen(true);
-    };
-
-    // Abrir modal para agregar nuevo ejemplar
-
-    const handleAddEjemplar = () => {
-        setIsEditing(false);
-        setSelectedEjemplar(null);
-        setNewNingresoID('');
-        setNewEstadoLibro('');
-        setNewPrecioLibro('');
-        setNewAnioIngreso('');
-        setIsModalOpen(true);
-    };
-
-    // Actualizar ejemplar existente
-
-    const handleUpdateEjemplar = async () => {
-        try {
-            // Codificar los valores en base64
-            const encodedCodigoLibroID = btoa(selectedEjemplar.codigolibroID);
-            const encodedNingresoID = btoa(selectedEjemplar.ningresoID);
-
-            await axios.put(`${ejemplarEndpoint}${encodedCodigoLibroID}/${encodedNingresoID}`, {
-                ningresoID: newNingresoID,
-                estadolibro: newEstadoLibro,
-                precio: newPrecioLibro,
-                anioingreso: newAnioIngreso,
-            });
-
-            setEjemplares(prevEjemplares =>
-                prevEjemplares.map(ej =>
-                    ej.ningresoID === selectedEjemplar.ningresoID
-                        ? { ...ej, ningresoID: newNingresoID, estadolibro: newEstadoLibro, precio: newPrecioLibro, anioingreso: newAnioIngreso }
-                        : ej
-                )
-            );
-
-            setIsModalOpen(false);
-        } catch (error) {
-            console.error('Error updating ejemplar:', error);
-        }
-    };
-
-
-    // Agregar nuevo ejemplar
-
-    const handleCreateEjemplar = async () => {
-        try {
-            const response = await axios.post(`${ejemplarEndpoint}${codigolibroID}`, { // Usa `codigolibroID` en la URL
-                ningresoID: newNingresoID,
-                estadolibro: newEstadoLibro,
-                precio: newPrecioLibro,
-                anioingreso: newAnioIngreso
-            });
-
-            setEjemplares([...ejemplares, response.data.ejemplar]); // Agrega el nuevo ejemplar a la lista
-            setIsModalOpen(false);
-        } catch (error) {
-            console.error('Error al agregar el ejemplar:', error);
-        }
-    };
-
-    const handleDeleteEjemplar = async (codigolibroID, ningresoID) => {
-        try {
-            // Codificar en base64
-            const encodedCodigoLibroID = btoa(codigolibroID);
-            const encodedNingresoID = btoa(ningresoID);
-
-            await axios.delete(`${ejemplarEndpoint}${encodedCodigoLibroID}/${encodedNingresoID}`);
-
-            setEjemplares(prevEjemplares => prevEjemplares.filter(e => e.ningresoID !== ningresoID));
-        } catch (error) {
-            console.error('Error al eliminar el ejemplar:', error);
-        }
-    };
-
 
 
     // Ver fotos
@@ -216,79 +132,6 @@ const ViewBook = () => {
             onOpen(); // Abre el modal aunque haya error
         }
     };
-
-
-    const handleDelete = async (ruta) => {
-        try {
-            const foto = selectedPhotos.find(f => f.rutafoto === ruta);
-            if (!foto) return alert("No se encontró la foto");
-
-            console.log("ID extraído:", foto.id);
-
-            const response = await fetch(`http://localhost:8000/api/fotoejemplar/${foto.id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                alert("Foto eliminada correctamente");
-                setSelectedPhotos(prev => prev.filter(f => f.rutafoto !== ruta));
-            } else {
-                alert("Error al eliminar la foto");
-            }
-        } catch (error) {
-            console.error("Error eliminando la foto:", error);
-            alert("Error en la eliminación");
-        }
-    };
-
-
-    const handleUpload = async (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        // Si hay fotos, usa el ningresoID de la primera foto. Si no, usa selectedNingresoID.
-        const ningresoID = selectedPhotos.length > 0 ? selectedPhotos[0].ningresoID : selectedNingresoID;
-
-        if (!ningresoID) {
-            alert("No se encontró un ingresoID válido.");
-            return;
-        }
-
-        console.log("Subiendo foto con ningresoID:", ningresoID);
-
-        const formData = new FormData();
-        formData.append("rutafoto", file);
-        formData.append("ningresoID", ningresoID);
-
-        try {
-            const response = await fetch("http://localhost:8000/api/fotoejemplar", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (response.ok) {
-                alert("Foto subida correctamente");
-                // Recargar las fotos después de subir
-                handleViewPhotos(ningresoID);
-            } else {
-                alert("Error al subir la foto");
-            }
-        } catch (error) {
-            console.error("Error subiendo la foto:", error);
-            alert("Error en la subida");
-        }
-    };
-
-
-
-    const handleUploadButtonClick = () => {
-        document.querySelector('input[type="file"]').click();
-    };
-
-
 
     const paginatedItems = React.useMemo(() => {
         const start = (page - 1) * rowsPerPage;
@@ -351,7 +194,7 @@ const ViewBook = () => {
 
                         {/* Columna 2 */}
                         <div>
-                            
+
                             <p className="text-sm text-gray-700 dark:text-gray-300">
                                 <span className="font-bold">Editorial:</span> {editorialID}
                             </p>
@@ -364,9 +207,7 @@ const ViewBook = () => {
                             <p className="text-sm text-gray-700 dark:text-gray-300">
                                 <span className="font-bold">Año de Publicación:</span> {aniopublicacion}
                             </p>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
-                                <span className="font-bold">Forma de Adquisición:</span> {formadeadquisicion}
-                            </p>
+
                         </div>
 
                         {/* Columna 2: Resumen que ocupará las 2 columnas */}
@@ -381,12 +222,12 @@ const ViewBook = () => {
 
 
                     <div className="mb-2 text-center">
-                        <h2 className="font-semibold text-gray-900  dark:text-gray-100 text-lg">
+                        <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                             Lista de Ejemplares
                         </h2>
                     </div>
 
-                    <div className="flex-1 dark:bg-stone-800 rounded-lg p-4 overflow-y-auto min-h-[22.5rem]">
+                    <div className="flex-1 dark:bg-stone-800 rounded-lg p-3 overflow-y-auto min-h-[22.5rem]">
                         <Table
                             isStriped
                             aria-label="Tabla de ejemplares con paginación"
@@ -411,50 +252,33 @@ const ViewBook = () => {
                                 <TableColumn>N. Ingreso</TableColumn>
                                 <TableColumn>Estado del Libro</TableColumn>
                                 <TableColumn>Precio</TableColumn>
-                                <TableColumn>Fecha de Adquisición</TableColumn>
-                                <TableColumn className="text-center">Acción</TableColumn>
+                                <TableColumn className="text-center">Acciones</TableColumn>
                             </TableHeader>
+
                             <TableBody
                                 items={paginatedItems}
                                 loadingState={ejemplares.length === 0 ? "loading" : "idle"}
                                 loadingContent={<Spinner />}
                             >
                                 {(ejemplar, index) => (
-                                    <TableRow key={index}>
+                                    <TableRow key={index} onClick={() => handleViewPhotos(ejemplar.ningresoID)} className="cursor-pointer hover:bg-blue-50">
                                         <TableCell>{ejemplar.ningresoID}</TableCell>
                                         <TableCell>{ejemplar.estadolibro}</TableCell>
                                         <TableCell>{ejemplar.precio}</TableCell>
-                                        <TableCell>{ejemplar.anioingreso}</TableCell>
+
                                         <TableCell className="text-center">
-                                            <div className="relative flex items-center justify-center gap-2">
-
-                                                <Tooltip content="Ver fotos">
-                                                    <span
-                                                        className="text-lg cursor-pointer active:opacity-50"
-                                                        onClick={() => handleViewPhotos(ejemplar.ningresoID)}
-                                                    >
-                                                        <EyeIcon className="text-green-600" />
-                                                    </span>
-                                                </Tooltip>
-
-
-                                                <Tooltip content="Editar">
-                                                    <span
-                                                        className="text-lg text-default-400 cursor-pointer active:opacity-50"
-                                                        onClick={() => handleEdit(ejemplar)}
-                                                    >
-                                                        <EditIcon className="text-yellow-500" />
-                                                    </span>
-                                                </Tooltip>
-
-                                                <Tooltip content="Eliminar">
-                                                    <span
-                                                        className="text-lg text-danger cursor-pointer active:opacity-50"
-                                                        onClick={() => handleDeleteEjemplar(ejemplar.codigolibroID, ejemplar.ningresoID)}
-                                                    >
-                                                        <DeleteIcon className="text-red-600" />
-                                                    </span>
-                                                </Tooltip>
+                                            <div className="flex items-center justify-center gap-2">
+                                                <span className="text-green-600 font-semibold">Libre</span>
+                                                <button
+                                                    className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evita que se dispare handleViewPhotos
+                                                        // Aquí puedes llamar a una función si se desea
+                                                        console.log("Solicitar préstamo de", ejemplar.ningresoID);
+                                                    }}
+                                                >
+                                                    Solicitar préstamo
+                                                </button>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -462,22 +286,6 @@ const ViewBook = () => {
                             </TableBody>
                         </Table>
                     </div>
-
-                    {/* Botón fuera de la tabla y centrado */}
-
-                    <div className="sticky bottom-0 p-1">
-
-                        <div className="flex justify-center">
-
-                            <Button
-                                color="primary"
-                                className="font-semibold py-3 px-8 rounded-md focus:outline-none focus:ring-2 focus:ring-primary transform transition duration-300 ease-in-out hover:scale-105"
-                                onPress={handleAddEjemplar}>Agregar Ejemplar
-                            </Button>
-
-                        </div>
-                    </div>
-
 
                     {/* Modal de edición/agregar */}
                     {isModalOpen && (
@@ -544,21 +352,6 @@ const ViewBook = () => {
                                         className="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
                                     />
                                 </div>
-
-                                <div className="flex justify-end gap-2">
-                                    <button
-                                        className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                                        onClick={() => setIsModalOpen(false)}
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                                        onClick={isEditing ? handleUpdateEjemplar : handleCreateEjemplar}
-                                    >
-                                        {isEditing ? 'Guardar' : 'Agregar'}
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     )}
@@ -605,23 +398,6 @@ const ViewBook = () => {
                                                             margin: 'auto'
                                                         }}
                                                     />
-                                                    <div className="flex gap-2 mt-4">
-                                                        <Button
-                                                            className="bg-red-500 text-white"
-                                                            onClick={() => handleDelete(foto.rutafoto)}
-                                                        >
-                                                            Eliminar Foto
-                                                        </Button>
-                                                        <label className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer">
-                                                            Agregar Imagen
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                onChange={(e) => handleUpload(e, selectedNingresoID)}
-                                                                className="hidden"
-                                                            />
-                                                        </label>
-                                                    </div>
                                                 </div>
                                             </SwiperSlide>
                                         ))
@@ -632,22 +408,7 @@ const ViewBook = () => {
                                             <div className="flex flex-col justify-center items-center w-full h-full">
                                                 {console.clear()}
                                                 {console.log("No se encontraron fotos para el ingreso ID:", selectedNingresoID)}
-
                                                 <p className="text-lg font-semibold">No se han encontrado fotos para el ingreso ID: {selectedNingresoID}</p>
-
-                                                <label className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer mt-4">
-                                                    Añadir Nueva Foto
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={(e) => {
-                                                            console.log("Archivo seleccionado:", e.target.files[0]);
-                                                            console.log("Ingreso ID al subir foto:", selectedNingresoID);
-                                                            handleUpload(e, selectedNingresoID);
-                                                        }}
-                                                        className="hidden"
-                                                    />
-                                                </label>
                                             </div>
                                         </SwiperSlide>)
                                     )}
@@ -663,4 +424,4 @@ const ViewBook = () => {
 
 };
 
-export default ViewBook;
+export default ViewLibrary;

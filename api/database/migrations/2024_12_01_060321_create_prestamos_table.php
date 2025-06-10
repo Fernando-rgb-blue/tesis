@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('prestamos', function (Blueprint $table) {
             $table->id(); // Clave primaria
             $table->string('numerodeprestamo');
-            
+
             // Campo para referenciar a 'ejemplars'
-            $table->string('ningresoID'); 
+            $table->string('ningresoID');
             $table->foreign('ningresoID')
                 ->references('ningresoID')
                 ->on('ejemplars')
@@ -26,6 +26,14 @@ return new class extends Migration
             // Clave foránea para 'users'
             $table->unsignedBigInteger('usuarioid');
             $table->foreign('usuarioid')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            // Clave foránea para 'users'
+            $table->unsignedBigInteger('bibliotecarioid');
+            $table->foreign('bibliotecarioid')
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade')
