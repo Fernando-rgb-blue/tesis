@@ -14,25 +14,28 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
 
-            // Información básica
-            $table->string('name');
-            $table->integer('dni');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->date('fechanacimiento');
-            $table->string('domicilio');
-            $table->integer('telefono');
+            // Información básica (nullable excepto email y password)
+            $table->string('name')->nullable();
+            $table->bigInteger('coduniversitario')->unique()->nullable(); // Campo nuevo, único y opcional
+            $table->integer('dni')->unique()->nullable();
+            $table->string('email')->unique(); // Requerido
+            $table->string('password');        // Requerido
+            $table->date('fechanacimiento')->nullable();
+            $table->string('domicilio')->nullable();
+            $table->integer('telefono')->unique()->nullable();
 
-            // Relaciones foráneas
-            $table->string('tipousuario');
+            // Relaciones foráneas (nullable y con claves foráneas)
+            $table->string('tipousuario')->nullable();
             $table->foreign('tipousuario')
                 ->references('tipousuario')
-                ->on('tipousuarios');
+                ->on('tipousuarios')
+                ->nullOnDelete();
 
-            $table->string('estadousuario');
+            $table->string('estadousuario')->nullable();
             $table->foreign('estadousuario')
                 ->references('estadousuario')
-                ->on('estadousuarios');
+                ->on('estadousuarios')
+                ->nullOnDelete();
 
             // Campos opcionales
             $table->string('turno')->nullable(); // Para bibliotecarios
@@ -40,6 +43,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.

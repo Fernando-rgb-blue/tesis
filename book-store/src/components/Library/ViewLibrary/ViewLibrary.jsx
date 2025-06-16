@@ -268,7 +268,33 @@ const ViewLibrary = () => {
 
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <span className="text-green-600 font-semibold">Libre</span>
+
+
+                                                <Button
+                                                    className="bg-green-500 text-white"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evita que se dispare handleViewPhotos
+                                                        // Aquí puedes llamar a una función si se desea
+                                                        console.log("Solicitar préstamo de", ejemplar.ningresoID);
+                                                    }}
+                                                >
+                                                    Libre
+                                                </Button>
+
+                                                <Button
+                                                    className="bg-yellow-400 text-white"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evita que se dispare handleViewPhotos
+                                                        // Aquí puedes llamar a una función si se desea
+                                                        console.log("Solicitar préstamo de", ejemplar.ningresoID);
+                                                    }}
+                                                >
+                                                    Libre
+                                                </Button>
+
+
+                                                {/* <span className="text-green-600 font-semibold">Libre</span>
+
                                                 <button
                                                     className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700"
                                                     onClick={(e) => {
@@ -278,7 +304,8 @@ const ViewLibrary = () => {
                                                     }}
                                                 >
                                                     Solicitar préstamo
-                                                </button>
+                                                </button> */}
+
                                             </div>
                                         </TableCell>
                                     </TableRow>

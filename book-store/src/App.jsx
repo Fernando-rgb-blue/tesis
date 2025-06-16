@@ -24,9 +24,31 @@ import { HelmetProvider } from 'react-helmet-async';
 import ProtectedRoute from "./components/ProtectedRoute.jsx"; // importa el protector
 import LibraryBooks from "./components/Library/ShowBooks.jsx";
 import ViewLibrary from "./components/Library/ViewLibrary/ViewLibrary.jsx";
+import { useLocation } from "react-router-dom";
+
+import GoogleCallback from './pages/GoogleCallback';
+
 
 const App = () => {
+
   const [orderPopup, setOrderPopup] = React.useState(false);
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
+
+    if (token) {
+      console.log("Token capturado desde la URL:", token);
+
+      // Opcional: Guarda el token en localStorage o en tu contexto global
+      localStorage.setItem("authToken", token);
+
+      // Limpia la URL para que no quede visible el token
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, [location]);
+
 
   const handleOrderPopup = () => {
     setOrderPopup(!orderPopup);
@@ -113,7 +135,8 @@ const App = () => {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/user" element={<User />} />
-
+        <Route path="/google-callback" element={<GoogleCallback />} />
+        
       </Routes>
     </div>
   );

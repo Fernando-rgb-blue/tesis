@@ -52,6 +52,7 @@ export const LockIcon = (props) => {
 
 
 const SignIn = () => {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
@@ -94,91 +95,105 @@ const SignIn = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+  };
+
 
   return (
 
-      
-      <div className="mt-[4cm] flex flex-col md:flex-row bg-slate-50 dark:bg-stone-900 p-6 sm:p-8 rounded-lg shadow-md w-full max-w-[85rem] mx-auto overflow-y-auto max-h-[100vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 justify-center bg-gradient-to-br">
 
+    <div className="mt-[4cm] flex flex-col md:flex-row bg-slate-50 dark:bg-stone-900 p-6 sm:p-8 rounded-lg shadow-md w-full max-w-[85rem] mx-auto overflow-y-auto max-h-[100vh] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 justify-center bg-gradient-to-br">
 
-        <div className="hidden md:flex md:w-1/2 items-center justify-center dark:bg-transparent p-4">
-          <img
-            src={BookDefault}
-            alt="Login"
-            className="max-h-72 object-contain"
-          />
-        </div>
-
-        <div className="w-full md:w-1/2 p-8 bg-transparent dark:bg-stone-900 ">
-          {/* Título separado abajo con mb-20 (5rem = 80px aprox) */}
-          <h2 className="text-3xl font-bold text-black-300 mb-20 text-center">
-            Inicia sesión
-          </h2>
-
-          <form onSubmit={handleSubmit}>
-            {/* Cada input con mb-20 para separar 2cm aprox */}
-            <div className="mb-10">
-              <Input
-                label="Email"
-                labelPlacement="outside"
-                placeholder="Correo del usaurio"
-                startContent={
-                  <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="mb-10">
-              <Input
-                label="Contraseña"
-                labelPlacement="outside"
-                placeholder="Ingrese su contraseña"
-                startContent={
-                  <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-
-            {/* Checkbox con margen abajo para separar también */}
-            <div className="flex items-center space-x-2 mb-10">
-              <input
-                id="remember"
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="form-checkbox h-4 w-4 text-black-400"
-              />
-              <label htmlFor="remember" className="text-gray-600 text-sm select-none">
-                ¿Mantener sesión iniciada?
-              </label>
-            </div>
-
-            <Button type="submit" color="success" fullWidth>
-              Iniciar sesión
-            </Button>
-          </form>
-
-          <p className="mt-4 text-center text-sm">
-            ¿No tienes cuenta?{' '}
-            <Link to="/signup" className="text-black-600 font-semibold hover:underline">
-              Regístrate
-            </Link>
-          </p>
-        </div>
-
-
+      <div className="hidden md:flex md:w-1/2 items-center justify-center dark:bg-transparent p-4">
+        <img
+          src={BookDefault}
+          alt="Login"
+          className="max-h-72 object-contain"
+        />
       </div>
 
+      <div className="w-full md:w-1/2 p-8 bg-transparent dark:bg-stone-900 ">
+        {/* Título separado abajo con mb-20 (5rem = 80px aprox) */}
+        <h2 className="text-3xl font-bold text-black-300 mb-20 text-center">
+          Inicia sesión
+        </h2>
+
+        <form onSubmit={handleSubmit}>
+          {/* Cada input con mb-20 para separar 2cm aprox */}
+          <div className="mb-10">
+            <Input
+              label="Email"
+              labelPlacement="outside"
+              placeholder="Correo del usaurio"
+              startContent={
+                <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+              }
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="mb-10">
+            <Input
+              label="Contraseña"
+              labelPlacement="outside"
+              placeholder="Ingrese su contraseña"
+              startContent={
+                <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+              }
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Checkbox con margen abajo para separar también */}
+          <div className="flex items-center space-x-2 mb-10">
+            <input
+              id="remember"
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="form-checkbox h-4 w-4 text-black-400"
+            />
+            <label htmlFor="remember" className="text-gray-600 text-sm select-none">
+              ¿Mantener sesión iniciada?
+            </label>
+          </div>
+
+          <Button type="submit" color="success" fullWidth>
+            Iniciar sesión
+          </Button>
+
+          {/* Botón de Google */}
+          <Button
+            onClick={handleGoogleLogin}
+            color="primary"
+            fullWidth
+            variant="bordered"
+          >
+            Iniciar sesión con Google
+          </Button>
+          
+        </form>
+
+        <p className="mt-4 text-center text-sm">
+          ¿No tienes cuenta?{' '}
+          <Link to="/signup" className="text-black-600 font-semibold hover:underline">
+            Regístrate
+          </Link>
+        </p>
+      </div>
+
+
+    </div>
+
   );
-  
+
 };
 
 export default SignIn;

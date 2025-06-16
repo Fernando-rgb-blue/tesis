@@ -19,7 +19,8 @@ use App\Models\Prestamo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Psy\VarDumper\Presenter;
-
+use App\Http\Controllers\Api\GoogleAuthController;
+use Laravel\Socialite\Facades\Socialite;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,6 +31,48 @@ use Psy\VarDumper\Presenter;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::get('/auth/google/redirect', function () {
+    $redirectUrl = Socialite::driver('google')
+        ->stateless()
+        ->redirect()
+        ->getTargetUrl();
+
+    return redirect($redirectUrl);
+});
+
+Route::get('/auth/google/callback', function () {
+    try {
+        $googleUser = Socialite::driver('google')->stateless()->user();
+
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'name' => $googleUser->getName() ?? 'Usuario Google',
+                'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
+                'dni' => null,
+                'domicilio' => null,
+                'telefono' => null,
+                'fechanacimiento' => null,
+                'tipousuario' => null,
+                'estadousuario' => null,
+                'turno' => null,
+                'codigouniversitario' => 1052700320 // Puedes generarlo dinámicamente si lo necesitas
+            ]
+        );
+
+        $token = $user->createToken('token')->plainTextToken;
+
+        return redirect("http://localhost:5173/google-callback?token={$token}");
+    } catch (\Exception $e) {
+        return redirect("http://localhost:5173/login?error=" . urlencode($e->getMessage()));
+    }
+});
+
+
+// Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.redirect');
+// Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('google.callback');
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -120,9 +163,14 @@ Route::controller(FotoEjemplarController::class)->group(function () {
 
 // SESION 
 
+Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
+    return response()->json($request->user());
+});
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::put('/usersupdate/{id}', [AuthController::class, 'update']);  // <-- Aquí sin middleware
+Route::post('/auth/google', [AuthController::class, 'loginWithGoogle']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'userProfile']);

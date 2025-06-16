@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -140,4 +142,43 @@ class AuthController extends Controller
             'user' => $user
         ], Response::HTTP_OK);
     }
+
+
+    public function loginWithGoogle(Request $request)
+    {
+        $accessToken = $request->input('access_token');
+
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->userFromToken($accessToken);
+
+            $user = User::firstOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'name' => $googleUser->getName() ?? 'Usuario Google',
+                    'password' => Hash::make(Str::random(16)), // Contraseña dummy
+                    'dni' => null,
+                    'domicilio' => null,
+                    'telefono' => null,
+                    'fechanacimiento' => null,
+                    'tipousuario' => 'Alumno(a)',
+                    'estadousuario' => 'Activo',
+                    'turno' => null,
+                ]
+            );
+
+            $token = $user->createToken('token')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Login con Google exitoso',
+                'user' => $user,
+                'token' => $token
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Token inválido o error de autenticación con Google',
+                'error' => $e->getMessage()
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+    }
+    
 }

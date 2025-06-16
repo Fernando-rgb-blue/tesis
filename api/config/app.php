@@ -15,6 +15,7 @@ return [
     | any other location as required by the application or its packages.
     |
     */
+    
 
     'name' => env('APP_NAME', 'Laravel'),
 
@@ -184,5 +185,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
+
+
 
 ];
